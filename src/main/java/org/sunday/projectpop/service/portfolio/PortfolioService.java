@@ -1,7 +1,13 @@
 package org.sunday.projectpop.service.portfolio;
 
+import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
+import org.sunday.projectpop.model.entity.Portfolio;
+
+import java.util.List;
 
 public interface PortfolioService {
     void createPortfolio(String userId, PortfolioCreateRequest request);
+
+    List<Portfolio> getMyPortfolios(String userId) throws PortfolioNotFoundException;
 }
