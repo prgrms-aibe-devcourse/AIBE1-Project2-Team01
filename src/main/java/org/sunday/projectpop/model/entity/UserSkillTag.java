@@ -3,12 +3,10 @@ package org.sunday.projectpop.model.entity;
 import jakarta.persistence.*;
 import lombok.Data;
 
-
-
 @Entity
-@Table(name = "user_tag", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "tag_id"}))
+@Table(name = "user_skill_tag", uniqueConstraints = @UniqueConstraint(columnNames = {"user_id", "tag_id"}))
 @Data
-public class UserTag {
+public class UserSkillTag {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,5 +18,5 @@ public class UserTag {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
-    private Tag tag;
+    private SkillTag tag;
 }
