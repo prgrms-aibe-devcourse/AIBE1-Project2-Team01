@@ -4,8 +4,8 @@ import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
+import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 
@@ -40,7 +40,17 @@ public class PortfolioRestController {
                 .build();
     }
 
-    // TODO: 포트폴리오 상세 조회
+    // 포트폴리오 상세 조회
+    // TODO: 회고 column 추가해서 보이기
+    @GetMapping("/{portfolioId}")
+    public ResponseEntity<PortfolioResponse> getPortfolio(@PathVariable String portfolioId) {
+        PortfolioResponse response = portfolioService.getPortfolio(portfolioId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
+
+
     // TODO: 포트폴리오 수정
     // TODO: 포트폴리오 삭제
     // TODO: 포트폴리오에 대한 개인 생각 조회 (all)

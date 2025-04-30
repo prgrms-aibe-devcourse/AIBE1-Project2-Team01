@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
+import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 
@@ -43,6 +44,21 @@ public class PortfolioServiceImpl implements PortfolioService {
             throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
         }
         return portfolios;
+    }
+
+    @Override
+    public PortfolioResponse getPortfolio(String portfolioId) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+
+        return new PortfolioResponse(
+                portfolio.getPortfolioId(),
+                portfolio.getPortfolioType(),
+                portfolio.getUrl(),
+                portfolio.getDescription(),
+                portfolio.getCreatedAt().toString()
+        );
+
     }
 }
 
