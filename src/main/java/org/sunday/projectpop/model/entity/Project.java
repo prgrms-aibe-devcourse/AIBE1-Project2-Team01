@@ -25,6 +25,16 @@ public class Project {
     @JoinColumn(name = "user_id", nullable = false)
     private UserAccount leader;
 
+    @Column(length = 50, nullable = false)
+    private String type; // 예: "PROJECT", "COMPETITION" (프론트에서 제한)
+
+    @Column(name = "status", length = 50)
+    private String status = "모집중"; // 모집중, 진행중, 완료 등 (프론트 제한)
+
+    @Column(name = "generated_by_ai")
+    private Boolean generatedByAi = false;
+
+
     @Column(length = 50)
     private String field;  // ENUM 제거, 프론트 제한
 

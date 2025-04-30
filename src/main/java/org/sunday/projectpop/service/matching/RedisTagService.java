@@ -17,7 +17,7 @@ public class RedisTagService {
     private final UserSkillTagRepository userSkillTagRepository;
 
 
-    //레디스 기반 맵
+    // 레디스 기반 맵
     private final RedisTemplate<String,String> redis;
     // 레디스 tag 맵에 user 추가
     public void addUserToTag(@Param("userId")String userId,@Param("tagId")Long tagId){
@@ -61,4 +61,8 @@ public class RedisTagService {
 
         return memberSet;
     }
+
+
+    // 성향 맵 구성
+
 }
