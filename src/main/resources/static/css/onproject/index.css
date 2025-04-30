@@ -1,0 +1,30 @@
+:where([class~="bg-white"]):where([class~="rounded-lg"]):where([class~="p-5"]):where([class~="shadow-sm"]) {
+    background-color: #ffffff;
+    border-radius: 0.5rem; /* Equivalent to rounded-lg */
+    padding: 1.25rem; /* Equivalent to p-5 */
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05); /* Basic shadow, adjust as needed */
+}
+
+:where([class~="flex"]):where([class~="justify-between"]):where([class~="items-center"]):where([class~="mb-4"]) {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem; /* Equivalent to mb-4 */
+}
+
+:where([class~="font-medium"]) {
+    font-weight: 500;
+}
+
+:where([class~="text-xs"]):where([class~="text-primary"]):where([class~="px-3"]):where([class~="py-1"]):where([class~="rounded-button"]):where([class~="border"]):where([class~="border-primary"]):where([class~="whitespace-nowrap"]) {
+    font-size: 0.75rem; /* Equivalent to text-xs */
+    color: #A855F7; /* Equivalent to text-primary (assuming this is the primary color) */
+    padding-left: 0.75rem; /* Equivalent to px-3 */
+    padding-right: 0.75rem; /* Equivalent to px-3 */
+    padding-top: 0.25rem; /* Equivalent to py-1 */
+    padding-bottom: 0.25rem; /* Equivalent to py-1 */
+    border-radius: 0.375rem; /* Assuming a standard rounded button */
+    border-width: 1px; /* Equivalent to border */
+    border-color: #A855F7; /* Equivalent to border-primary */
+    white-space: nowrap;
+}
