@@ -1,4 +1,4 @@
-package your.package.entity; // 실제 프로젝트의 패키지 구조에 맞게 변경
+package org.sunday.projectpop.model.entity; // 'package'를 'pkg'로 변경
 //
 import jakarta.persistence.*;
 import lombok.Data;
@@ -15,8 +15,8 @@ public class Specification {
     @Column(name = "specification_id")
     private Long specificationId;
 
-    @Column(name = "project_id", nullable = false)
-    private Long projectId;
+    @Column(name = "ongoging_project_id", nullable = false)
+    private Long onGoingProjectId;
 
     @Column(name = "requirement", nullable = false, columnDefinition = "TEXT")
     private String requirement;
