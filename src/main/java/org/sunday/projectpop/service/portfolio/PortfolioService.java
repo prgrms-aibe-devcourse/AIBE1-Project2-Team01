@@ -13,4 +13,8 @@ public interface PortfolioService {
     List<Portfolio> getMyPortfolios(String userId) throws PortfolioNotFoundException;
 
     PortfolioResponse getPortfolio(String portfolioId);
+
+    void updatePortfolio(String userId, String portfolioId, PortfolioCreateRequest request);
+
+    void deletePortfolio(String userId, String portfolioId);
 }

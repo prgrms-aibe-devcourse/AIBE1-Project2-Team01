@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.portfolio;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
+import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
 import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
@@ -59,6 +60,33 @@ public class PortfolioServiceImpl implements PortfolioService {
                 portfolio.getCreatedAt().toString()
         );
 
+    }
+
+    @Override
+    public void updatePortfolio(String userId, String portfolioId, PortfolioCreateRequest request) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+
+        if (!portfolio.getUserId().equals(userId)) {
+            throw new UnauthorizedException("해당 포트폴리오를 수정할 권한이 없습니다.");
+        }
+
+        portfolio.setPortfolioType(request.portfolioType());
+        portfolio.setUrl(request.url());
+        portfolio.setDescription(request.description());
+        portfolioRepository.save(portfolio);
+    }
+
+    @Override
+    public void deletePortfolio(String userId, String portfolioId) {
+        Portfolio portfolio = portfolioRepository.findById(portfolioId)
+                .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+
+        if (!portfolio.getUserId().equals(userId)) {
+            throw new UnauthorizedException("해당 포트폴리오를 삭제할 권한이 없습니다.");
+        }
+
+        portfolioRepository.delete(portfolio);
     }
 }
 

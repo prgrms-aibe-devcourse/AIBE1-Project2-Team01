@@ -50,9 +50,28 @@ public class PortfolioRestController {
                 .body(response);
     }
 
+    // 포트폴리오 수정
+    @PutMapping("/{portfolioId}")
+    public ResponseEntity<Void> updatePortfolio(@PathVariable String portfolioId,
+                                                @Valid @RequestBody PortfolioCreateRequest request) {
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        portfolioService.updatePortfolio(userId, portfolioId, request);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
 
-    // TODO: 포트폴리오 수정
-    // TODO: 포트폴리오 삭제
+    // 포트폴리오 삭제
+    @DeleteMapping("/{portfolioId}")
+    public ResponseEntity<Void> deletePortfolio(@PathVariable String portfolioId) {
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        portfolioService.deletePortfolio(userId, portfolioId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+
     // TODO: 포트폴리오에 대한 개인 생각 조회 (all)
     // TODO: 포트폴리오에 대한 개인 생각 상세
     // TODO: 포트폴리오에 대한 개인 생각 등록
