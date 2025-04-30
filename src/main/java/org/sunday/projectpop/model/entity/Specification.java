@@ -1,5 +1,5 @@
 package your.package.entity; // 실제 프로젝트의 패키지 구조에 맞게 변경
-
+//
 import jakarta.persistence.*;
 import lombok.Data;
 import java.time.LocalDate;
