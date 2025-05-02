@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
 import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.dto.PortfolioRetrospectiveRequest;
+import org.sunday.projectpop.model.dto.PortfolioRetrospectiveResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 import org.sunday.projectpop.service.portfolio.RetrospectiveService;
@@ -88,10 +89,19 @@ public class PortfolioRestController {
                 .build();
     }
 
+    // 포트폴리오에 대한 회고 상세
+    @GetMapping("/{portfolioId}/retrospectives/{retrospectiveId}")
+    public ResponseEntity<PortfolioRetrospectiveResponse> getRetrospective(
+            @PathVariable String portfolioId,
+            @PathVariable String retrospectiveId) {
+       PortfolioRetrospectiveResponse response = retrospectiveService.getRetrospective(portfolioId, retrospectiveId);
 
-    // TODO: 포트폴리오에 대한 개인 생각 상세
+       return ResponseEntity
+               .status(HttpStatus.OK)
+               .body(response);
+    }
 
 
-    // TODO: 포트폴리오에 대한 개인 생각 수정
-    // TODO: 포트폴리오에 대한 개인 생각 삭제
+    // TODO: 포트폴리오에 대한 회고 수정
+    // TODO: 포트폴리오에 대한 회고 삭제
 }
