@@ -1,11 +1,14 @@
 package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
 import lombok.Data;
 import org.sunday.projectpop.model.enums.PortfoliosType;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Entity
 @Data
@@ -21,17 +24,24 @@ public class Portfolio {
     private PortfoliosType portfolioType;
 
     @Column(nullable = false)
-    private String url;
+    private String title;
 
     @Column(length = 2000, nullable = false)
     private String description;
 
     private ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
 
-    @Column(nullable = false)
-    private boolean fromHere;
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioFile> files = new ArrayList<>();
 
-    private String linkedProjectId;
+    @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioUrl> urls = new ArrayList<>();
+
+
+//    @Column(nullable = false)
+//    private boolean fromHere;
+
+//    private String linkedProjectId;
 
 //    @ManyToOne(fetch = FetchType.LAZY)
 //    @JoinColumn(name = "linked_project_id")
