@@ -5,6 +5,8 @@ import lombok.Data;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
+import java.util.ArrayList;
+import java.util.List;
 
 @Data
 @Entity
@@ -13,8 +15,9 @@ public class PortfolioNote {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @Column(nullable = false)
-    private String portfolioId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "portfolio_id", nullable = false)
+    private Portfolio portfolio;
 
     @Column(nullable = false)
     private String userId;
@@ -23,4 +26,7 @@ public class PortfolioNote {
     private String content;
 
     private ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+
+    @OneToMany(mappedBy = "portfolioNote", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<PortfolioNoteFile> files = new ArrayList<>();
 }

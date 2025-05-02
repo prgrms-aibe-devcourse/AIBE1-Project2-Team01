@@ -11,10 +11,10 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class PortfolioFile {
+public class PortfolioNoteFile {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long portfolioFileId;
+    private Long portfolioNoteFileId;
 
     private String originalFilename;
     @Lob
@@ -22,8 +22,8 @@ public class PortfolioFile {
     private String storedFilename; // 삭제를 위한
     private String fileType;
 
-    @ManyToOne
-    @JoinColumn(name = "portfolio_id")
-    private Portfolio portfolio;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "portfolio_note_id", nullable = false)
+    private PortfolioNote portfolioNote;
 }
 

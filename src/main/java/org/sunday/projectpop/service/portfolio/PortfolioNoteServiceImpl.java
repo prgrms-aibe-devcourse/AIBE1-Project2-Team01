@@ -28,7 +28,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         }
 
         PortfolioNote note = new PortfolioNote();
-        note.setPortfolioId(portfolioId);
+        note.setPortfolio(portfolio);
         note.setUserId(portfolio.getUserId());
         note.setContent(request.content());
         noteRepository.save(note);
@@ -40,15 +40,16 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                 () -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
         PortfolioNote note = noteRepository.findById(Long.valueOf(retrospectiveId)).orElseThrow(
                 () -> new PortfolioNoteNotFound("해당 회고를 찾을 수 없습니다."));
-        if (!note.getPortfolioId().equals(portfolioId)) {
-            throw new UnauthorizedException("해당 회고는 이 포트폴리오에 속하지 않습니다.");
-        }
+//        if (!note.getPortfolioId().equals(portfolioId)) {
+//            throw new UnauthorizedException("해당 회고는 이 포트폴리오에 속하지 않습니다.");
+//        }
 
-        return new PortfolioNoteResponse(
-                note.getId(),
-                note.getPortfolioId(),
-                note.getContent(),
-                note.getCreatedAt().toString()
-        );
+        return null;
+//        return new PortfolioNoteResponse(
+//                note.getId(),
+//                note.getPortfolio(),
+//                note.getContent(),
+//                note.getCreatedAt().toString()
+//        );
     }
 }
