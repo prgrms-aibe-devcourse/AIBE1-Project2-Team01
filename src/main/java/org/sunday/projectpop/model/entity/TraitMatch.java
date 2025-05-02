@@ -1,6 +1,7 @@
 package org.sunday.projectpop.model.entity;
 
 
+import com.fasterxml.jackson.databind.ser.std.StdKeySerializers;
 import jakarta.persistence.*;
 import lombok.Data;
 
@@ -9,15 +10,29 @@ import lombok.Data;
 @Data
 public class TraitMatch {
     @Id
-    @GeneratedValue
-    private Long id;
+    @Column(name = "leader_ocean_key", length = 5)
+    private String leaderOceanKey;  // 예: "13245"
 
     @Column(nullable = false)
-    private String traitType;  // "O", "C", "E", "A", "N"
+    private double openness;
+// update rule 별점 star에 대해 h=0.01*star 항목별로 기존 값 *(1-h)+ 새값*h
 
     @Column(nullable = false)
-    private int leaderValue;   // 1~5
+    private double conscientiousness;
 
     @Column(nullable = false)
-    private int followerValue; // 1~5
+    private double extraversion;
+
+    @Column(nullable = false)
+    private double agreeableness;
+
+    @Column(nullable = false)
+    private double neuroticism;
+
+    @Column(nullable = false)
+    private int updated =1;
+
+    @Column(nullable = false)
+    private int base =5;
+
 }

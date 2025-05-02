@@ -15,4 +15,5 @@ public interface ProjectRequireTagRepository extends JpaRepository<ProjectRequir
     WHERE prt.project.projectId = :projectId
     """)
     List<Long> findTagIdsByProjectId(@Param("projectId") String projectId);
+
 }

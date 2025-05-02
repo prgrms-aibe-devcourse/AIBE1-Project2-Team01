@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 매칭</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body class="bg-white min-h-screen">
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100">
+    <div class="text-xl font-bold text-primary">PoP</div>
+    <nav class="flex gap-4">
+        <a href="#" class="text-sm text-gray-700">대시보드</a>
+        <a href="#" class="text-sm text-gray-700">로그아웃</a>
+    </nav>
+</header>
+
+<main class="max-w-6xl mx-auto px-4 py-8">
+    <!-- 프로젝트 정보 및 태그 -->
+    <section class="mb-6">
+        <h1 class="text-2xl font-semibold text-gray-800 mb-2">[프로젝트 제목]</h1>
+        <p class="text-sm text-gray-600 mb-2">설명: 프로젝트에 대한 간단한 소개가 들어갑니다.</p>
+        <div class="flex flex-wrap gap-2">
+            <!-- 태그들 -->
+            <span class="bg-purple-100 text-primary text-sm px-3 py-1 rounded-full">React</span>
+            <span class="bg-purple-100 text-primary text-sm px-3 py-1 rounded-full">Spring Boot</span>
+            <span class="bg-purple-100 text-primary text-sm px-3 py-1 rounded-full">MySQL</span>
+        </div>
+        <button class="mt-4 bg-primary text-white px-4 py-2 rounded" id="searchButton">태그 기반 검색</button>
+    </section>
+
+    <!-- 매칭 결과 -->
+    <section class="mb-8">
+        <h2 class="text-xl font-bold mb-4">매칭된 유저 목록</h2>
+        <div class="border rounded-md overflow-hidden divide-y" id="matchedList">
+            <!-- 각 유저 -->
+            <div class="flex items-center justify-between px-4 py-3">
+                <div class="flex items-center gap-4">
+                    <input type="checkbox" class="form-checkbox text-primary" />
+                    <div>
+                        <p class="font-semibold">홍길동</p>
+                        <p class="text-sm text-gray-500">React / 3년차</p>
+                    </div>
+                </div>
+                <button class="text-sm text-primary underline" onclick="openProfileModal()">프로필 보기</button>
+            </div>
+            <!-- 반복될 항목들 -->
+        </div>
+        <button class="mt-4 bg-primary text-white px-5 py-2 rounded">선택 유저에게 제안하기</button>
+    </section>
+</main>
+
+<!-- 모달 -->
+<div id="profileModal" class="fixed inset-0 bg-black bg-opacity-40 flex items-center justify-center hidden">
+    <div class="bg-white w-full max-w-md rounded-lg p-6">
+        <h3 class="text-lg font-bold mb-2">홍길동</h3>
+        <p class="text-sm mb-1">나이: 25</p>
+        <p class="text-sm mb-1">기술: React, Spring</p>
+        <p class="text-sm mb-1">레벨: 중급</p>
+        <p class="text-sm mb-1">성향: O:3 C:4 E:2 A:5 N:1</p>
+        <div class="flex justify-end mt-4">
+            <button class="px-4 py-2 text-sm text-gray-600" onclick="closeProfileModal()">닫기</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openProfileModal() {
+        document.getElementById('profileModal').classList.remove('hidden');
+    }
+
+    function closeProfileModal() {
+        document.getElementById('profileModal').classList.add('hidden');
+    }
+</script>
+</body>
+</html>

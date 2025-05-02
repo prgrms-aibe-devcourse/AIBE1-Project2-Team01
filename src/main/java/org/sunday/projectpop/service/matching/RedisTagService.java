@@ -11,6 +11,13 @@ import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Set;
 
+
+/**
+ * Redis 기반
+ * user에게 tag 추가
+ * user에게 tag 제거
+ * 일치하는 tag set*/
+
 @Service
 @RequiredArgsConstructor
 public class RedisTagService {
@@ -32,7 +39,8 @@ public class RedisTagService {
     public void removeUserFromTag(@Param("userId")String userId,@Param("tagId")Long tagId){
         redis.opsForSet().remove("tag:"+tagId,userId);
     }
-    // 일치하는 user 출력
+
+    // 일치하는 user set
     public HashSet<String> getRequireMatching(List<Long> requireList){
 
         if (requireList == null || requireList.isEmpty()) {
