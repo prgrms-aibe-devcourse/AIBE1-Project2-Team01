@@ -6,6 +6,7 @@ import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.sunday.projectpop.exceptions.FileManagementException;
 
 import java.io.IOException;
 import java.net.URI;
@@ -48,7 +49,7 @@ public class FileStorageServiceImpl implements FileStorageService {
 
         log.info(String.valueOf(response.statusCode()));
         if (response.statusCode() != 200) {
-            throw new Exception("파일 삭제 실패: " + response.body());
+            throw new FileManagementException("파일 삭제 실패: " + response.body());
         }
         log.info("파일 삭제 성공: " + filename);
     }
@@ -68,7 +69,7 @@ public class FileStorageServiceImpl implements FileStorageService {
                 .build();
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
         if (response.statusCode() != 200) {
-            throw new Exception(response.body());
+            throw new FileManagementException("파일 업로드 실패: " + response.body());
         }
 //        log.info("filename: " + filename);
         return filename;
@@ -103,7 +104,7 @@ public class FileStorageServiceImpl implements FileStorageService {
         HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
 
         if (response.statusCode() != 200) {
-            throw new RuntimeException(response.body());
+            throw new FileManagementException("파일 URL 생성 실패: " + response.body());
         }
         ObjectMapper mapper = new ObjectMapper();
         JsonNode jsonNode = mapper.readTree(response.body());

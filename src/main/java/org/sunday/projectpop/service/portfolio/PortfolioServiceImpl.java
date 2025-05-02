@@ -4,7 +4,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.sunday.projectpop.exceptions.FileUploadFailureException;
+import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.FileResponse;
@@ -63,7 +63,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                         map = fileStorageService.uploadAndGenerateSignedUrl(file, 3600);
                     } catch (Exception e) {
                         log.severe(e.getMessage());
-                        throw new FileUploadFailureException("파일 업로드에 실패했습니다.");
+                        throw new FileManagementException("파일 업로드에 실패했습니다.");
                     }
 
                     return PortfolioFile.builder()
@@ -162,7 +162,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                     portfolio.getFiles().add(portfolioFile);
                 } catch (Exception e) {
                     log.severe(e.getMessage());
-                    throw new FileUploadFailureException("파일 업로드에 실패했습니다.");
+                    throw new FileManagementException("파일 업로드에 실패했습니다.");
                 }
             }
         }
@@ -206,6 +206,17 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         if (!portfolio.getUserId().equals(userId)) {
             throw new UnauthorizedException("해당 포트폴리오를 삭제할 권한이 없습니다.");
+        }
+
+        // 스토리지에서 파일 삭제
+        if (portfolio.getFiles() != null) {
+            for (PortfolioFile file : portfolio.getFiles()) {
+                try {
+                    fileStorageService.deleteFile(file.getStoredFilename());
+                } catch (Exception e) {
+                    throw new FileManagementException("파일 삭제에 실패했습니다. " + e.getMessage());
+                }
+            }
         }
 
         portfolioRepository.delete(portfolio);
