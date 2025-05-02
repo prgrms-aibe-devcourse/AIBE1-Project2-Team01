@@ -1,6 +1,6 @@
 package org.sunday.projectpop.model.dto;
 
-public record PortfolioRetrospectiveResponse(
+public record PortfolioNoteResponse(
         Long id,
         String portfolioId,
 //        String userId,

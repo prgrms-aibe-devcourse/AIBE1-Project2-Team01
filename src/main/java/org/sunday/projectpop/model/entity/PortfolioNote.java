@@ -8,7 +8,7 @@ import java.time.ZonedDateTime;
 
 @Data
 @Entity
-public class PortfolioRetrospective {
+public class PortfolioNote {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;

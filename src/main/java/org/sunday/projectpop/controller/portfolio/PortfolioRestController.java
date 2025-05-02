@@ -1,7 +1,5 @@
 package org.sunday.projectpop.controller.portfolio;
 
-import io.swagger.v3.oas.annotations.Parameter;
-import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -12,7 +10,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
-import org.sunday.projectpop.service.portfolio.RetrospectiveService;
+import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 
 import java.util.List;
 
@@ -22,7 +20,7 @@ import java.util.List;
 public class PortfolioRestController {
 
     private final PortfolioService portfolioService;
-    private final RetrospectiveService retrospectiveService;
+    private final PortfolioNoteService noteService;
 
     // TODO: 내 포트폴리오 조회 (all)
     @GetMapping("/me")
@@ -85,12 +83,12 @@ public class PortfolioRestController {
     // TODO: 포트폴리오에 대한 개인 생각 조회 (all)
 
     // 포트폴리오에 대한 개인 생각(회고) 등록
-    @PostMapping("/{portfolioId}/retrospectives")
-    public ResponseEntity<Void> addPortfolioRetrospective(
+    @PostMapping("/{portfolioId}/note")
+    public ResponseEntity<Void> addPortfolioNote(
             @PathVariable String portfolioId,
-            @Valid @RequestBody PortfolioRetrospectiveRequest request) {
+            @Valid @RequestBody PortfolioNoteRequest request) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        retrospectiveService.addRetrospective(portfolioId, userId, request);
+        noteService.createNote(portfolioId, userId, request);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
@@ -98,11 +96,11 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오에 대한 회고 상세
-    @GetMapping("/{portfolioId}/retrospectives/{retrospectiveId}")
-    public ResponseEntity<PortfolioRetrospectiveResponse> getRetrospective(
+    @GetMapping("/{portfolioId}/note/{noteId}")
+    public ResponseEntity<PortfolioNoteResponse> getRetrospective(
             @PathVariable String portfolioId,
-            @PathVariable String retrospectiveId) {
-       PortfolioRetrospectiveResponse response = retrospectiveService.getRetrospective(portfolioId, retrospectiveId);
+            @PathVariable String noteId) {
+       PortfolioNoteResponse response = noteService.getNote(portfolioId, noteId);
 
        return ResponseEntity
                .status(HttpStatus.OK)

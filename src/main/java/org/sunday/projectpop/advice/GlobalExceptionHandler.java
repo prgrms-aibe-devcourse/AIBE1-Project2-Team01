@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
-import org.sunday.projectpop.exceptions.RetrospectiveNotFound;
+import org.sunday.projectpop.exceptions.PortfolioNoteNotFound;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 
 import java.util.HashMap;
@@ -35,8 +35,8 @@ public class GlobalExceptionHandler {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.FORBIDDEN);
     }
 
-    @ExceptionHandler(RetrospectiveNotFound.class)
-    public ResponseEntity<String> handleRetrospectiveNotFound(RetrospectiveNotFound ex) {
+    @ExceptionHandler(PortfolioNoteNotFound.class)
+    public ResponseEntity<String> handlePortfolioNoteNotFound(PortfolioNoteNotFound ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
     }
 
