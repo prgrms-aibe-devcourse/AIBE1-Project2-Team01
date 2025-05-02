@@ -9,10 +9,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
-import org.sunday.projectpop.model.dto.PortfolioResponse;
-import org.sunday.projectpop.model.dto.PortfolioRetrospectiveRequest;
-import org.sunday.projectpop.model.dto.PortfolioRetrospectiveResponse;
+import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 import org.sunday.projectpop.service.portfolio.RetrospectiveService;
@@ -62,10 +59,14 @@ public class PortfolioRestController {
 
     // 포트폴리오 수정
     @PutMapping("/{portfolioId}")
-    public ResponseEntity<Void> updatePortfolio(@PathVariable String portfolioId,
-                                                @Valid @RequestBody PortfolioCreateRequest request) {
+    public ResponseEntity<Void> updatePortfolio(
+            @PathVariable String portfolioId,
+            @Valid @RequestPart("request") PortfolioUpdateRequest request,
+            @RequestPart(value = "newFiles", required = false) List<MultipartFile> newFiles
+
+    ) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioService.updatePortfolio(userId, portfolioId, request);
+        portfolioService.updatePortfolio(userId, portfolioId, request, newFiles);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();

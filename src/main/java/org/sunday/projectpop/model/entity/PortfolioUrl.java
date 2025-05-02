@@ -15,7 +15,7 @@ import lombok.Setter;
 public class PortfolioUrl {
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long portfolioFileId;
+    private Long portfolioUrlId;
 
     private String url;
 //    private String description;

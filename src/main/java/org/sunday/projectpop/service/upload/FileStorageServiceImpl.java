@@ -12,9 +12,7 @@ import java.net.URI;
 import java.net.http.HttpClient;
 import java.net.http.HttpRequest;
 import java.net.http.HttpResponse;
-import java.util.List;
-import java.util.Objects;
-import java.util.UUID;
+import java.util.*;
 
 @Service
 @Log
@@ -30,9 +28,29 @@ public class FileStorageServiceImpl implements FileStorageService {
     private String bucketName;
 
     @Override
-    public String uploadAndGenerateSignedUrl(MultipartFile file, int expirationSeconds) throws Exception {
+    public Map<String, String> uploadAndGenerateSignedUrl(MultipartFile file, int expirationSeconds) throws Exception {
         String filename = upload(file);
-        return generateSignedUrl(filename, expirationSeconds);
+        Map<String, String> result = new HashMap<>();
+        result.put("filename", filename);
+        result.put("signedUrl", generateSignedUrl(filename, expirationSeconds));
+        return result;
+    }
+
+    @Override
+    public void deleteFile(String filename) throws Exception {
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("%s/storage/v1/object/%s/%s"
+                        .formatted(url, bucketName, filename)))
+                .header("Authorization", "Bearer %s".formatted(accessKey))
+                .DELETE()
+                .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        log.info(String.valueOf(response.statusCode()));
+        if (response.statusCode() != 200) {
+            throw new Exception("파일 삭제 실패: " + response.body());
+        }
+        log.info("파일 삭제 성공: " + filename);
     }
 
     private String upload(MultipartFile file) throws Exception {
