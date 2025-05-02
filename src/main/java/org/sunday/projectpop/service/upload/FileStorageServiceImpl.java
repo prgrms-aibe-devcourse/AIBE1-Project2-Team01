@@ -1,0 +1,97 @@
+package org.sunday.projectpop.service.upload;
+
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import lombok.extern.java.Log;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+
+import java.io.IOException;
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
+import java.util.List;
+import java.util.Objects;
+import java.util.UUID;
+
+@Service
+@Log
+public class FileStorageServiceImpl implements FileStorageService {
+
+    @Value("${supabase.url}")
+    private String url;
+
+    @Value("${supabase.access-key}")
+    private String accessKey;
+
+    @Value("${supabase.bucket-name}")
+    private String bucketName;
+
+    @Override
+    public String uploadAndGenerateSignedUrl(MultipartFile file, int expirationSeconds) throws Exception {
+        String filename = upload(file);
+        return generateSignedUrl(filename, expirationSeconds);
+    }
+
+    private String upload(MultipartFile file) throws Exception {
+        String uuid = UUID.randomUUID().toString();
+        String originalFilename = file.getOriginalFilename();
+        String extension = Objects.requireNonNull(originalFilename).substring(originalFilename.lastIndexOf(".") + 1);
+        String boundary = "Boundary-%s".formatted(uuid);
+        String filename = "%s.%s".formatted(uuid, extension);
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("%s/storage/v1/object/%s/%s"
+                        .formatted(url, bucketName, filename)))
+                .header("Authorization", "Bearer %s".formatted(accessKey))
+                .header("Content-Type", "multipart/form-data; boundary=%s".formatted(boundary))
+                .POST(ofMimeMultipartData(file, boundary))
+                .build();
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+        if (response.statusCode() != 200) {
+            throw new Exception(response.body());
+        }
+//        log.info("filename: " + filename);
+        return filename;
+    }
+
+    private HttpRequest.BodyPublisher ofMimeMultipartData(MultipartFile file, String boundary) throws IOException {
+        List<byte[]> byteArrays = List.of(
+                ("--" + boundary + "\r\n" +
+                        "Content-Disposition: form-data; name=\"file\"; filename=\"" + file.getOriginalFilename() + "\"\r\n" +
+                        "Content-Type: " + file.getContentType() + "\r\n\r\n").getBytes(),
+                file.getBytes(),
+                ("\r\n--" + boundary + "--\r\n").getBytes()
+        );
+        return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
+    }
+
+    private String generateSignedUrl(String filename, int expirationSeconds) throws IOException, InterruptedException {
+        String jsonBody = """
+                {
+                    "expiresIn": %d
+                }
+                """.formatted(expirationSeconds);
+
+        HttpRequest request = HttpRequest.newBuilder()
+                .uri(URI.create("%s/storage/v1/object/sign/%s/%s"
+                        .formatted(url, bucketName, filename)))
+                .header("Authorization", "Bearer %s".formatted(accessKey))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(jsonBody))
+                .build();
+
+        HttpResponse<String> response = HttpClient.newHttpClient().send(request, HttpResponse.BodyHandlers.ofString());
+
+        if (response.statusCode() != 200) {
+            throw new RuntimeException(response.body());
+        }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode jsonNode = mapper.readTree(response.body());
+        String signedURL = jsonNode.get("signedURL").asText();
+        log.info("signedUrl: " + signedURL);
+        return "%s/storage/v1%s".formatted(url, signedURL);
+    }
+
+}

@@ -1,10 +1,14 @@
 package org.sunday.projectpop.controller.portfolio;
 
+import io.swagger.v3.oas.annotations.Parameter;
+import io.swagger.v3.oas.annotations.media.Content;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
 import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.dto.PortfolioRetrospectiveRequest;
@@ -34,10 +38,13 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오 등록
-    @PostMapping
-    public ResponseEntity<Void> addPortfolio(@Valid @RequestBody PortfolioCreateRequest request) {
+    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> addPortfolio(
+            @Valid @RequestPart("request") PortfolioCreateRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioService.createPortfolio(userId, request);
+        portfolioService.createPortfolio(userId, request, files);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();

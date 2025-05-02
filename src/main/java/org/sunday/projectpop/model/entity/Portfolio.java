@@ -1,8 +1,7 @@
 package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
-import lombok.AllArgsConstructor;
-import lombok.Data;
+import lombok.*;
 import org.sunday.projectpop.model.enums.PortfoliosType;
 
 import java.time.ZoneOffset;
@@ -11,7 +10,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Entity
-@Data
+//@Data
+@Getter
+@Setter
+@NoArgsConstructor
+@AllArgsConstructor
 public class Portfolio {
     @Id @GeneratedValue(strategy = GenerationType.UUID)
     private String portfolioId;

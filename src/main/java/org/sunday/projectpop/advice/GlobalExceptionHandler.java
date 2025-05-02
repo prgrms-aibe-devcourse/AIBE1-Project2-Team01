@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.sunday.projectpop.exceptions.FileUploadFailureException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.RetrospectiveNotFound;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
@@ -37,6 +38,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(RetrospectiveNotFound.class)
     public ResponseEntity<String> handleRetrospectiveNotFound(RetrospectiveNotFound ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
+    @ExceptionHandler(FileUploadFailureException.class)
+    public ResponseEntity<String> handleFileUploadFailure(FileUploadFailureException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
     }
 }
 

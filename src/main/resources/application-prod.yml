@@ -47,3 +47,9 @@ jwt:
 # 화면단 url
 front-end:
   redirect: ${FRONT_END_REDIRECT}
+
+# 객체 스토리지
+supabase:
+  url: ${SUPABASE_URL}
+  access-key: ${SUPABASE_ACCESS_KEY}
+  bucket-name: ${SUPABASE_BUCKET_NAME}
