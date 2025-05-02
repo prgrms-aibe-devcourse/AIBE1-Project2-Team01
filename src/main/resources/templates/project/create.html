@@ -1,0 +1,33 @@
+<!-- templates/project/create.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>공고 작성</title>
+</head>
+<body>
+<h1>공고 작성</h1>
+
+<form th:action="@{/projects/submit}" th:object="${projectRequest}" th:method="post">
+    <input type="text" th:field="*{title}" placeholder="제목"/><br/>
+    <textarea th:field="*{description}" placeholder="설명"></textarea><br/>
+    <input type="text" th:field="*{field}" placeholder="분야"/><br/>
+    <input type="text" th:field="*{type}" placeholder="타입 (PROJECT 등)"/><br/>
+    <input type="text" th:field="*{locationType}" placeholder="대면/비대면"/><br/>
+    <input type="number" th:field="*{durationWeeks}" placeholder="진행 주"/><br/>
+    <input type="number" th:field="*{teamSize}" placeholder="팀 인원"/><br/><br/>
+
+    <label>필수 기술 태그:</label><br/>
+    <div th:each="tag : ${tags}">
+        <input type="checkbox" th:value="${tag.tagId}" th:name="requiredTagIds" /> <span th:text="${tag.name}"></span><br/>
+    </div><br/>
+
+    <label>선택 기술 태그:</label><br/>
+    <div th:each="tag : ${tags}">
+        <input type="checkbox" th:value="${tag.tagId}" th:name="selectiveTagIds" /> <span th:text="${tag.name}"></span><br/>
+    </div><br/>
+
+    <button type="submit">공고 등록</button>
+</form>
+</body>
+</html>
