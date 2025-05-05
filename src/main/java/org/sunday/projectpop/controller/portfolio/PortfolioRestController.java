@@ -59,7 +59,7 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오 상세 조회
-    // TODO: 회고 column 추가해서 보이기
+    // TODO: 회고 column 추가해서 보이기 -> 프론트에서 처리.
     @GetMapping("/{portfolioId}")
     public ResponseEntity<PortfolioResponse> getPortfolio(@PathVariable String portfolioId) {
         PortfolioResponse response = portfolioService.getPortfolio(portfolioId);

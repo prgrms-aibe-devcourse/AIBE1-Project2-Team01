@@ -60,6 +60,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         List<PortfolioFile> fileList = Optional.ofNullable(files)
                 .orElse(Collections.emptyList())
                 .stream()
+                .filter(file -> !file.isEmpty()) // 추가: 파일이 비어있지 않은 경우만 처리
                 .map(file ->
                         fileStorageService.uploadPortfolioFile(file, portfolio))
                 .toList();
