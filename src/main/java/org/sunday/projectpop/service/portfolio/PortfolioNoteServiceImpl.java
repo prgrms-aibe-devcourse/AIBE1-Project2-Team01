@@ -35,7 +35,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     @Override
     public void createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
         // 해당 포트폴리오 있는지 확인
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+        Portfolio portfolio = findPortfolio(portfolioId);
 
         // 해당 포트폴리오에 대한 권한 확인
         if (!portfolio.getUserId().equals(userId)) {
@@ -63,10 +63,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         // 해당 포트폴리오 확인
         Portfolio portfolio = findPortfolio(portfolioId);
 
-        List<PortfolioNote> noteList = portfolioNoteRepository.findAllByPortfolio(portfolio);
-        if (noteList.isEmpty()) {
-            throw new PortfolioNoteNotFound("등록된 노트가 없습니다.");
-        }
+        List<PortfolioNote> noteList = findAll(portfolio);
 
         List<PortfolioNoteResponse> responseList = new ArrayList<>();
         for (PortfolioNote note : noteList) {
@@ -83,6 +80,14 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
 
     private Portfolio findPortfolio(String portfolioId) {
         return portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+    }
+
+    private List<PortfolioNote> findAll(Portfolio portfolio) {
+        List<PortfolioNote> noteList = portfolioNoteRepository.findAllByPortfolio(portfolio);
+        if (noteList.isEmpty()) {
+            throw new PortfolioNoteNotFound("등록된 노트가 없습니다.");
+        }
+        return noteList;
     }
 
     private PortfolioNote findPortfolioNote(Long noteId) {
