@@ -178,4 +178,21 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
             throw new FileManagementException("파일 삭제에 실패했습니다.");
         }
     }
+
+    @Override
+    public void deletePortfolioNote(String userId, String portfolioId, Long noteId) {
+        Portfolio portfolio = findPortfolio(portfolioId);
+        checkByUserId(portfolio, userId);
+
+        PortfolioNote note = findPortfolioNote(noteId);
+        checkByNote(portfolio, note);
+
+        // 스토리지에서 파일 삭제
+        if (note.getFiles() != null) {
+            for (PortfolioNoteFile file : note.getFiles()) {
+                deleteFile(file.getPortfolioNoteFileId());
+            }
+        }
+        portfolioNoteRepository.delete(note);
+    }
 }

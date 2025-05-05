@@ -21,4 +21,6 @@ public interface PortfolioNoteService {
                              Long noteId,
                              PortfolioNoteUpdateRequest request,
                              List<MultipartFile> newFiles) throws Exception;
+
+    void deletePortfolioNote(String userId, String portfolioId, Long noteId);
 }

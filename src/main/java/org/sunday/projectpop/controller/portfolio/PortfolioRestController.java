@@ -163,4 +163,15 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오에 대한 노트 삭제
+    @DeleteMapping("/{portfolioId}/notes/{noteId}")
+    public ResponseEntity<Void> deletePortfolioNote(
+            @PathVariable String portfolioId,
+            @PathVariable Long noteId) {
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        portfolioNoteService.deletePortfolioNote(userId, portfolioId, noteId);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
 }
