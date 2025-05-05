@@ -1,55 +1,57 @@
 package org.sunday.projectpop.service.portfolio;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
+import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
-import org.sunday.projectpop.exceptions.PortfolioNoteNotFound;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
-import org.sunday.projectpop.model.dto.PortfolioNoteRequest;
-import org.sunday.projectpop.model.dto.PortfolioNoteResponse;
+import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
 import org.sunday.projectpop.model.entity.Portfolio;
+import org.sunday.projectpop.model.entity.PortfolioFile;
 import org.sunday.projectpop.model.entity.PortfolioNote;
+import org.sunday.projectpop.model.entity.PortfolioNoteFile;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
+import org.sunday.projectpop.service.upload.FileStorageService;
+
+import java.util.Collections;
+import java.util.List;
+import java.util.Map;
+import java.util.Optional;
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class PortfolioNoteServiceImpl implements PortfolioNoteService {
 
-    private final PortfolioNoteRepository noteRepository;
+    private final PortfolioNoteRepository portfolioNoteRepository;
+    private final FileStorageService fileStorageService;
     private final PortfolioRepository portfolioRepository;
 
     @Override
-    public void createNote(String portfolioId, String userId, PortfolioNoteRequest request) {
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(
-                () -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+    public void createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
+        // 해당 포트폴리오 있는지 확인
+        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
+
+        // 해당 포트폴리오에 대한 권한 확인
         if (!portfolio.getUserId().equals(userId)) {
-            throw new UnauthorizedException("작성 권한이 없습니다.");
+            throw new UnauthorizedException("해당 포트폴리오에 대한 권한이 없습니다.");
         }
 
-        PortfolioNote note = new PortfolioNote();
-        note.setPortfolio(portfolio);
-        note.setUserId(portfolio.getUserId());
-        note.setContent(request.content());
-        noteRepository.save(note);
-    }
+        PortfolioNote portfolioNote = new PortfolioNote();
+        portfolioNote.setPortfolio(portfolio);
+        portfolioNote.setContent(request.content());
+        portfolioNote.setUserId(portfolio.getUserId());
 
-    @Override
-    public PortfolioNoteResponse getNote(String portfolioId, String retrospectiveId) {
-        Portfolio portfolio = portfolioRepository.findById(portfolioId).orElseThrow(
-                () -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
-        PortfolioNote note = noteRepository.findById(Long.valueOf(retrospectiveId)).orElseThrow(
-                () -> new PortfolioNoteNotFound("해당 회고를 찾을 수 없습니다."));
-//        if (!note.getPortfolioId().equals(portfolioId)) {
-//            throw new UnauthorizedException("해당 회고는 이 포트폴리오에 속하지 않습니다.");
-//        }
-
-        return null;
-//        return new PortfolioNoteResponse(
-//                note.getId(),
-//                note.getPortfolio(),
-//                note.getContent(),
-//                note.getCreatedAt().toString()
-//        );
+        List<PortfolioNoteFile> fileList = Optional.ofNullable(files)
+                .orElse(Collections.emptyList())
+                .stream()
+                .map(file -> fileStorageService
+                        .uploadPortfolioNoteFile(file, portfolioNote))
+                .toList();
+        portfolioNote.setFiles(fileList);
+        portfolioNoteRepository.save(portfolioNote);
     }
 }

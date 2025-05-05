@@ -7,6 +7,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.exceptions.FileManagementException;
+import org.sunday.projectpop.model.entity.Portfolio;
+import org.sunday.projectpop.model.entity.PortfolioFile;
+import org.sunday.projectpop.model.entity.PortfolioNote;
+import org.sunday.projectpop.model.entity.PortfolioNoteFile;
 
 import java.io.IOException;
 import java.net.URI;
@@ -27,6 +31,29 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Value("${supabase.bucket-name}")
     private String bucketName;
+
+
+    @Override
+    public PortfolioFile uploadPortfolioFile(MultipartFile file, Portfolio portfolio) {
+        return null;
+    }
+
+    @Override
+    public PortfolioNoteFile uploadPortfolioNoteFile(MultipartFile file, PortfolioNote portfolioNote) {
+        try {
+            Map<String, String> map = uploadAndGenerateSignedUrl(file, 3600);
+            return PortfolioNoteFile.builder()
+                    .fileType(file.getContentType())
+                    .originalFilename(file.getOriginalFilename())
+                    .storedUrl(map.get("signedUrl"))
+                    .storedFilename(map.get("filename"))
+                    .portfolioNote(portfolioNote)
+                    .build();
+        } catch (Exception e) {
+            log.severe(e.getMessage());
+            throw new FileManagementException("파일 업로드에 실패했습니다.");
+        }
+    }
 
     @Override
     public Map<String, String> uploadAndGenerateSignedUrl(MultipartFile file, int expirationSeconds) throws Exception {

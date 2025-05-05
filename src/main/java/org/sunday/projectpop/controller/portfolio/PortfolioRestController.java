@@ -1,5 +1,8 @@
 package org.sunday.projectpop.controller.portfolio;
 
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.media.Content;
+import io.swagger.v3.oas.annotations.media.Encoding;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -7,10 +10,13 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.sunday.projectpop.model.dto.*;
+import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
+import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
+import org.sunday.projectpop.model.dto.PortfolioResponse;
+import org.sunday.projectpop.model.dto.PortfolioUpdateRequest;
 import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.service.portfolio.PortfolioService;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
+import org.sunday.projectpop.service.portfolio.PortfolioService;
 
 import java.util.List;
 
@@ -20,9 +26,9 @@ import java.util.List;
 public class PortfolioRestController {
 
     private final PortfolioService portfolioService;
-    private final PortfolioNoteService noteService;
+    private final PortfolioNoteService portfolioNoteService;
 
-    // TODO: 내 포트폴리오 조회 (all)
+    // 포트폴리오 목록 조회
     @GetMapping("/me")
     public ResponseEntity<?> getMyPortfolios() {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
@@ -80,34 +86,35 @@ public class PortfolioRestController {
                 .build();
     }
 
-    // TODO: 포트폴리오에 대한 개인 생각 조회 (all)
-
-    // 포트폴리오에 대한 개인 생각(회고) 등록
-    @PostMapping("/{portfolioId}/note")
+    // TODO: 포트폴리오에 대한 노트 조회 목록
+    // TODO: 포트폴리오에 대한 노트 등록
+    @Operation(summary = "포트폴리오 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            encoding = {
+                                    @Encoding(name = "request", contentType = "application/json"),
+                                    @Encoding(name = "files", contentType = "application/octet-stream")
+                            }
+                    )
+            )
+    )
+    @PostMapping(value = "/{portfolioId}/notes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addPortfolioNote(
             @PathVariable String portfolioId,
-            @Valid @RequestBody PortfolioNoteRequest request) {
+            @Valid @RequestPart("request") PortfolioNoteCreateRequest request,
+            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        noteService.createNote(portfolioId, userId, request);
+        portfolioNoteService.createNote(userId, portfolioId, request, files);
 
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();
     }
-
-    // 포트폴리오에 대한 회고 상세
-    @GetMapping("/{portfolioId}/note/{noteId}")
-    public ResponseEntity<PortfolioNoteResponse> getRetrospective(
-            @PathVariable String portfolioId,
-            @PathVariable String noteId) {
-       PortfolioNoteResponse response = noteService.getNote(portfolioId, noteId);
-
-       return ResponseEntity
-               .status(HttpStatus.OK)
-               .body(response);
-    }
+    // TODO: 포트폴리오에 대한 노트 상세
 
 
-    // TODO: 포트폴리오에 대한 회고 수정
-    // TODO: 포트폴리오에 대한 회고 삭제
+
+    // TODO: 포트폴리오에 대한 노트 수정
+    // TODO: 포트폴리오에 대한 노트 삭제
 }

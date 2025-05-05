@@ -1,10 +1,11 @@
 package org.sunday.projectpop.service.portfolio;
 
-import org.sunday.projectpop.model.dto.PortfolioNoteRequest;
-import org.sunday.projectpop.model.dto.PortfolioNoteResponse;
+import org.springframework.web.multipart.MultipartFile;
+import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
+
+import java.util.List;
 
 public interface PortfolioNoteService {
-    void createNote(String portfolioId, String userId, PortfolioNoteRequest request);
 
-    PortfolioNoteResponse getNote(String portfolioId, String noteId);
+    void createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files);
 }
