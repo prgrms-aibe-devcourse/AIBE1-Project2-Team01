@@ -1,9 +1,11 @@
 package org.sunday.projectpop.model.dto;
 
-public record PortfolioNoteResponse(
+import java.util.List;
+
+public record PortfolioNoteDetailResponse(
         Long id,
         String content,
         String createdAt,
-        boolean hasFile
+        List<FileResponse> files
 ) {
 }

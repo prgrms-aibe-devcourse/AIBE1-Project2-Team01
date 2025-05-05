@@ -10,10 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
-import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
-import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
-import org.sunday.projectpop.model.dto.PortfolioResponse;
-import org.sunday.projectpop.model.dto.PortfolioUpdateRequest;
+import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
@@ -96,8 +93,16 @@ public class PortfolioRestController {
                 .build();
     }
 
-    // TODO: 포트폴리오에 대한 노트 조회 목록
-    // TODO: 포트폴리오에 대한 노트 등록
+    // 포트폴리오에 대한 노트 조회 목록
+    @GetMapping("/{portfolioId}/notes")
+    public ResponseEntity<List<PortfolioNoteResponse>> getPortfolioNoteList(@PathVariable String portfolioId) {
+        List<PortfolioNoteResponse> notes = portfolioNoteService.getPortfolioNoteList(portfolioId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(notes);
+    }
+
+    // 포트폴리오에 대한 노트 등록
     @Operation(summary = "포트폴리오-노트 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -121,8 +126,14 @@ public class PortfolioRestController {
                 .status(HttpStatus.CREATED)
                 .build();
     }
-    // TODO: 포트폴리오에 대한 노트 상세
-
+    // 포트폴리오에 대한 노트 상세
+    @GetMapping("/{portfolioId}/notes/{noteId}")
+    public ResponseEntity<?> getPortfolioNote(@PathVariable String portfolioId, @PathVariable Long noteId) {
+        PortfolioNoteDetailResponse response = portfolioNoteService.getPortfolioNote(portfolioId, noteId);
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(response);
+    }
 
 
     // TODO: 포트폴리오에 대한 노트 수정
