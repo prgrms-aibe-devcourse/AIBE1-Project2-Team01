@@ -19,7 +19,10 @@ import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.List;
+import java.util.Optional;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
@@ -57,23 +60,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         List<PortfolioFile> fileList = Optional.ofNullable(files)
                 .orElse(Collections.emptyList())
                 .stream()
-                .map(file -> {
-                    Map<String, String> map;
-                    try {
-                        map = fileStorageService.uploadAndGenerateSignedUrl(file, 3600);
-                    } catch (Exception e) {
-                        log.severe(e.getMessage());
-                        throw new FileManagementException("파일 업로드에 실패했습니다.");
-                    }
-
-                    return PortfolioFile.builder()
-                            .originalFilename(file.getOriginalFilename())
-                            .storedUrl(map.get("signedUrl"))
-                            .storedFilename(map.get("filename"))
-                            .fileType(file.getContentType())
-                            .portfolio(portfolio)
-                            .build();
-                })
+                .map(file ->
+                        fileStorageService.uploadPortfolioFile(file, portfolio))
                 .toList();
         log.info(fileList.toString());
         portfolio.setFiles(fileList);
@@ -149,21 +137,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         // 파일 업로드
         if (newFiles != null) {
             for (MultipartFile file : newFiles) {
-                try {
-                    Map<String, String> map = fileStorageService.uploadAndGenerateSignedUrl(file, 3600);
-                    PortfolioFile portfolioFile = PortfolioFile.builder()
-                            .portfolio(portfolio)
-                            .originalFilename(file.getOriginalFilename())
-                            .storedUrl(map.get("signedUrl"))
-                            .storedFilename(map.get("filename"))
-                            .fileType(file.getContentType())
-                            .build();
-//                portfolioFileRepository.save(portfolioFile);
-                    portfolio.getFiles().add(portfolioFile);
-                } catch (Exception e) {
-                    log.severe(e.getMessage());
-                    throw new FileManagementException("파일 업로드에 실패했습니다.");
-                }
+                PortfolioFile uploaded = fileStorageService.uploadPortfolioFile(file, portfolio);
+                portfolio.getFiles().add(uploaded);
             }
         }
         // 중복 URL 검증 후 등록

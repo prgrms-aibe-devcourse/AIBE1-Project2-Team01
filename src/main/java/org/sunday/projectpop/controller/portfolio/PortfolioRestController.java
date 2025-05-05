@@ -39,6 +39,16 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오 등록
+    @Operation(summary = "포트폴리오 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            encoding = {
+                                    @Encoding(name = "request", contentType = "application/json"),
+                                    @Encoding(name = "files", contentType = "application/octet-stream")
+                            }
+                    )
+            )
+    )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addPortfolio(
             @Valid @RequestPart("request") PortfolioCreateRequest request,
@@ -88,7 +98,7 @@ public class PortfolioRestController {
 
     // TODO: 포트폴리오에 대한 노트 조회 목록
     // TODO: 포트폴리오에 대한 노트 등록
-    @Operation(summary = "포트폴리오 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
+    @Operation(summary = "포트폴리오-노트 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
                     content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
                             encoding = {

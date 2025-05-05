@@ -4,21 +4,18 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
-import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
 import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.model.entity.PortfolioFile;
 import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.entity.PortfolioNoteFile;
-import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
+import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
 import java.util.Collections;
 import java.util.List;
-import java.util.Map;
 import java.util.Optional;
 
 @Service

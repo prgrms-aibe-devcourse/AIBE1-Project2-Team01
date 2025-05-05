@@ -35,7 +35,19 @@ public class FileStorageServiceImpl implements FileStorageService {
 
     @Override
     public PortfolioFile uploadPortfolioFile(MultipartFile file, Portfolio portfolio) {
-        return null;
+       try {
+           Map<String, String> map = uploadAndGenerateSignedUrl(file, 3600);
+           return PortfolioFile.builder()
+                   .fileType(file.getContentType())
+                   .originalFilename(file.getOriginalFilename())
+                   .storedUrl(map.get("signedUrl"))
+                   .storedFilename(map.get("filename"))
+                   .portfolio(portfolio)
+                   .build();
+       } catch (Exception e) {
+           log.severe(e.getMessage());
+           throw new FileManagementException("파일 업로드에 실패했습니다.");
+       }
     }
 
     @Override
