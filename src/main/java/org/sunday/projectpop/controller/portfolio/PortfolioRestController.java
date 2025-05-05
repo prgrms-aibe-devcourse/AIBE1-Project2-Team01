@@ -126,6 +126,7 @@ public class PortfolioRestController {
                 .status(HttpStatus.CREATED)
                 .build();
     }
+
     // 포트폴리오에 대한 노트 상세
     @GetMapping("/{portfolioId}/notes/{noteId}")
     public ResponseEntity<?> getPortfolioNote(@PathVariable String portfolioId, @PathVariable Long noteId) {
@@ -136,6 +137,30 @@ public class PortfolioRestController {
     }
 
 
-    // TODO: 포트폴리오에 대한 노트 수정
-    // TODO: 포트폴리오에 대한 노트 삭제
+    // 포트폴리오에 대한 노트 수정
+    @Operation(summary = "포트폴리오-노트 수정", description = "파일과 JSON 데이터를 함께 업로드합니다.",
+            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
+                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
+                            encoding = {
+                                    @Encoding(name = "request", contentType = "application/json"),
+                                    @Encoding(name = "newFiles", contentType = "application/octet-stream")
+                            }
+                    )
+            )
+    )
+    @PutMapping(value = "/{portfolioId}/notes/{noteId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Void> updatePortfolioNote(
+            @PathVariable String portfolioId,
+            @PathVariable Long noteId,
+            @Valid @RequestPart("request") PortfolioNoteUpdateRequest request,
+            @RequestPart(value = "newFiles", required = false) List<MultipartFile> newFiles
+    ) throws Exception {
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        portfolioNoteService.updatePortfolioNote(userId, portfolioId, noteId, request, newFiles);
+        return ResponseEntity
+                .status(HttpStatus.NO_CONTENT)
+                .build();
+    }
+
+    // 포트폴리오에 대한 노트 삭제
 }

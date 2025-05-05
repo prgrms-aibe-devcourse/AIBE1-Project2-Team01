@@ -4,16 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
+import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.PortfolioNoteNotFound;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
-import org.sunday.projectpop.model.dto.FileResponse;
-import org.sunday.projectpop.model.dto.PortfolioNoteCreateRequest;
-import org.sunday.projectpop.model.dto.PortfolioNoteDetailResponse;
-import org.sunday.projectpop.model.dto.PortfolioNoteResponse;
+import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.entity.PortfolioNoteFile;
+import org.sunday.projectpop.model.repository.PortfolioNoteFileRepository;
 import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.service.upload.FileStorageService;
@@ -31,6 +30,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     private final PortfolioNoteRepository portfolioNoteRepository;
     private final FileStorageService fileStorageService;
     private final PortfolioRepository portfolioRepository;
+    private final PortfolioNoteFileRepository portfolioNoteFileRepository;
 
     @Override
     public void createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
@@ -95,6 +95,19 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                 .orElseThrow(() -> new PortfolioNoteNotFound("해당 노트를 찾을 수 없습니다."));
     }
 
+    private void checkByUserId(Portfolio portfolio, String userId) {
+        log.info("checkByUserId: %s %s".formatted(portfolio.getUserId(), userId));
+        if (!portfolio.getUserId().equals(userId)) {
+            throw new UnauthorizedException("해당 노트에 대한 권한이 없습니다.");
+        }
+    }
+
+    private void checkByNote(Portfolio portfolio, PortfolioNote note)  {
+        log.info("checkByNote: %s %s".formatted(portfolio, note.getPortfolio()));
+        if (!note.getPortfolio().equals(portfolio))
+            throw new UnauthorizedException("해당 노트에 대한 권한이 없습니다.");
+    }
+
     @Override
     public PortfolioNoteDetailResponse getPortfolioNote(String portfolioId, Long noteId) {
         Portfolio portfolio = findPortfolio(portfolioId);
@@ -119,5 +132,50 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                 note.getCreatedAt().toString(),
                 files
         );
+    }
+
+    @Override
+    public void updatePortfolioNote(String userId, String portfolioId, Long noteId, PortfolioNoteUpdateRequest request, List<MultipartFile> newFiles) throws Exception {
+        // 해당 포트폴리오 유무 및 자격 확인
+        Portfolio portfolio = findPortfolio(portfolioId);
+        checkByUserId(portfolio, userId);
+
+        // 해당 노트 유무 및 자격 확인
+        PortfolioNote note = findPortfolioNote(noteId);
+        checkByNote(portfolio, note);
+
+        // 내용 업데이트
+        note.setContent(request.content());
+
+        // 요청 파일 제거
+        if (request.deleteFileIds() != null) {
+            for (Long fileId : request.deleteFileIds()) {
+                deleteFile(fileId);
+            }
+        }
+
+        // 새 파일 업로드
+        if (newFiles != null && !newFiles.isEmpty()) {
+            for (MultipartFile file : newFiles) {
+                if (!file.isEmpty()) {
+                    PortfolioNoteFile uploaded = fileStorageService.uploadPortfolioNoteFile(file, note);
+                    note.getFiles().add(uploaded);
+                }
+            }
+        }
+
+        portfolioNoteRepository.save(note);
+    }
+
+    private void deleteFile (Long fileId) {
+        PortfolioNoteFile file = portfolioNoteFileRepository.findById(fileId)
+                .orElseThrow();
+        portfolioNoteFileRepository.delete(file);
+        try {
+            fileStorageService.deleteFile(file.getStoredFilename());
+        } catch (Exception e) {
+            log.severe(e.getMessage());
+            throw new FileManagementException("파일 삭제에 실패했습니다.");
+        }
     }
 }
