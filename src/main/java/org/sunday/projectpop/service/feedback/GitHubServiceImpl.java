@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.feedback;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import jakarta.activation.FileDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
@@ -72,35 +73,67 @@ public class GitHubServiceImpl implements GitHubService {
                 String path = node.get("path").asText();
                 if (extentions.stream().anyMatch(path::endsWith)) {
                     filePaths.add(path);
-                    if (filePaths.size() >= 10) break;
+                    if (filePaths.size() >= 50) break; // 조건에 맞는 파일 최대 50개. 추후 조정
                 }
             }
 //            log.info("filePaths = " + filePaths);
 
-            // 주요 파일 내용 가져오기
-            List<String> results = new ArrayList<>();
+            // 중요도 점수 계산 및 정렬
+            List<FileScore> scoredFiles = new ArrayList<>();
             for (String path : filePaths) {
-                try {
-                    String fileRes = createWebClient().get()
-                            .uri("/repos/{owner}/{repo}/contents/{path}"
-                                    , repoInfo.owner(), repoInfo.repo(), path)
-                            .retrieve()
-                            .bodyToMono(String.class)
-                            .block();
-
-                    String content = objectMapper.readTree(fileRes).get("content").asText();
-//                    log.info("content = " + content);
-                    String decoded = new String(Base64.getMimeDecoder().decode(content));
-//                    log.info("decoded = " + decoded);
-                    results.add("[FILE: " + path + "]\n" + decoded);
-                } catch (Exception e) {
-                    log.severe(e.getMessage());
-                }
+                int score = calculateFileScore(path);
+                scoredFiles.add(new FileScore(path, score));
             }
+
+            // 중요도 점수 기준으로 내림차순 정렬
+            scoredFiles.sort(Comparator.comparingInt(FileScore::score).reversed());
+
+            // 중요도 기준 상위 10개 파일 내용 가져오기
+            List<String> results = new ArrayList<>();
+            for (int i = 0; i < Math.min(10, scoredFiles.size()); i++) {
+                String path = scoredFiles.get(i).path();
+                String fileRes = createWebClient().get()
+                        .uri("/repos/{owner}/{repo}/contents/{path}"
+                                , repoInfo.owner(), repoInfo.repo(), path)
+                        .retrieve()
+                        .bodyToMono(String.class)
+                        .block();
+
+                String content = objectMapper.readTree(fileRes).get("content").asText();
+                String decoded = new String(Base64.getMimeDecoder().decode(content));
+//                    log.info("decoded = " + decoded);
+                results.add("[FILE: " + path + "]\n" + decoded);
+            }
+
             return results;
         } catch (Exception e) {
+            log.severe("Error fetching important files: " + e.getMessage());
             return Collections.emptyList();
         }
+    }
+
+    // 중요도 점수 계산
+    private int calculateFileScore(String path) {
+        int score = 0;
+
+        // 중요 파일 이름 기준으로 점수 부여
+        if (path.contains("Main") || path.contains("App") || path.contains("Application")) {
+            score += 10;
+        }
+        if (path.contains("Controller") || path.contains("Router") || path.contains("Handler")) {
+            score += 8;
+        }
+        if (path.contains("Service") || path.contains("Manager") || path.contains("UseCase")) {
+            score += 7;
+        }
+        if (path.contains("Config") || path.contains(".config") || path.contains("Settings")) {
+            score += 5;
+        }
+        if (path.contains("Test") || path.contains("Spec")) {
+            score -= 2;
+        }
+
+        return score;
     }
 
     // 언어 기반 주요 확장자 결정
@@ -184,5 +217,11 @@ public class GitHubServiceImpl implements GitHubService {
         } catch (Exception e) {
             throw new GitHubManagementException("유효하지 않은 GitHub URL입니다.");
         }
+    }
+
+    private record FileScore(
+            String path,
+            int score
+    ) {
     }
 }
