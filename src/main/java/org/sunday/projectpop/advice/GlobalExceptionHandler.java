@@ -5,10 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
-import org.sunday.projectpop.exceptions.FileManagementException;
-import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
-import org.sunday.projectpop.exceptions.PortfolioNoteNotFound;
-import org.sunday.projectpop.exceptions.UnauthorizedException;
+import org.sunday.projectpop.exceptions.*;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -43,6 +40,11 @@ public class GlobalExceptionHandler {
     @ExceptionHandler(FileManagementException.class)
     public ResponseEntity<String> handleFileManagement(FileManagementException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+
+    @ExceptionHandler(GitHubManagementException.class)
+    public ResponseEntity<String> handleGitHubManagement(GitHubManagementException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
 }
 

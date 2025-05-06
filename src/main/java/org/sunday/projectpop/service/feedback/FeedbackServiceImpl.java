@@ -1,6 +1,7 @@
 package org.sunday.projectpop.service.feedback;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.entity.Portfolio;
@@ -12,6 +13,7 @@ import java.util.List;
 
 @Service
 @RequiredArgsConstructor
+@Log
 public class FeedbackServiceImpl implements FeedbackService {
 
     private final PortfolioRepository portfolioRepository;
@@ -23,6 +25,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         Portfolio portfolio = findById(id);
 
         List<String> gitHubTexts = extractGithubTexts(portfolio);
+        log.info("gitHubTexts = " + gitHubTexts.toString());
 
         // TODO:업로드 파일 변환 처리
         // TODO: LLM에 전달할 형태로 합치기
