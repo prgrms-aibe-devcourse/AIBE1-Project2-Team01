@@ -2,36 +2,71 @@
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>Project Specifications</title>
-    <link rel="stylesheet" href="https://cdn.tailwindcss.com/3.4.16">
+    <title>프로젝트 사양 목록</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
 </head>
 <body class="bg-white p-6">
-<h1 class="text-2xl font-bold mb-4">Project Specifications</h1>
+
+<h1 class="text-2xl font-bold mb-6">프로젝트 사양 목록</h1>
+
+<!-- 📌 사양 추가 폼 -->
+<form th:action="@{'/' + ${onGoingProjectId} + '/add'}" method="post" class="mb-8 space-y-4">
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+            <label class="block text-sm font-medium text-gray-700">요구사항</label>
+            <input type="text" name="requirement" required class="mt-1 block w-full border rounded-md p-2 border-gray-300">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">담당자</label>
+            <input type="text" name="assignee" class="mt-1 block w-full border rounded-md p-2 border-gray-300">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">상태</label>
+            <select name="status" class="mt-1 block w-full border rounded-md p-2 border-gray-300">
+                <option>대기중</option>
+                <option>진행중</option>
+                <option>완료</option>
+            </select>
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">마감일</label>
+            <input type="date" name="dueDate" class="mt-1 block w-full border rounded-md p-2 border-gray-300">
+        </div>
+        <div>
+            <label class="block text-sm font-medium text-gray-700">진행률 (%)</label>
+            <input type="number" name="progressRate" min="0" max="100" value="0" class="mt-1 block w-full border rounded-md p-2 border-gray-300">
+        </div>
+    </div>
+    <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">사양 추가</button>
+</form>
+
+<!-- 🔽 사양 목록 테이블 -->
 <table class="min-w-full table-auto border border-gray-300">
     <thead class="bg-gray-100">
     <tr>
         <th class="px-4 py-2 border">ID</th>
-        <th class="px-4 py-2 border">Requirement</th>
-        <th class="px-4 py-2 border">Assignee</th>
-        <th class="px-4 py-2 border">Status</th>
-        <th class="px-4 py-2 border">Due Date</th>
-        <th class="px-4 py-2 border">Progress Rate</th>
-        <th class="px-4 py-2 border">Created At</th>
-        <th class="px-4 py-2 border">Updated At</th>
+        <th class="px-4 py-2 border">요구사항</th>
+        <th class="px-4 py-2 border">담당자</th>
+        <th class="px-4 py-2 border">상태</th>
+        <th class="px-4 py-2 border">마감일</th>
+        <th class="px-4 py-2 border">진행률</th>
+        <th class="px-4 py-2 border">생성일</th>
+        <th class="px-4 py-2 border">수정일</th>
     </tr>
     </thead>
     <tbody>
     <tr th:each="spec : ${specifications}" class="hover:bg-gray-50">
         <td class="px-4 py-2 border" th:text="${spec.id}">1</td>
-        <td class="px-4 py-2 border" th:text="${spec.requirement}">Requirement</td>
-        <td class="px-4 py-2 border" th:text="${spec.assignee}">Assignee</td>
-        <td class="px-4 py-2 border" th:text="${spec.status}">Status</td>
-        <td class="px-4 py-2 border" th:text="${spec.dueDate}">Due Date</td>
-        <td class="px-4 py-2 border" th:text="${spec.progressRate}">Progress Rate</td>
-        <td class="px-4 py-2 border" th:text="${spec.createdAt}">Created At</td>
-        <td class="px-4 py-2 border" th:text="${spec.updatedAt}">Updated At</td>
+        <td class="px-4 py-2 border" th:text="${spec.requirement}">요구사항</td>
+        <td class="px-4 py-2 border" th:text="${spec.assignee}">담당자</td>
+        <td class="px-4 py-2 border" th:text="${spec.status}">상태</td>
+        <td class="px-4 py-2 border" th:text="${spec.dueDate}">마감일</td>
+        <td class="px-4 py-2 border" th:text="${spec.progressRate}">진행률</td>
+        <td class="px-4 py-2 border" th:text="${spec.createdAt}">생성일</td>
+        <td class="px-4 py-2 border" th:text="${spec.updatedAt}">수정일</td>
     </tr>
     </tbody>
 </table>
+
 </body>
 </html>

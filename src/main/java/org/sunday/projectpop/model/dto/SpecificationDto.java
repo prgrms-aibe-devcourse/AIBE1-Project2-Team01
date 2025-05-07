@@ -11,6 +11,7 @@ import lombok.Setter;
 @NoArgsConstructor
 public class SpecificationDto {
     private Long id;
+    private Long onGoingProjectId;
     private String requirement;
     private String assignee;
     private String status;

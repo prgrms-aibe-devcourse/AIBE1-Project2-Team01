@@ -1,25 +1,28 @@
 package org.sunday.projectpop.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.SpecificationDto;
+import org.sunday.projectpop.model.entity.OnGoingProject;
+import org.sunday.projectpop.model.entity.Specification;
+import org.sunday.projectpop.service.OnGoingProjectService;
 import org.sunday.projectpop.service.SpecificationService;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
-import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Controller
 @RequestMapping("/projects/onprojects")
 @RequiredArgsConstructor
 public class ProjectProgressController {
-
-    private final SpecificationService specificationService;  // 자동 주입
+    private final OnGoingProjectService onGoingProjectService;
+    private final SpecificationService specificationService;
 
     @GetMapping("/")
     public String index() {
@@ -28,6 +31,11 @@ public class ProjectProgressController {
 
     @GetMapping("/{onGoingProjectId}")
     public String getOnGoingProjectDetail(@PathVariable Long onGoingProjectId, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error"; // 에러 페이지
+        }
         // 프로젝트 진행 상태 계산
         int progress = specificationService.calculateProgressPercentage(onGoingProjectId);
         model.addAttribute("projectProgress", progress);
@@ -37,37 +45,16 @@ public class ProjectProgressController {
 
     @GetMapping("/{onGoingProjectId}/specs")
     public String getSpecificationsByProject(@PathVariable Long onGoingProjectId, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error"; // 에러 페이지
+        }
         // 프로젝트 ID에 해당하는 명세서 리스트 가져오기
         List<SpecificationDto> specifications = specificationService.getSpecificationsDtoByProjectId(onGoingProjectId);
         model.addAttribute("specList", specifications);
 
         return "onproject/specifications";  // Thymeleaf 템플릿명
-    }
-
-    @GetMapping("/testspecs")
-    public String testSpecificationsView(Model model) {
-        // 샘플 데이터 추가 (일반적으로 실제 DB에서 가져오는 방식으로 변경)
-        List<SpecificationDto> mockSpecs = new ArrayList<>();
-        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-
-        mockSpecs.add(new SpecificationDto(1L, "Login 기능 구현", "홍길동", "진행중",
-                LocalDate.of(2025, 5, 20).format(dateFormatter), 60,
-                LocalDateTime.now().minusDays(5).format(dateTimeFormatter),
-                LocalDateTime.now().format(dateTimeFormatter)));
-
-        mockSpecs.add(new SpecificationDto(2L, "결제 시스템 연결", "이몽룡", "완료",
-                LocalDate.of(2025, 5, 10).format(dateFormatter), 100,
-                LocalDateTime.now().minusDays(10).format(dateTimeFormatter),
-                LocalDateTime.now().format(dateTimeFormatter)));
-
-        mockSpecs.add(new SpecificationDto(3L, "UI 디자인 정리", "성춘향", "대기중",
-                LocalDate.of(2025, 5, 30).format(dateFormatter), 0,
-                LocalDateTime.now().minusDays(1).format(dateTimeFormatter),
-                LocalDateTime.now().format(dateTimeFormatter)));
-
-        model.addAttribute("specifications", mockSpecs);
-        return "onproject/specifications";
     }
 
     @GetMapping("/test1")
@@ -81,4 +68,56 @@ public class ProjectProgressController {
         }
         return "onproject/index";
     }
+
+    @PostMapping("/{onGoingProjectId}/add")
+    public String addSpecification(@PathVariable Long onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
+        Specification specification = new Specification();
+
+        // OnGoingProject 엔티티를 찾아서 설정
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error";
+        }
+        OnGoingProject onGoingProject = projectOpt.get();
+        specification.setOnGoingProject(onGoingProject); // OnGoingProject 객체 설정
+
+        specification.setRequirement(specificationDto.getRequirement());
+        specification.setAssignee(specificationDto.getAssignee());
+        specification.setStatus(specificationDto.getStatus());
+
+        // 날짜 파싱 예외 처리
+        try {
+            specification.setDueDate(LocalDate.parse(specificationDto.getDueDate()));
+        } catch (Exception e) {
+            e.printStackTrace();
+            model.addAttribute("error", "잘못된 날짜 형식입니다.");
+            return "onproject/specifications";
+        }
+
+        specification.setProgressRate(specificationDto.getProgressRate());
+
+        specificationService.save(specification);
+
+        // 명세서 목록 페이지로 리다이렉트
+        return "redirect:/projects/onprojects/" + onGoingProjectId + "/specs";
+    }
+
+
+    @GetMapping("/all")
+    public String getAllOnGoingProjects() {
+        List<OnGoingProject> projects = onGoingProjectService.findAll();  // 모든 프로젝트 조회
+
+        // System.out.println()으로 프로젝트 출력
+        for (OnGoingProject project : projects) {
+            System.out.println("Project ID: " + project.getProjectId() +
+                    ", Team Leader: " + project.getTeamLeaderId() +
+                    ", Status: " + project.getStatus() +
+                    ", Start Date: " + project.getStartDate() +
+                    ", End Date: " + project.getEndDate());
+        }
+
+        return "onproject/index";  // 예시로 index 페이지 반환
+    }
+
 }

@@ -15,8 +15,9 @@ public class Specification {
     @Column(name = "specification_id")
     private Long specificationId;
 
-    @Column(name = "ongoging_project_id", nullable = false)
-    private Long onGoingProjectId;
+    @ManyToOne
+    @JoinColumn(name = "ongoing_project_id", nullable = false)
+    private OnGoingProject onGoingProject;
 
     @Column(name = "requirement", nullable = false, columnDefinition = "TEXT")
     private String requirement;
@@ -49,4 +50,6 @@ public class Specification {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+
+
 }

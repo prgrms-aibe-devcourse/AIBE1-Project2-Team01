@@ -7,6 +7,7 @@ import java.util.List;
 
 @Repository
 public interface SpecificationRepository extends JpaRepository<Specification, Long> {
+    boolean existsByRequirement(String requirement);
 
     // 프로젝트 ID로 모든 명세서를 찾는 메서드
     List<Specification> findByOnGoingProjectId(Long projectId);
