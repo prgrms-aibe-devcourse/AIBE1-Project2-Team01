@@ -1,9 +1,9 @@
 package org.sunday.projectpop.service.feedback;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
-import jakarta.activation.FileDataSource;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.beans.factory.annotation.Value;
@@ -41,7 +41,7 @@ public class GitHubServiceImpl implements GitHubService {
         Map<String, Integer> languages = fetchLanguages(repoInfo);
         List<String> targetExtentions = decideExtentions(languages);
 
-        List<String> codeFiles = fetchImportantFiles(repoInfo, targetExtentions);
+        List<String> codeFiles = fetchImportantFiles(repoInfo, targetExtentions, mainLang(languages));
 
         List<String> result = new ArrayList<>();
         if (readme != null) {
@@ -55,7 +55,7 @@ public class GitHubServiceImpl implements GitHubService {
     }
 
     // 파일 구조 전체 조회 후, 주요 파일 10개 내용 가져오기
-    private List<String> fetchImportantFiles(GitHubRepoInfo repoInfo, List<String> extentions) {
+    private List<String> fetchImportantFiles(GitHubRepoInfo repoInfo, List<String> extentions, String mainLang) {
         try {
             // 전체 파일 목록
             String treeRes = createWebClient().get()
@@ -73,7 +73,7 @@ public class GitHubServiceImpl implements GitHubService {
                 String path = node.get("path").asText();
                 if (extentions.stream().anyMatch(path::endsWith)) {
                     filePaths.add(path);
-                    if (filePaths.size() >= 50) break; // 조건에 맞는 파일 최대 50개. 추후 조정
+                    if (filePaths.size() >= 100) break; // 조건에 맞는 파일 최대 50개. 추후 조정
                 }
             }
 //            log.info("filePaths = " + filePaths);
@@ -81,7 +81,8 @@ public class GitHubServiceImpl implements GitHubService {
             // 중요도 점수 계산 및 정렬
             List<FileScore> scoredFiles = new ArrayList<>();
             for (String path : filePaths) {
-                int score = calculateFileScore(path);
+                int score = calculateFileScore(path, mainLang);
+                log.info("path: %s, score: %d".formatted(path, score));
                 scoredFiles.add(new FileScore(path, score));
             }
 
@@ -92,17 +93,8 @@ public class GitHubServiceImpl implements GitHubService {
             List<String> results = new ArrayList<>();
             for (int i = 0; i < Math.min(10, scoredFiles.size()); i++) {
                 String path = scoredFiles.get(i).path();
-                String fileRes = createWebClient().get()
-                        .uri("/repos/{owner}/{repo}/contents/{path}"
-                                , repoInfo.owner(), repoInfo.repo(), path)
-                        .retrieve()
-                        .bodyToMono(String.class)
-                        .block();
-
-                String content = objectMapper.readTree(fileRes).get("content").asText();
-                String decoded = new String(Base64.getMimeDecoder().decode(content));
-//                    log.info("decoded = " + decoded);
-                results.add("[FILE: " + path + "]\n" + decoded);
+                String content = fetchFileContent(repoInfo, path);
+                results.add("[FILE: " + path + "]\n" + content);
             }
 
             return results;
@@ -112,41 +104,82 @@ public class GitHubServiceImpl implements GitHubService {
         }
     }
 
+
+    private String fetchFileContent(GitHubRepoInfo repoInfo, String path) throws JsonProcessingException {
+        String fileRes = createWebClient().get()
+                .uri("/repos/{owner}/{repo}/contents/{path}"
+                        , repoInfo.owner(), repoInfo.repo(), path)
+                .retrieve()
+                .bodyToMono(String.class)
+                .block();
+
+        String content = objectMapper.readTree(fileRes).get("content").asText();
+        return new String(Base64.getMimeDecoder().decode(content));
+    }
+
     // 중요도 점수 계산
-    private int calculateFileScore(String path) {
+    private int calculateFileScore(String path, String extension) {
+        path = path.toLowerCase();
+
+        return switch (extension) {
+            case "java" -> calculateScoreForJava(path);
+            case "py" -> calculateScoreForPython(path);
+            case "javascript", "html" -> calculateScoreForJsHtml(path);
+            default -> 0;
+        };
+    }
+
+    private int calculateScoreForJava(String path) {
         int score = 0;
 
-        // 중요 파일 이름 기준으로 점수 부여
-        if (path.contains("Main") || path.contains("App") || path.contains("Application")) {
-            score += 10;
-        }
-        if (path.contains("Controller") || path.contains("Router") || path.contains("Handler")) {
-            score += 8;
-        }
-        if (path.contains("Service") || path.contains("Manager") || path.contains("UseCase")) {
-            score += 7;
-        }
-        if (path.contains("Config") || path.contains(".config") || path.contains("Settings")) {
-            score += 5;
-        }
-        if (path.contains("Test") || path.contains("Spec")) {
-            score -= 2;
-        }
+        if (!path.endsWith(".java")) return 0;
+
+        if (path.contains("controller") || path.contains("service") || path.contains("repository")) score += 3;
+        if (path.contains("model") || path.contains("domain") || path.contains("entity")) score += 2;
+
+        if (path.endsWith("controller.java")) score += 4;
+        if (path.endsWith("application.java")) score += 3;
 
         return score;
+    }
+
+    private int calculateScoreForPython(String path) {
+        int score = 0;
+
+        if (!path.endsWith(".py")) return 0;
+
+        if (path.contains("views") || path.contains("routes") || path.contains("models")) score += 3;
+        if (path.endsWith("main.py") || path.endsWith("app.py")) score += 4;
+        if (path.endsWith("urls.py") || path.endsWith("utils.py")) score += 2;
+
+        return score;
+    }
+
+    private int calculateScoreForJsHtml(String path) {
+        int score = 0;
+
+        if (path.endsWith(".js") || path.endsWith(".html") || path.endsWith("htm")) score += 1;
+
+        if (path.contains("account") || path.contains("auth") || path.contains("component")) score += 2;
+        if (path.contains("app.js") || path.contains("index.html") || path.contains("router.js")) score += 3;
+
+        return score;
+    }
+
+    // 주언어
+    private String mainLang(Map<String, Integer> languages) {
+        return languages.entrySet().stream()
+                .max(Map.Entry.comparingByValue())
+                .map(Map.Entry::getKey)
+                .orElse("java")
+                .toLowerCase();
     }
 
     // 언어 기반 주요 확장자 결정
     private List<String> decideExtentions(Map<String, Integer> languages) {
         if (languages.isEmpty()) return List.of("java", "py", "js"); // 기본값
 
-        String mainLang = languages.entrySet().stream()
-                .max(Map.Entry.comparingByValue())
-                .map(Map.Entry::getKey)
-                .orElse("java");
-        log.info("mainLang = " + mainLang);
-
-        return switch (mainLang.toLowerCase()) {
+        return switch (mainLang(languages)) {
             case "java" -> List.of("java");
             case "python" -> List.of("py", "ipynb"); // Jupyter Notebook 포함
             case "javascript" -> List.of("js", "jsx", "mjs", "cjs");
