@@ -35,3 +35,5 @@ out/
 
 ### VS Code ###
 .vscode/
+# application-dev.yml 무시
+src/main/resources/application-dev.yml
