@@ -21,8 +21,7 @@ public class matchingService {
     private final TraitTableService traitTableService;
 
     // 성향, 성격 매칭 최종
-    public Set<String> matchByProjectRequireAndTrait( String projectId){
-        List<Long> requireList =projectRequireTagRepository.findTagIdsByProjectId(projectId);
+    public Set<String> matchByProjectRequireAndTrait(List<Long> requireList, String projectId){
 
         String leader= projectRepository.findLeaderByProjectId(projectId);
 

@@ -18,16 +18,16 @@ public class TraitMatch {
 // update rule 별점 star에 대해 h=0.01*star 항목별로 기존 값 *(1-h)+ 새값*h
 
     @Column(nullable = false)
-    private double conscientiousness;
+    private double conscientiousness=3;
 
     @Column(nullable = false)
-    private double extraversion;
+    private double extraversion=3;
 
     @Column(nullable = false)
-    private double agreeableness;
+    private double agreeableness=3;
 
     @Column(nullable = false)
-    private double neuroticism;
+    private double neuroticism=3;
 
     @Column(nullable = false)
     private int updated =1;
