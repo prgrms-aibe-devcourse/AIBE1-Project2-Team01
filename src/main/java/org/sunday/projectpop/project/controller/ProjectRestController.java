@@ -13,6 +13,8 @@ import org.sunday.projectpop.project.model.entity.UserAccount;
 import org.sunday.projectpop.project.model.service.ProjectService;
 import org.sunday.projectpop.project.model.service.SkillTagService;
 import org.sunday.projectpop.project.model.service.UserAccountService;
+import org.springframework.data.domain.Pageable;
+
 
 import java.util.List;
 
@@ -28,8 +30,8 @@ import java.util.List;
 
         // 🔍 공고 목록 조회 API (JSON)
         @GetMapping
-        public Page<ProjectResponse> listProjects(@ModelAttribute ProjectSearchCondition condition) {
-            return projectService.searchProjects(condition)
+        public Page<ProjectResponse> listProjects(@ModelAttribute ProjectSearchCondition condition,Pageable pageable) {
+            return projectService.searchProjects(condition,pageable)
                     .map(ProjectResponse::from);
         }
 

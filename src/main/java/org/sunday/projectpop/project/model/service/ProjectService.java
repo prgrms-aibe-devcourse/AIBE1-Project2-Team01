@@ -62,8 +62,8 @@ public class ProjectService {
         return saved;
     }
     //  조건 기반 공고 목록 조회
-    public Page<Project> searchProjects(ProjectSearchCondition condition) {
-        Pageable pageable = PageRequest.of(
+    public Page<Project> searchProjects(ProjectSearchCondition condition,Pageable pageable) {
+        pageable = PageRequest.of(
                 condition.getPage(),
                 condition.getSize(),
                 "최신순".equalsIgnoreCase(condition.getSortBy()) ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending()

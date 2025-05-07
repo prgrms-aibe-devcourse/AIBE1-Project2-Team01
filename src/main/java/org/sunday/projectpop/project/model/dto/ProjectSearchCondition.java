@@ -3,13 +3,17 @@ package org.sunday.projectpop.project.model.dto;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.List;
+
 // 검색 조건을 담는 DTO
 @Getter
 @Setter
 public class ProjectSearchCondition {
     private String keyword;         // 검색어 (예: "AI")
-    private String type;            // 프로젝트 타입 (예: "project" or "competition")
-    private String field;           // 관심 분야
+    private List<String> field;           // 관심 분야
+    private List<String> skillTag;        // 기술 스택
+    private List<String> experienceLevel; // 경력 수준
+    private List<String> type;            // 종류 (project, competition)
     private String locationType;    // 대면/비대면
     private String status;          // 모집 상태 (모집중/진행중/완료)
     private String sortBy;
