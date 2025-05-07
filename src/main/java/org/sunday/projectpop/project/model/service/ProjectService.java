@@ -1,6 +1,10 @@
 package org.sunday.projectpop.project.model.service;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.sunday.projectpop.project.model.dto.ProjectRequest;
 import org.sunday.projectpop.project.model.entity.*;
 import org.sunday.projectpop.project.model.repository.ProjectRepository;
@@ -8,6 +12,11 @@ import org.sunday.projectpop.project.model.repository.ProjectRequireTagRepositor
 import org.sunday.projectpop.project.model.repository.ProjectSelectiveTagRepository;
 import org.sunday.projectpop.project.model.entity.UserAccount;
 import org.springframework.stereotype.Service;
+
+import org.springframework.data.jpa.domain.Specification;
+import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
+import org.sunday.projectpop.project.model.repository.ProjectSpecification;
+
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -52,4 +61,17 @@ public class ProjectService {
 
         return saved;
     }
+    //  조건 기반 공고 목록 조회
+    public Page<Project> searchProjects(ProjectSearchCondition condition) {
+        Pageable pageable = PageRequest.of(
+                condition.getPage(),
+                condition.getSize(),
+                "최신순".equalsIgnoreCase(condition.getSortBy()) ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending()
+        );
+
+        return projectRepository.findAll(ProjectSpecification.search(condition), pageable);
+    }
+
+
+
 }
