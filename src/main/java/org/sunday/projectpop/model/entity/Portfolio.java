@@ -42,13 +42,4 @@ public class Portfolio {
 
     @OneToMany(mappedBy = "portfolio", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PortfolioNote> notes = new ArrayList<>();
-
-//    @Column(nullable = false)
-//    private boolean fromHere;
-
-//    private String linkedProjectId;
-
-//    @ManyToOne(fetch = FetchType.LAZY)
-//    @JoinColumn(name = "linked_project_id")
-//    private Project linkedProject;
 }

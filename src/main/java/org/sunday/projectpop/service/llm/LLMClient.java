@@ -1,0 +1,77 @@
+package org.sunday.projectpop.service.llm;
+
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
+import org.springframework.stereotype.Component;
+import org.springframework.web.reactive.function.client.WebClient;
+import reactor.core.publisher.Mono;
+
+import java.util.List;
+
+@Component
+public class LLMClient {
+
+    @Value("${llm.api.key}")
+    private String apiKey;
+
+    @Value("${llm.api.url}")
+    private String apiUrl;
+
+    private WebClient createWebClient() {
+        return WebClient.builder()
+                .baseUrl(apiUrl)
+                .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
+                .build();
+    }
+
+    public Mono<String> summarize(String content, String type) {
+        return createWebClient()
+                .post()
+                .uri("?key=%s".formatted(apiKey))
+                .bodyValue(buildSummaryPrompt(content, type))
+                .retrieve()
+                .bodyToMono(GeminiResponse.class)
+                .map(response -> response.candidates.get(0).content.parts.get(0).text);
+    }
+
+    private GeminiRequest buildSummaryPrompt(String content, String type) {
+        String prompt = switch (type) {
+            case "github" ->
+                    "다음은 GitHub 저장소에서 추출한 주요 코드 파일과 README.md의 내용입니다. 이 프로젝트의 핵심 기능, 주요 기술 스택, 아키텍처 구성 등을 요약.기술적인 핵심만 300자 이내의 한글평문으로 정리. 미사여구 없이 간결하게 작성. %s".formatted(content);
+            case "file" ->
+                    "다음은 사용자가 제출한 포트폴리오 문서들의 주요 텍스트입니다. 문서에 담긴 핵심 기술 경험, 프로젝트 내용과 강조점, 문제 해결 방식 주요 내용과 강조점 기여 내용 등을 300자 이내의 한글평문으로 정리. 미사여구 없이 간결하게 핵심 내용만 전달되게 작성. %s".formatted(content);
+            case "combined" ->
+                    "다음은 사용자의 GitHub 저장소 내용과 제출 문서를 종합한 텍스트입니다. 전체 포트폴리오를 기반으로 핵심 기술 역량, 프로젝트의 목적 및 특징을 500자 이내의 한글평문으로 정리. 불필요한 미사여구 없이 읽는 사람이 한눈에 이해할 수 있게 간결하게 명확하게 작성. %s".formatted(content);
+            default -> "";
+        };
+        return new GeminiRequest(
+                List.of(new GeminiRequest.Content("user",
+                        List.of(new GeminiRequest.Part(prompt)))));
+    }
+
+    public record GeminiRequest(List<Content> contents) {
+        public record Content(String role, List<Part> parts) {
+        }
+
+        public record Part(String text) {
+        }
+    }
+
+    @JsonIgnoreProperties(ignoreUnknown = true)
+    public record GeminiResponse(List<Candidate> candidates) {
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public record Candidate(Content content) {
+        }
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public record Content(List<Part> parts) {
+        }
+
+        @JsonIgnoreProperties(ignoreUnknown = true)
+        public record Part(String text) {
+        }
+    }
+}

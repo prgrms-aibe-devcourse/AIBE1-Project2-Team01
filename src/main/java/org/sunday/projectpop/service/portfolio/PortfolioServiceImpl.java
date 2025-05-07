@@ -12,11 +12,15 @@ import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
 import org.sunday.projectpop.model.dto.PortfolioResponse;
 import org.sunday.projectpop.model.dto.PortfolioUpdateRequest;
 import org.sunday.projectpop.model.entity.Portfolio;
+import org.sunday.projectpop.model.entity.PortfolioAnalysis;
 import org.sunday.projectpop.model.entity.PortfolioFile;
 import org.sunday.projectpop.model.entity.PortfolioUrl;
+import org.sunday.projectpop.model.enums.AnalysisStatus;
+import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import org.sunday.projectpop.model.repository.PortfolioFileRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
+import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
 import java.util.Collections;
@@ -34,6 +38,8 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final FileStorageService fileStorageService;
     private final PortfolioFileRepository portfolioFileRepository;
     private final PortfolioUrlRepository portfolioUrlRepository;
+    private final PortfolioAnalysisRepository portfolioAnalysisRepository;
+    private final AnalysisService analysisService;
 
     @Override
     public void createPortfolio(String userId, PortfolioCreateRequest request, List<MultipartFile> files) {
@@ -67,7 +73,17 @@ public class PortfolioServiceImpl implements PortfolioService {
         log.info(fileList.toString());
         portfolio.setFiles(fileList);
 
-        portfolioRepository.save(portfolio);
+        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+
+        // NOTE:: 확인필요!!!
+        PortfolioAnalysis analysis = PortfolioAnalysis.builder()
+                .portfolio(savedPortfolio)
+                .summaryStatus(AnalysisStatus.NOT_STARTED)
+                .build();
+        portfolioAnalysisRepository.save(analysis);
+
+        // 비동기 요약 요청
+        analysisService.handleAnalysis(savedPortfolio);
     }
 
     @Override

@@ -57,3 +57,9 @@ supabase:
 # GitHub token (Fine-grained token)
 github:
   token: ${GITHUB_TOKEN}
+
+# LLM API
+llm:
+  api:
+    key: ${LLM_API_KEY}
+    url: ${LLM_API_URL}
