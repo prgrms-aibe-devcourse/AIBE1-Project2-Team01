@@ -1,6 +1,6 @@
 package org.sunday.projectpop.model.repository;
 
-import org.sunday.projectpop.model.entity.Specification; // 엔티티 Specification을 사용
+import org.sunday.projectpop.model.entity.Specification;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 import java.util.List;
@@ -11,11 +11,11 @@ public interface SpecificationRepository extends JpaRepository<Specification, Lo
     // 프로젝트 ID로 모든 명세서를 찾는 메서드
     List<Specification> findByOnGoingProjectId(Long projectId);
 
-    int countByonGoingProjectIdAndStatus(Long onGoingProjectId, String status);
+    // 특정 프로젝트의 상태가 '진행 완료'인 명세서의 수를 카운트
+    int countByOnGoingProjectIdAndStatus(Long onGoingProjectId, String status);
 
-    // 필요에 따라 다른 검색 메서드를 추가할 수 있습니다.
-    // 예: 특정 담당자의 명세서 찾기
-    // List<Specification> findByAssignee(String assignee);
+    // 프로젝트 ID로 모든 명세서의 수를 카운트
+    int countByOnGoingProjectId(Long onGoingProjectId);
 
     // 예: 특정 상태의 명세서 찾기
     // List<Specification> findByStatus(String status);

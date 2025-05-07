@@ -1,65 +1,84 @@
 package org.sunday.projectpop.controller;
 
-import org.springframework.ui.Model; // 올바른 import
 import lombok.RequiredArgsConstructor;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.model.repository.SpecificationRepository;
+import org.sunday.projectpop.model.dto.SpecificationDto;
+import org.sunday.projectpop.service.SpecificationService;
+
+import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 @Controller
 @RequestMapping("/projects/onprojects")
 @RequiredArgsConstructor
 public class ProjectProgressController {
 
-    private final SpecificationRepository specificationRepository;
+    private final SpecificationService specificationService;  // 자동 주입
 
     @GetMapping("/")
-    public String index(){
+    public String index() {
         return "onproject/index";
     }
 
     @GetMapping("/{onGoingProjectId}")
     public String getOnGoingProjectDetail(@PathVariable Long onGoingProjectId, Model model) {
-        // projectId 값 확인
-        System.out.println("선택한 프로젝트 ID: " + onGoingProjectId);
-        int progress = calculateProgressPercentage(onGoingProjectId);
+        // 프로젝트 진행 상태 계산
+        int progress = specificationService.calculateProgressPercentage(onGoingProjectId);
         model.addAttribute("projectProgress", progress);
 
         return "onproject/index";
     }
 
+    @GetMapping("/{onGoingProjectId}/specs")
+    public String getSpecificationsByProject(@PathVariable Long onGoingProjectId, Model model) {
+        // 프로젝트 ID에 해당하는 명세서 리스트 가져오기
+        List<SpecificationDto> specifications = specificationService.getSpecificationsDtoByProjectId(onGoingProjectId);
+        model.addAttribute("specList", specifications);
+
+        return "onproject/specifications";  // Thymeleaf 템플릿명
+    }
+
+    @GetMapping("/testspecs")
+    public String testSpecificationsView(Model model) {
+        // 샘플 데이터 추가 (일반적으로 실제 DB에서 가져오는 방식으로 변경)
+        List<SpecificationDto> mockSpecs = new ArrayList<>();
+        DateTimeFormatter dateFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd");
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+
+        mockSpecs.add(new SpecificationDto(1L, "Login 기능 구현", "홍길동", "진행중",
+                LocalDate.of(2025, 5, 20).format(dateFormatter), 60,
+                LocalDateTime.now().minusDays(5).format(dateTimeFormatter),
+                LocalDateTime.now().format(dateTimeFormatter)));
+
+        mockSpecs.add(new SpecificationDto(2L, "결제 시스템 연결", "이몽룡", "완료",
+                LocalDate.of(2025, 5, 10).format(dateFormatter), 100,
+                LocalDateTime.now().minusDays(10).format(dateTimeFormatter),
+                LocalDateTime.now().format(dateTimeFormatter)));
+
+        mockSpecs.add(new SpecificationDto(3L, "UI 디자인 정리", "성춘향", "대기중",
+                LocalDate.of(2025, 5, 30).format(dateFormatter), 0,
+                LocalDateTime.now().minusDays(1).format(dateTimeFormatter),
+                LocalDateTime.now().format(dateTimeFormatter)));
+
+        model.addAttribute("specifications", mockSpecs);
+        return "onproject/specifications";
+    }
+
     @GetMapping("/test1")
     public String testProjectProgress(Model model) {
-        Long onGoingProjectId = 3L;
-        int progress = calculateProgressPercentage(onGoingProjectId);
-        model.addAttribute("projectProgress", progress); // 변수명 소문자로 변경 권장
-        return "onproject/index";
-    }
-
-
-
-
-    //프로젝트의 완료된 기능 카운트
-    public long countCompletedSpecifications(Long projectId) {
-        return 50;
-//        return specificationRepository.countByOnGoingProjectIdAndStatus(projectId, "진행 완료");
-
-    }
-
-    //프로젝트의 명세서 카운트
-    public long countAllSpecifications(Long projectId) {
-        return 51;
-//        return specificationRepository.count();
-    }
-
-    public int calculateProgressPercentage(Long projectId) {
-        long completed = countCompletedSpecifications(projectId);
-        long total = countAllSpecifications(projectId);
-
-        if (total == 0) {
-            return 0; // 0으로 나누지 않도록 주의
+        try {
+            int progress = specificationService.calculateProgressPercentage(3L);
+            model.addAttribute("projectProgress", progress);
+        } catch (Exception e) {
+            e.printStackTrace(); // 로그에 출력
+            model.addAttribute("projectProgress", 0); // fallback
         }
-
-        return (int) ((double) completed / total * 100);
+        return "onproject/index";
     }
 }
