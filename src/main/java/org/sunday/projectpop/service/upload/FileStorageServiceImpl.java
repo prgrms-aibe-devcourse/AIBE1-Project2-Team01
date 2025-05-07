@@ -125,7 +125,8 @@ public class FileStorageServiceImpl implements FileStorageService {
         return HttpRequest.BodyPublishers.ofByteArrays(byteArrays);
     }
 
-    private String generateSignedUrl(String filename, int expirationSeconds) throws IOException, InterruptedException {
+    @Override
+    public String generateSignedUrl(String filename, int expirationSeconds) throws IOException, InterruptedException {
         String jsonBody = """
                 {
                     "expiresIn": %d

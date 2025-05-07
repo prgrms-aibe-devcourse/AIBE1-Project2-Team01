@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @Builder
 @AllArgsConstructor
-public class PortfolioNoteFile {
+public class PortfolioNoteFile implements ReadableFile{
 
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long portfolioNoteFileId;

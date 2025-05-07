@@ -11,4 +11,6 @@ public interface PortfolioNoteFileRepository extends JpaRepository<PortfolioNote
 
     List<PortfolioNoteFile> findAllByPortfolioNoteFileIdIn(List<Long> ids);
 
+    List<PortfolioNoteFile> findAllByPortfolioNoteId(Long portfolioNoteId);
+
 }

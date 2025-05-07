@@ -6,6 +6,7 @@ import org.sunday.projectpop.model.entity.PortfolioFile;
 import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.entity.PortfolioNoteFile;
 
+import java.io.IOException;
 import java.util.Map;
 
 public interface FileStorageService {
@@ -20,4 +21,5 @@ public interface FileStorageService {
     PortfolioNoteFile uploadPortfolioNoteFile(MultipartFile file, PortfolioNote portfolioNote
     );
 
+    String generateSignedUrl(String filename, int expirationSeconds) throws IOException, InterruptedException;
 }
