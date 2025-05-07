@@ -26,6 +26,37 @@ public class LLMClient {
                 .build();
     }
 
+    public Mono<String> feedback(String content) {
+        return createWebClient()
+                .post()
+                .uri("?key=%s".formatted(apiKey))
+                .bodyValue(buildFeedbackPrompt(content))
+                .retrieve()
+                .bodyToMono(GeminiResponse.class)
+                .map(response -> response.candidates.get(0).content.parts.get(0).text);
+    }
+
+    private GeminiRequest buildFeedbackPrompt(String content) {
+        String prompt = """
+                당신은 실무경험이 10년 이상인 풀스택 개발자입니다.
+                다음은 사용자의 포트폴리오 요약 내용입니다.
+                아래 항목에 따라 구체적인 피드백을 각 300자 내외의 한글평문으로 작성. 미사여구 제외.
+                
+                1. 기술적 강점
+                2. 보완할 점
+                3. 구현 수준 평가
+                4. 문서화 및 표현력
+                5. 실무 연계성
+                6. 추천 개선 방향
+                
+                포트폴리오 요약: %s
+                """.formatted(content);
+        return new GeminiRequest(
+                List.of(new GeminiRequest.Content("user",
+                        List.of(new GeminiRequest.Part(prompt)))));
+    }
+
+
     public Mono<String> summarize(String content, String type) {
         return createWebClient()
                 .post()

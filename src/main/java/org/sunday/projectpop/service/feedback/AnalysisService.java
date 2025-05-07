@@ -29,14 +29,20 @@ public class AnalysisService {
     private final LLMSummaryService llmSummaryService;
 
     public void handleAnalysis(Portfolio portfolio) {
+        PortfolioAnalysis analysis = analysisRepository.findByPortfolio(portfolio);
+
         // 깃허브 및 파일 추출
         List<String> githubText = extractGithubTexts(portfolio.getUrls());
         List<String> fileText = extractFileTexts(portfolio);
         log.info("githubText = " + githubText.toString());
         log.info("fileText = " + fileText.toString());
+        if (githubText.isEmpty() && fileText.isEmpty()) {
+            analysis.setSummaryStatus(AnalysisStatus.NOT_STARTED);
+            analysisRepository.save(analysis);
+            return;
+        }
 
         // 요약 시작
-        PortfolioAnalysis analysis = analysisRepository.findByPortfolio(portfolio);
         analysis.setSummaryStatus(AnalysisStatus.GITHUB_IN_PROCESSING);
         analysisRepository.save(analysis);
 
