@@ -17,6 +17,7 @@ import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
 import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
@@ -93,7 +94,8 @@ public class PortfolioServiceImpl implements PortfolioService {
             throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
         }
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
         return portfolios.stream()
                 .map(portfolio -> new PortfolioSimple(
                         portfolio.getPortfolioId(),
@@ -130,12 +132,15 @@ public class PortfolioServiceImpl implements PortfolioService {
                 })
                 .toList();
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
         return new PortfolioResponse(
                 portfolio.getPortfolioId(),
                 portfolio.getPortfolioType(),
                 portfolio.getTitle(),
                 portfolio.getDescription(),
-                portfolio.getCreatedAt().toString(),
+                portfolio.getCreatedAt().format(formatter),
                 urls,
                 files
         );

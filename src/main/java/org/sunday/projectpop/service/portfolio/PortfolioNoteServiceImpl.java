@@ -17,6 +17,7 @@ import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
+import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -66,7 +67,8 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
 
         List<PortfolioNote> noteList = findAll(portfolio);
 
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
 
         List<PortfolioNoteResponse> responseList = new ArrayList<>();
         for (PortfolioNote note : noteList) {
