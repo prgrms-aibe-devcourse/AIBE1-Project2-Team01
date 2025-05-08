@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="fragments/header :: head"></head>
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<main class="max-w-6xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-bold text-primary mb-6">쪽지함</h1>
+
+    <div class="grid grid-cols-2 gap-6">
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 보낸 메시지</h2>
+            <div id="sent-messages" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
+        </div>
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 받은 메시지</h2>
+            <div id="received-messages" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
+        </div>
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 보낸 제안</h2>
+            <div id="sent-suggestions" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
+        </div>
+        <div>
+            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 받은 제안</h2>
+            <div id="received-suggestions" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
+        </div>
+    </div>
+
+    <div class="text-right mt-8">
+        <button onclick="openMessageModal()" class="bg-secondary text-white px-6 py-2 rounded-button">쪽지 보내기</button>
+    </div>
+</main>
+
+<div id="message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md relative">
+        <button id="close-modal" class="absolute top-2 right-2 text-gray-400 text-xl">&times;</button>
+        <h2 class="text-xl font-semibold mb-4">쪽지 보내기</h2>
+        <form id="send-message-form" class="space-y-4">
+            <input type="text" name="receiverId" placeholder="받는 유저 ID" class="w-full border border-gray-300 rounded px-4 py-2">
+            <textarea name="message" placeholder="메시지 내용" class="w-full border border-gray-300 rounded px-4 py-2"></textarea>
+            <div class="text-right">
+                <button type="submit" class="bg-secondary text-white px-6 py-2 rounded-button">보내기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<script th:inline="javascript">
+    const userId = /*[['${userId}']]*/ 'guest';
+
+    async function loadMessagesAndSuggestions() {
+        const endpoints = [
+            { id: 'sent-messages', url: `/message/sent?senderId=${userId}` },
+            { id: 'received-messages', url: `/message/received?receiverId=${userId}` },
+            { id: 'sent-suggestions', url: `/suggestions/sent?senderId=${userId}` },
+            { id: 'received-suggestions', url: `/suggestions/received?receiverId=${userId}` }
+        ];
+
+        for (const { id, url } of endpoints) {
+            const res = await fetch(url);
+            const data = await res.json();
+            document.getElementById(id).innerText = data.length ? JSON.stringify(data, null, 2) : '(조회결과 없음)';
+        }
+    }
+
+    document.addEventListener("DOMContentLoaded", loadMessagesAndSuggestions);
+
+    function openMessageModal() {
+        document.getElementById('message-modal').classList.remove('hidden');
+    }
+
+    document.getElementById('close-modal').onclick = () => {
+        document.getElementById('message-modal').classList.add('hidden');
+    }
+
+    document.getElementById('send-message-form').onsubmit = async function (e) {
+        e.preventDefault();
+        const receiverId = e.target.receiverId.value;
+        const message = e.target.message.value;
+        const res = await fetch('/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: userId, receiverId, message })
+        });
+        if (res.ok) {
+            alert('보냈습니다!');
+            e.target.reset();
+            document.getElementById('message-modal').classList.add('hidden');
+            loadMessagesAndSuggestions();
+        }
+    }
+</script>
+</body>
+</html>

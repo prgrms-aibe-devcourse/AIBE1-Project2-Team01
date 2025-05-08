@@ -18,4 +18,7 @@ public interface UserSkillTagRepository extends JpaRepository<UserSkillTag, Inte
     @Query("SELECT s.name FROM SkillTag s WHERE s.tagId = :tagId")
     String findNameByTagId(@Param("tagId") Long tagId);
 
+    @Query("SELECT ust.tag.name FROM UserSkillTag ust WHERE ust.user.userId = :userId")
+    List<String> findTagNamesByUserId(@Param("userId") String userId);
+
 }

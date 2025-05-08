@@ -3,15 +3,13 @@ package org.sunday.projectpop.controller.matching;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.entity.SkillTag;
 import org.sunday.projectpop.model.entity.UserAccount;
 import org.sunday.projectpop.model.repository.ProjectRequireTagRepository;
 import org.sunday.projectpop.model.repository.SkillTagRepository;
 import org.sunday.projectpop.model.repository.UserAccountRepository;
+import org.sunday.projectpop.model.repository.UserSkillTagRepository;
 import org.sunday.projectpop.service.matching.RedisTagService;
 
 import java.util.List;
@@ -25,6 +23,7 @@ public class MatchController {
     private final SkillTagRepository skillTagRepository;
     private final RedisTagService redisTagService;
     private final UserAccountRepository userRepo; // matchedUsers 조회용
+    private final UserSkillTagRepository userSkillTagRepository;
 
     // GET /match or /match?projectId=...
     @GetMapping
@@ -74,4 +73,11 @@ public class MatchController {
 
         return "matching/index";
     }
+
+    @GetMapping("/user-tags")
+    @ResponseBody
+    public List<String> getUserSkillTags(@RequestParam String userId) {
+        return userSkillTagRepository.findTagNamesByUserId(userId); // 예시 메서드
+    }
+
 }
