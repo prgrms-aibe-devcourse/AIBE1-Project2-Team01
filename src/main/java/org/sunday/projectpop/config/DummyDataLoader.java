@@ -58,17 +58,56 @@ public class DummyDataLoader implements CommandLineRunner {
                     .locationType("REMOTE")
                     .durationWeeks(4)
                     .teamSize(5)
-                    .status("모집중")
+                    .status("완료")
+                    .experienceLevel("BEGINNER") // ✅ 추가
                     .generatedByAi(false)
                     .createdAt(LocalDateTime.now())
-                    .field("AI")
+                    .field("frontend")
+                    .leader(leader)
+                    .build();
+
+// ✅ 새 프로젝트 2 (입문)
+            Project project2 = Project.builder()
+                    .title("웹앱 개발 대회")
+                    .description("프론트엔드 챌린지 참가자를 모집합니다.")
+                    .type("competition")
+                    .locationType("ONSITE")
+                    .durationWeeks(2)
+                    .teamSize(3)
+                    .status("모집중")
+                    .experienceLevel("BEGINNER") // ✅ 추가
+                    .generatedByAi(false)
+                    .createdAt(LocalDateTime.now().minusDays(3))
+                    .field("backend")
+                    .leader(leader)
+                    .build();
+
+            Project project3 = Project.builder()
+                    .title("웹앱 개발 대회")
+                    .description("프론트엔드 챌린지 참가자를 모집합니다.")
+                    .type("competition")
+                    .locationType("ONSITE")
+                    .durationWeeks(2)
+                    .teamSize(3)
+                    .status("모집중")
+                    .experienceLevel("BEGINNER") // ✅ 추가
+                    .generatedByAi(false)
+                    .createdAt(LocalDateTime.now().minusDays(3))
+                    .field("backend")
                     .leader(leader)
                     .build();
 
             Project saved = projectRepository.save(project);
-
+            Project saved2 = projectRepository.save(project2);
+            Project saved3 = projectRepository.save(project3);
             requireTagRepository.save(ProjectRequireTag.builder().project(saved).tag(java).build());
             selectiveTagRepository.save(ProjectSelectiveTag.builder().project(saved).tag(spring).build());
+
+            requireTagRepository.save(ProjectRequireTag.builder().project(saved2).tag(java).build());
+            selectiveTagRepository.save(ProjectSelectiveTag.builder().project(saved2).tag(spring).build());
+
+            requireTagRepository.save(ProjectRequireTag.builder().project(saved3).tag(java).build());
+            selectiveTagRepository.save(ProjectSelectiveTag.builder().project(saved3).tag(spring).build());
         }
     }
 }

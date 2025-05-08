@@ -4,6 +4,8 @@ import lombok.Builder;
 import org.sunday.projectpop.project.model.entity.Project;
 
 import java.time.LocalDateTime;
+import java.util.List;
+import java.util.stream.Collectors;
 
 @Builder
 public record ProjectResponse(
@@ -14,11 +16,13 @@ public record ProjectResponse(
         String status,
         boolean generatedByAi,
         String field,
+        String experienceLevel,
         String locationType,
         int durationWeeks,
         int teamSize,
         LocalDateTime createdAt,
         String leaderEmail
+
 ) {
     public static ProjectResponse from(Project project) {
         return ProjectResponse.builder()
@@ -27,6 +31,7 @@ public record ProjectResponse(
                 .description(project.getDescription())
                 .type(project.getType())
                 .status(project.getStatus())
+                .experienceLevel(project.getExperienceLevel())
                 .generatedByAi(project.getGeneratedByAi())
                 .field(project.getField())
                 .locationType(project.getLocationType())
@@ -34,6 +39,7 @@ public record ProjectResponse(
                 .teamSize(project.getTeamSize())
                 .createdAt(project.getCreatedAt())
                 .leaderEmail(project.getLeader().getEmail())
+
                 .build();
     }
 }

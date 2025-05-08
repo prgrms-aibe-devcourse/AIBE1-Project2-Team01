@@ -47,9 +47,11 @@ public class ProjectService {
 
         Project saved = projectRepository.save(project);
 
+
         System.out.println("✅ 저장된 프로젝트 ID: " + saved.getProjectId());
         System.out.println("✅ 제목: " + saved.getTitle());
         System.out.println("✅ 팀장 ID: " + saved.getLeader().getUserId());
+
 
         requiredTags.forEach(tag -> requireTagRepository.save(
                 ProjectRequireTag.builder().project(saved).tag(tag).build()
@@ -63,14 +65,33 @@ public class ProjectService {
     }
     //  조건 기반 공고 목록 조회
     public Page<Project> searchProjects(ProjectSearchCondition condition,Pageable pageable) {
+        System.out.println("🔍 검색 조건 status: " + condition.getStatus()); // 리스트로 잘 들어오는지
+        System.out.println("🔍 검색 조건 sortBy: " + condition.getSortBy());
+
         pageable = PageRequest.of(
                 condition.getPage(),
                 condition.getSize(),
                 "최신순".equalsIgnoreCase(condition.getSortBy()) ? Sort.by("createdAt").descending() : Sort.by("createdAt").ascending()
         );
 
-        return projectRepository.findAll(ProjectSpecification.search(condition), pageable);
+       // return projectRepository.findAll(ProjectSpecification.search(condition), pageable);
+
+        Page<Project> result = projectRepository.findAll(ProjectSpecification.search(condition), pageable);
+
+        System.out.println("✅ 전체 저장된 프로젝트 수: " + projectRepository.count());
+        System.out.println("✅ 검색 결과 총 개수: " + result.getTotalElements());
+        System.out.println("✅ 현재 페이지 콘텐츠 수: " + result.getContent().size());
+
+        result.getContent().forEach(p -> {
+            System.out.println("▶ 프로젝트 제목: " + p.getTitle());
+            System.out.println("▶ 상태: " + p.getStatus());
+            System.out.println("▶ 생성일: " + p.getCreatedAt());
+            System.out.println("🆔 ID: " + p.getProjectId());
+        });
+
+        return result;
     }
+
 
 
 

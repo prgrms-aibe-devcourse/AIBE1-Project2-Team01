@@ -14,8 +14,8 @@ public class ProjectSearchCondition {
     private List<String> skillTag;        // 기술 스택
     private List<String> experienceLevel; // 경력 수준
     private List<String> type;            // 종류 (project, competition)
-    private String locationType;    // 대면/비대면
-    private String status;          // 모집 상태 (모집중/진행중/완료)
+    private List<String> locationType;  // 대면/비대면
+    private List<String> status;         // 모집 상태 (모집중/진행중/완료)
     private String sortBy;
     private Integer page = 0;  // 페이지 번호 (0부터 시작)
     private Integer size = 10; // 한 페이지당 항목 수

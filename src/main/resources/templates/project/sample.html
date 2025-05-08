@@ -1,9 +1,10 @@
+
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html>
 <head>
     <meta charset="UTF-8">
     <title>공고 목록</title>
-    <link rel="stylesheet" th:href="@{/css/styles.css}">
+    <link rel="stylesheet" href="/css/styles.css">
 </head>
 <div class="frame">
     <div class="header">
@@ -114,122 +115,122 @@
                 </div>
             </div>
         </div>
-        <form id="filterForm" th:action="@{/projects}" method="get">
-        <div class="container12">
-            <div class="input">
-                <div class="container13">
-                    <div class="div5">
-                        <input type="text" name="keyword" th:value="${condition.keyword}" placeholder="키워드 입력" />
+        <form id="filterForm" action="/projects" method="get">
+            <div class="container12">
+                <div class="input">
+                    <div class="container13">
+                        <div class="div5">
+                            <input type="text" name="keyword" value="" placeholder="키워드 입력" />
+                        </div>
                     </div>
                 </div>
-            </div>
-            <div class="container14">
-                <div class="container7">
-                    <div class="container6">
-                        <img class="component-27" src="component-26.svg" />
-                    </div>
-                </div>
-            </div>
-        </div>
-        <div class="container15">
-            <div class="button4">
-                <div class="container5">
-                    <div class="div4">필터 초기화</div>
-                </div>
-                <div class="container16">
-                    <div class="container11">
+                <div class="container14">
+                    <div class="container7">
                         <div class="container6">
-                            <img class="component-28" src="component-27.svg" />
+                            <img class="component-27" src="component-26.svg" />
                         </div>
                     </div>
                 </div>
             </div>
-            <div class="container17">
-                <div class="button3">
+            <div class="container15">
+                <div class="button4">
                     <div class="container5">
-                        <select name="field" class="select-box">
-                            <option value="">관심분야 선택</option>
-                            <option value="frontend" th:selected="${condition.field} == 'frontend'">프론트엔드</option>
-                            <option value="backend" th:selected="${condition.field} == 'backend'">백엔드</option>
-                        </select>
+                        <div class="div4">필터 초기화</div>
                     </div>
                     <div class="container16">
                         <div class="container11">
                             <div class="container6">
-                                <img class="component-29" src="component-28.svg" />
+                                <img class="component-28" src="component-27.svg" />
                             </div>
                         </div>
                     </div>
                 </div>
-            </div>
-            <div class="container18">
-                <div class="button3">
+                <div class="container17">
+                    <div class="button3">
+                        <div class="container5">
+                            <select name="field" class="select-box">
+                                <option value="">관심분야 선택</option>
+                                <option value="frontend">프론트엔드</option>
+                                <option value="backend">백엔드</option>
+                            </select>
+                        </div>
+                        <div class="container16">
+                            <div class="container11">
+                                <div class="container6">
+                                    <img class="component-29" src="component-28.svg" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container18">
+                    <div class="button3">
+                        <div class="container5">
+                            <select name="skillTag" class="select-box">
+                                <!--                            <option value="">기술 스택 선택</option>-->
+                                <!--                            <option th:each="tag : ${tags}"-->
+                                <!--                                    th:value="${tag.name}"-->
+                                <!--                                    th:text="${tag.name}"-->
+                                <!--                                    th:selected="${condition.skillTag} == ${tag.name}">-->
+                                <!--                            </option>-->
+                            </select>
+                        </div>
+                        <div class="container16">
+                            <div class="container11">
+                                <div class="container6">
+                                    <img class="component-210" src="component-29.svg" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container19">
+                    <div class="button3">
+                        <div class="container5">
+                            <select name="experienceLevel">
+                                <option value="BEGINNER">입문</option>
+                                <option value="INTERMEDIATE">중급</option>
+                                <option value="ADVANCED">고급</option>
+                            </select>
+                        </div>
+                        <div class="container16">
+                            <div class="container11">
+                                <div class="container6">
+                                    <img class="component-211" src="component-210.svg" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="button5">
                     <div class="container5">
-                        <select name="skillTag" class="select-box">
-<!--                            <option value="">기술 스택 선택</option>-->
-<!--                            <option th:each="tag : ${tags}"-->
-<!--                                    th:value="${tag.name}"-->
-<!--                                    th:text="${tag.name}"-->
-<!--                                    th:selected="${condition.skillTag} == ${tag.name}">-->
-<!--                            </option>-->
-                        </select>
-                    </div>
-                    <div class="container16">
-                        <div class="container11">
-                            <div class="container6">
-                                <img class="component-210" src="component-29.svg" />
-                            </div>
-                        </div>
+                        <div class="div4"> <button type="submit">검색</button></div>
                     </div>
                 </div>
-            </div>
-            <div class="container19">
-                <div class="button3">
-                    <div class="container5">
-                        <select name="experienceLevel">
-                            <option value="BEGINNER" th:selected="${condition.experienceLevel?.contains('BEGINNER')}">입문</option>
-                            <option value="INTERMEDIATE" th:selected="${condition.experienceLevel?.contains('INTERMEDIATE')}">중급</option>
-                            <option value="ADVANCED" th:selected="${condition.experienceLevel?.contains('ADVANCED')}">고급</option>
-                        </select>
-                    </div>
-                    <div class="container16">
-                        <div class="container11">
-                            <div class="container6">
-                                <img class="component-211" src="component-210.svg" />
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            <div class="button5">
-                <div class="container5">
-                    <div class="div4"> <button type="submit">검색</button></div>
-                </div>
-            </div>
-<!--            <div class="button12">-->
-<!--                <div class="container5">-->
-<!--                    <div class="div4"> <button type="submit">검색</button></div>-->
-<!--                </div>-->
-<!--            </div>-->
+                <!--            <div class="button12">-->
+                <!--                <div class="container5">-->
+                <!--                    <div class="div4"> <button type="submit">검색</button></div>-->
+                <!--                </div>-->
+                <!--            </div>-->
 
-            <div class="container20">
-                <div class="button3">
-                    <div class="container5">
-                        <select name="type">
-                            <option value="project" th:selected="${condition.type?.contains('project')}">프로젝트</option>
-                            <option value="competition" th:selected="${condition.type?.contains('competition')}">대회</option>
-                        </select>
-                    </div>
-                    <div class="container16">
-                        <div class="container11">
-                            <div class="container6">
-                                <img class="component-212" src="component-211.svg" />
+                <div class="container20">
+                    <div class="button3">
+                        <div class="container5">
+                            <select name="type">
+                                <option value="project">프로젝트</option>
+                                <option value="competition">대회</option>
+                            </select>
+                        </div>
+                        <div class="container16">
+                            <div class="container11">
+                                <div class="container6">
+                                    <img class="component-212" src="component-211.svg" />
+                                </div>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
         </form>
         <div class="container21">
             <div class="button3">
@@ -265,78 +266,157 @@
                 <button class="status-filter"data-status="진행중">진행중</button>
             </div>
         </div>
-<!--        <button class="status-filter" data-status="모집중">모집중</button>-->
-<!--        <button class="status-filter" data-status="진행중">진행중</button>-->
-<!--        <button class="status-filter" data-status="완료">완료</button>-->
+        <!--        <button class="status-filter" data-status="모집중">모집중</button>-->
+        <!--        <button class="status-filter" data-status="진행중">진행중</button>-->
+        <!--        <button class="status-filter" data-status="완료">완료</button>-->
+        <div id="project-list" class="project-list">
+
+            <div class="heading-2">
+                <div class="div6">전체 프로젝트</div>
+            </div>
 
 
-        <div class="heading-2">
-            <div class="div6">전체 프로젝트</div>
-          </div>
+            <!--            <div class="project-list-container">-->
+            <!--                <div th:each="project : ${projects}" class="project-card">-->
+            <!--                    <div class="card-inner">-->
+            <!--                        <div class="card-header">-->
+            <!--                            <img src="component-213.svg" class="card-icon" />-->
+            <!--                            <div class="card-title-section">-->
+            <!--                                <div class="title" th:text="${project.title}">프로젝트 제목</div>-->
+            <!--                                <div class="type-location" th:text="${project.type} + ' · ' + ${project.locationType}">유형 · 위치</div>-->
+            <!--                            </div>-->
+            <!--                        </div>-->
+            <!--                        <div class="card-description" th:text="${project.description}">설명</div>-->
+            <!--                        <div class="card-actions">-->
+            <!--                            <a th:href="@{/projects/{id}(id=${project.projectId})}" class="view-btn">보기</a>-->
+            <!--                            <a th:href="@{/projects/apply/{id}(id=${project.projectId})}" class="apply-btn">지원</a>-->
+            <!--                        </div>-->
+            <!--                    </div>-->
+            <!--                </div>-->
+            <!--            </div>-->
+            <!--            </div>-->
 
 
-            <div id="project-list" class="project-list" th:fragment="projectList">
-            <div class="project-list-container">
-                <div th:each="project : ${projects}" class="project-card">
-                    <div class="card-inner">
-                        <div class="card-header">
-                            <img src="component-213.svg" class="card-icon" />
-                            <div class="card-title-section">
-                                <div class="title" th:text="${project.title}">프로젝트 제목</div>
-                                <div class="type-location" th:text="${project.type} + ' · ' + ${project.locationType}">유형 · 위치</div>
+            <div class="project-list-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">
+                <div class="container22">
+                    <div class="background-border-shadow">
+                        <div class="container23">
+                            <div class="container24">
+                                <div class="background2">
+                                    <div class="container2">
+                                        <div class="container6">
+                                            <img class="component-214" src="component-213.svg" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container2">
+                                    <div class="heading-3">
+                                        <div class="title">웹앱 개발 대회</div>
+                                    </div>
+                                    <div class="container25">
+                                        <div class="div7">competition · ONSITE</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container25">
+                                <div class="div8">프론트엔드 챌린지 참가자를 모집합니다.</div>
+                            </div>
+                            <div class="container26">
+                                <!--                        <div class="background3" th:each="tag : ${project.skillTags}">-->
+                                <!--                            <div th:text="${tag.name}">기술스택</div>-->
+
                             </div>
                         </div>
-                        <div class="card-description" th:text="${project.description}">설명</div>
-                        <div class="card-actions">
-                            <a th:href="@{/projects/{id}(id=${project.projectId})}" class="view-btn">보기</a>
-                            <a th:href="@{/projects/apply/{id}(id=${project.projectId})}" class="apply-btn">지원</a>
+                        <div class="container27">
+                            <div class="button9">
+                                <a href="/projects/d98d07a5-0e98-4bbc-8427-d72c4faeb052" class="div9">보기</a>
+                            </div>
+                            <div class="button10">
+                                <a href="/projects/apply/d98d07a5-0e98-4bbc-8427-d72c4faeb052" class="div10">지원</a>
+                            </div>
+                        </div>
+                    </div>
+                    </div>
+                <div class="container22">
+                    <div class="background-border-shadow">
+                        <div class="container23">
+                            <div class="container24">
+                                <div class="background2">
+                                    <div class="container2">
+                                        <div class="container6">
+                                            <img class="component-214" src="component-213.svg" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container2">
+                                    <div class="heading-3">
+                                        <div class="title">웹앱 개발 대회</div>
+                                    </div>
+                                    <div class="container25">
+                                        <div class="div7">competition · ONSITE</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container25">
+                                <div class="div8">프론트엔드 챌린지 참가자를 모집합니다.</div>
+                            </div>
+                            <div class="container26">
+                                <!--                        <div class="background3" th:each="tag : ${project.skillTags}">-->
+                                <!--                            <div th:text="${tag.name}">기술스택</div>-->
+
+                            </div>
+                        </div>
+                        <div class="container27">
+                            <div class="button9">
+                                <a href="/projects/5c984700-f082-4797-9c20-50e9a309798d" class="div9">보기</a>
+                            </div>
+                            <div class="button10">
+                                <a href="/projects/apply/5c984700-f082-4797-9c20-50e9a309798d" class="div10">지원</a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="container22">
+                    <div class="background-border-shadow">
+                        <div class="container23">
+                            <div class="container24">
+                                <div class="background2">
+                                    <div class="container2">
+                                        <div class="container6">
+                                            <img class="component-214" src="component-213.svg" />
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="container2">
+                                    <div class="heading-3">
+                                        <div class="title">AI 프로젝트 테스트</div>
+                                    </div>
+                                    <div class="container25">
+                                        <div class="div7">project · REMOTE</div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="container25">
+                                <div class="div8">AI 기반 추천 시스템 개발</div>
+                            </div>
+                            <div class="container26">
+                                <!--                        <div class="background3" th:each="tag : ${project.skillTags}">-->
+                                <!--                            <div th:text="${tag.name}">기술스택</div>-->
+
+                            </div>
+                        </div>
+                        <div class="container27">
+                            <div class="button9">
+                                <a href="/projects/91190c42-e9e9-4af6-8b3d-be5af6e1df53" class="div9">보기</a>
+                            </div>
+                            <div class="button10">
+                                <a href="/projects/apply/91190c42-e9e9-4af6-8b3d-be5af6e1df53" class="div10">지원</a>
+                            </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-
-
-<!--                        <div class="project-list-container" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 1.5rem;">-->
-<!--        <div class="container22" th:each="project : ${projects}">-->
-<!--            <div class="background-border-shadow">-->
-<!--                <div class="container23">-->
-<!--                    <div class="container24">-->
-<!--                        <div class="background2">-->
-<!--                            <div class="container2">-->
-<!--                                <div class="container6">-->
-<!--                                    <img class="component-214" src="component-213.svg" />-->
-<!--                                </div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                        <div class="container2">-->
-<!--                            <div class="heading-3">-->
-<!--                                <div class="title" th:text="${project.title}">프로젝트 제목</div>-->
-<!--                            </div>-->
-<!--                            <div class="container25">-->
-<!--                                <div class="div7" th:text="${project.type} + ' · ' + ${project.locationType}">프로젝트 · 원격</div>-->
-<!--                            </div>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="container25">-->
-<!--                        <div class="div8" th:text="${project.description}">프로젝트 설명</div>-->
-<!--                    </div>-->
-<!--                    <div class="container26">-->
-<!--&lt;!&ndash;                        <div class="background3" th:each="tag : ${project.skillTags}">&ndash;&gt;-->
-<!--&lt;!&ndash;                            <div th:text="${tag.name}">기술스택</div>&ndash;&gt;-->
-
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                    <div class="container27">-->
-<!--                        <div class="button9">-->
-<!--                            <a th:href="@{/projects/{id}(id=${project.projectId})}" class="div9">보기</a>-->
-<!--                        </div>-->
-<!--                        <div class="button10">-->
-<!--                            <a th:href="@{/projects/apply/{id}(id=${project.projectId})}" class="div10">지원</a>-->
-<!--                        </div>-->
-<!--                    </div>-->
-<!--                </div>-->
-<!--            </div>-->
         <div class="heading-22">
             <div class="div12">추천 프로젝트</div>
         </div>
@@ -587,7 +667,6 @@
 
     </div>
 </div>
-
 
 </html>
 

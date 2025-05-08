@@ -70,7 +70,7 @@ public class ProjectController {
             Model model
     ) {
         Page<Project> projects = projectService.searchProjects(condition, pageable);
-        model.addAttribute("projects", projects);
+        model.addAttribute("projects", projects.getContent());
         model.addAttribute("condition", condition);
 
         // 프론트 셀렉트 박스용 필터 데이터 전달
@@ -78,14 +78,29 @@ public class ProjectController {
         return "project/list";
     }
 
-    @GetMapping("/filter")
-    public String filterProjectsAjax(@ModelAttribute ProjectSearchCondition condition,
-                                     @PageableDefault(size = 6) Pageable pageable,
-                                     Model model) {
-        Page<Project> projects = projectService.searchProjects(condition, pageable);
-        model.addAttribute("projects", projects);
-        return "project/list :: projectList"; // fragment만 반환
-    }
+//    @GetMapping("/filter")
+//    public String filterProjectsAjax(@ModelAttribute ProjectSearchCondition condition,
+//                                     @PageableDefault(size = 6) Pageable pageable,
+//                                     Model model) {
+//        Page<Project> projects = projectService.searchProjects(condition, pageable);
+//        model.addAttribute("projects", projects.getContent());
+//        return "project/list :: projectList"; // fragment만 반환
+//    }
+@GetMapping("/filter")
+public String filterProjectsAjax(
+        @RequestParam(required = false) String status,
+        @RequestParam(required = false) String sortBy,
+        @PageableDefault(size = 6) Pageable pageable,
+        Model model
+) {
+    ProjectSearchCondition condition = new ProjectSearchCondition();
+    if (status != null) condition.setStatus(List.of(status));
+    if (sortBy != null) condition.setSortBy(sortBy);
+
+    Page<Project> projects = projectService.searchProjects(condition, pageable);
+    model.addAttribute("projects",projects.getContent());
+    return "project/list :: projectList";
+}
 
 }
 

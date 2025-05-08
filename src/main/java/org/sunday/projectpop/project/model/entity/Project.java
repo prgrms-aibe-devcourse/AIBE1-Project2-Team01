@@ -52,9 +52,14 @@ public class Project {
     @Column(name = "duration_weeks")
     private Integer durationWeeks;
 
+    @Column(name = "experience_level", length = 50)
+    private String experienceLevel;
+
     @Column(name = "team_size")
     private Integer teamSize;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+
 }
