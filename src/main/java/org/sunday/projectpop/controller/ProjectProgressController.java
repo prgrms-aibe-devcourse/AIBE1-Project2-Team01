@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.sunday.projectpop.model.dto.MemberContributionDto;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.OnGoingProject;
 import org.sunday.projectpop.model.entity.Specification;
@@ -68,6 +69,26 @@ public class ProjectProgressController {
         }
         return "onproject/index";
     }
+    //프로젝트 기여도
+    @GetMapping("/{onGoingProjectId}/contribution")
+    public String contribution(@PathVariable Long onGoingProjectId, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error"; // 에러 페이지
+        }
+
+        // 프로젝트의 진행률 계산 (기존 로직 재사용)
+        int projectProgress = specificationService.calculateProgressPercentage(onGoingProjectId);
+        model.addAttribute("projectProgress", projectProgress);
+
+        // 팀원별 기여도 계산 로직 (SpecificationService 에서 구현)
+        List<MemberContributionDto> memberContributions = specificationService.calculateMemberContributions(onGoingProjectId);
+        model.addAttribute("memberContributions", memberContributions);  // 모델에 추가
+
+        model.addAttribute("onGoingProjectId", onGoingProjectId); // 템플릿에서 onGoingProjectId 사용 가능하도록 전달
+        return "onproject/contribution"; // 뷰 이름 반환
+    }
 
     @PostMapping("/{onGoingProjectId}/specs/add")
     public String addSpecification(@PathVariable Long onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
@@ -104,20 +125,6 @@ public class ProjectProgressController {
     }
 
 
-    @GetMapping("/all")
-    public String getAllOnGoingProjects() {
-        List<OnGoingProject> projects = onGoingProjectService.findAll();  // 모든 프로젝트 조회
 
-        // System.out.println()으로 프로젝트 출력
-        for (OnGoingProject project : projects) {
-            System.out.println("Project ID: " + project.getProjectId() +
-                    ", Team Leader: " + project.getTeamLeaderId() +
-                    ", Status: " + project.getStatus() +
-                    ", Start Date: " + project.getStartDate() +
-                    ", End Date: " + project.getEndDate());
-        }
-
-        return "onproject/index";  // 예시로 index 페이지 반환
-    }
 
 }

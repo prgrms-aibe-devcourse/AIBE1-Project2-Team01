@@ -1,14 +1,16 @@
 package org.sunday.projectpop.service;
 
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.sunday.projectpop.model.dto.MemberContributionDto;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.Specification;
 import org.sunday.projectpop.model.repository.SpecificationRepository;
 
-import java.util.List;
-import java.util.stream.Collectors;
+import java.util.*;
 import java.time.format.DateTimeFormatter;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -94,4 +96,35 @@ public class SpecificationServiceImpl implements SpecificationService {
                 })
                 .collect(Collectors.toList());
     }
+
+    @Override
+    // 새로운 메서드: 팀원별 기여도 계산
+    public List<MemberContributionDto> calculateMemberContributions(Long onGoingProjectId) {
+        List<Specification> specifications = specificationRepository.findByOnGoingProject_OnGoingProjectId(onGoingProjectId);
+        // 1. 팀원별 완료한 작업 수 계산
+        Map<String, Long> completedTaskCounts = specifications.stream()
+                .filter(spec -> "completed".equals(spec.getStatus()))
+                .collect(Collectors.groupingBy(Specification::getAssignee, Collectors.counting()));
+
+        // 2. 총 작업 수 계산
+        long totalTasks = specifications.size();
+
+        // 3. 팀원별 기여도 계산 및 DTO 생성
+        List<MemberContributionDto> contributions = new ArrayList<>();
+        completedTaskCounts.forEach((assignee, completedCount) -> {
+            double contributionRate = (totalTasks > 0) ? (double) completedCount / totalTasks * 100 : 0;
+            contributions.add(new MemberContributionDto(assignee, completedCount, 0L, (int) Math.round(contributionRate)));
+        });
+
+        //만약 assignee가 null이거나 ""인 spec이 있다면, "Unassigned"로 처리해준다.
+        if (specifications.stream().anyMatch(spec -> spec.getAssignee() == null || spec.getAssignee().isEmpty())) {
+            long unassignedCompletedCount = specifications.stream()
+                    .filter(spec -> (spec.getAssignee() == null || spec.getAssignee().isEmpty()) && "completed".equals(spec.getStatus()))
+                    .count();
+            double unassignedContributionRate = (totalTasks > 0) ? (double) unassignedCompletedCount / totalTasks * 100 : 0;
+            contributions.add(new MemberContributionDto("Unassigned", unassignedCompletedCount, 0L, (int)Math.round(unassignedContributionRate)));
+        }
+        return contributions;
+    }
+
 }

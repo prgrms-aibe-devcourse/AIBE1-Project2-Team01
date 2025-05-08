@@ -1,6 +1,7 @@
 package org.sunday.projectpop.service;
 
 import org.springframework.stereotype.Service;
+import org.sunday.projectpop.model.dto.MemberContributionDto;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.Specification;
 import java.util.List;
@@ -19,4 +20,6 @@ public interface SpecificationService {
     int calculateProgressPercentage(Long projectId);
 
     List<SpecificationDto> getSpecificationsDtoByProjectId(Long onGoingProjectId);
+
+    List<MemberContributionDto> calculateMemberContributions(Long onGoingProjectId);
 }
