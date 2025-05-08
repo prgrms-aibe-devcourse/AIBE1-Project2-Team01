@@ -8,6 +8,8 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.stereotype.Controller;
+import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
@@ -16,22 +18,25 @@ import org.sunday.projectpop.service.portfolio.PortfolioService;
 
 import java.util.List;
 
-@RestController
-@RequestMapping("/api/portfolios")
+@Controller
+@RequestMapping("/portfolios")
 @RequiredArgsConstructor
-public class PortfolioRestController {
+public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final PortfolioNoteService portfolioNoteService;
 
     // 포트폴리오 목록 조회
-    @GetMapping("/me")
-    public ResponseEntity<List<PortfolioSimple>> getMyPortfolios() {
+    @GetMapping
+    public String getMyPortfolios(Model model) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
         List<PortfolioSimple> portfolios = portfolioService.getMyPortfolios(userId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(portfolios);
+        model.addAttribute("portfolios", portfolios);
+        model.addAttribute("userId", userId);
+        model.addAttribute("title", "포트폴리오 목록");
+        model.addAttribute("viewName", "portfolio/list");
+
+        return "portfolio/layout";
     }
 
     // 포트폴리오 등록

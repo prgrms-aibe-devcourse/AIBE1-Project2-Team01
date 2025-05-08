@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:text="${title} + ' - PoP'">PoP</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a855f7',
+                        secondary: '#c084fc'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+</head>
+<body class="bg-white">
+<!-- 헤더 -->
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100">
+    <div class="flex items-center space-x-4">
+        <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+        <a href="/about" class="text-gray-600 text-sm flex items-center"><i class="ri-information-line mr-1"></i> 소개</a>
+        <a href="/dashboard" class="text-gray-600 text-sm flex items-center"><i class="ri-dashboard-line mr-1"></i> 대시보드</a>
+    </div>
+    <div class="flex items-center space-x-3">
+<!--        <div sec:authorize="!isAuthenticated()" class="flex items-center space-x-2">-->
+        <div class="flex items-center space-x-2">
+            <a href="/signup" class="text-primary text-sm">회원가입</a>
+            <a href="/login" class="bg-primary text-white px-4 py-1.5 text-sm rounded-button">로그인</a>
+        </div>
+<!--        <div sec:authorize="isAuthenticated()" class="flex items-center space-x-2">-->
+        <div class="flex items-center space-x-2">
+<!--            <span class="text-gray-700 text-sm" th:text="${#authentication.name}">유저이름</span>-->
+            <span class="text-gray-700 text-sm" th:text="${userId}">유저이름</span>
+            <a href="/profile" class="text-gray-600 text-sm">마이페이지</a>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" class="bg-secondary text-white px-4 py-1.5 text-sm rounded-button">로그아웃</button>
+            </form>
+        </div>
+    </div>
+</header>
+
+<div class="flex">
+    <!-- 왼쪽 사이드바 -->
+    <aside class="w-64 bg-gray-50 min-h-screen p-4 border-r border-gray-200">
+        <nav>
+            <ul class="space-y-2">
+                <li>
+                    <a href="/portfolios" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded">
+                        <i class="ri-folder-line mr-2"></i> 포트폴리오 관리
+                    </a>
+                </li>
+                <li>
+                    <a href="/peer-review" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded">
+                        <i class="ri-group-line mr-2"></i> 피어리뷰
+                    </a>
+                </li>
+                <li>
+                    <a href="/projects" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded">
+                        <i class="ri-stack-line mr-2"></i> 프로젝트 관리
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="flex-1 p-8">
+        <div th:replace="~{${viewName} :: content}"></div>
+    </main>
+
+</div>
+
+<!-- 푸터 -->
+<footer class="w-full bg-gray-50 py-8 border-t border-gray-200">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+        <div>
+            <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+            <p class="text-sm text-gray-600 mt-2">© 2025 PoP. 모든 권리 보유.</p>
+        </div>
+        <div class="flex space-x-6">
+            <a href="#" class="text-gray-600"><i class="ri-instagram-line"></i></a>
+            <a href="#" class="text-gray-600"><i class="ri-twitter-x-line"></i></a>
+            <a href="#" class="text-gray-600"><i class="ri-linkedin-line"></i></a>
+        </div>
+    </div>
+</footer>
+</body>
+</html>

@@ -1,0 +1,100 @@
+<div th:replace="~{layout :: layout(viewName='form')}">
+<h1 class="text-2xl font-semibold text-primary mb-6" th:text="${portfolio.portfolioId != null} ? '포트폴리오 수정' : '포트폴리오 등록'"></h1>
+
+    <form th:action="${portfolio.portfolioId != null} ? @{/portfolios/{id}(id=${portfolio.portfolioId})} : @{/portfolios}"
+          th:object="${portfolio}" method="post" class="space-y-6" enctype="multipart/form-data">
+
+        <!-- 포트폴리오 타입 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">포트폴리오 타입</label>
+            <div class="flex space-x-4">
+                <div th:each="type : ${T(com.example.demo.domain.PortfoliosType).values()}">
+                    <input type="radio" th:id="${'type-' + type}" th:value="${type}" th:field="*{portfolioType}" class="sr-only">
+                    <label th:for="${'type-' + type}"
+                           class="cursor-pointer px-4 py-2 border rounded-button text-sm"
+                           th:class="${portfolio.portfolioType == type} ? 'border-primary bg-primary text-white' : 'border-gray-300 text-gray-700'"
+                           th:text="${type}">타입</label>
+                </div>
+            </div>
+        </div>
+
+        <!-- 제목 -->
+        <div>
+            <label for="title" class="block text-sm font-medium text-gray-700 mb-1">제목</label>
+            <input type="text" id="title" th:field="*{title}" class="w-full border border-gray-300 rounded px-3 py-2">
+        </div>
+
+        <!-- 설명 -->
+        <div>
+            <label for="description" class="block text-sm font-medium text-gray-700 mb-1">설명</label>
+            <textarea id="description" th:field="*{description}" rows="5" class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+        </div>
+
+        <!-- 파일 업로드 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">파일 첨부</label>
+            <div class="mt-1 flex justify-center px-6 pt-5 pb-6 border-2 border-gray-300 border-dashed rounded-md">
+                <div class="space-y-1 text-center">
+                    <div class="flex text-sm text-gray-600">
+                        <label for="file-upload" class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
+                            <span>파일 선택</span>
+                            <input id="file-upload" name="files" type="file" multiple class="sr-only">
+                        </label>
+                        <p class="pl-1">또는 드래그 앤 드롭</p>
+                    </div>
+                    <p class="text-xs text-gray-500">PNG, JPG, PDF, ZIP 파일 최대 10MB</p>
+                </div>
+            </div>
+        </div>
+
+        <!-- URL 추가 -->
+        <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">URL 추가</label>
+            <div class="flex space-x-2">
+                <input type="text" id="url-input" placeholder="https://example.com" class="flex-1 border border-gray-300 rounded px-3 py-2">
+                <button type="button" id="add-url" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-button">추가</button>
+            </div>
+            <div id="url-container" class="mt-2 space-y-2">
+                <div th:each="url, stat : ${portfolio.urls}" class="flex items-center justify-between bg-gray-50 p-2 rounded">
+                    <span th:text="${url.url}" class="text-sm text-gray-700"></span>
+                    <input type="hidden" th:name="|urls[${stat.index}].url|" th:value="${url.url}">
+                    <button type="button" class="text-red-500" onclick="this.parentElement.remove()">
+                        <i class="ri-close-line"></i>
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 제출 버튼 -->
+        <div class="flex justify-end space-x-3 pt-4">
+            <a th:href="@{/portfolios}" class="bg-gray-200 text-gray-700 px-4 py-2 rounded-button">취소</a>
+            <button type="submit" class="bg-primary text-white px-6 py-2 rounded-button">저장</button>
+        </div>
+    </form>
+
+    <script>
+        // URL 추가 기능
+        document.getElementById('add-url').addEventListener('click', function() {
+            const urlInput = document.getElementById('url-input');
+            const url = urlInput.value.trim();
+
+            if (!url) return;
+
+            const container = document.getElementById('url-container');
+            const index = container.children.length;
+
+            const div = document.createElement('div');
+            div.className = 'flex items-center justify-between bg-gray-50 p-2 rounded';
+            div.innerHTML = `
+                <span class="text-sm text-gray-700">${url}</span>
+                <input type="hidden" name="urls[${index}].url" value="${url}">
+                <button type="button" class="text-red-500" onclick="this.parentElement.remove()">
+                    <i class="ri-close-line"></i>
+                </button>
+            `;
+
+            container.appendChild(div);
+            urlInput.value = '';
+        });
+    </script>
+</div>
