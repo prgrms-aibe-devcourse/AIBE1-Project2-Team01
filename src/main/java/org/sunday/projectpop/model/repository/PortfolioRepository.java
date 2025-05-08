@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface PortfolioRepository extends JpaRepository<Portfolio, String> {
     List<Portfolio> findAllByUserId(String userId);
+    List<Portfolio> findAllByUserIdOrderByCreatedAtDesc(String userId);
 }

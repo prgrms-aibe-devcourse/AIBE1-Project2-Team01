@@ -20,6 +20,7 @@ import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
 import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
+import java.time.format.DateTimeFormatter;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -90,17 +91,19 @@ public class PortfolioServiceImpl implements PortfolioService {
 //        () -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 
 //        portfolioRepository.findAllByUserId(userAccount.getUserId())
-        List<Portfolio> portfolios = portfolioRepository.findAllByUserId(userId);
+        List<Portfolio> portfolios = portfolioRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
         if (portfolios.isEmpty()) {
             throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
         }
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
         return portfolios.stream()
                 .map(portfolio -> new PortfolioSimple(
                         portfolio.getPortfolioId(),
                         portfolio.getPortfolioType(),
                         portfolio.getTitle(),
-                        portfolio.getCreatedAt().toString()
-                        ))
+                        portfolio.getCreatedAt().format(formatter)
+                ))
                 .toList();
     }
 
