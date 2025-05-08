@@ -8,10 +8,7 @@ import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.*;
-import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.model.entity.PortfolioAnalysis;
-import org.sunday.projectpop.model.entity.PortfolioFile;
-import org.sunday.projectpop.model.entity.PortfolioUrl;
+import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import org.sunday.projectpop.model.repository.PortfolioFileRepository;
@@ -117,14 +114,20 @@ public class PortfolioServiceImpl implements PortfolioService {
                 .map(PortfolioUrl::getUrl)
                 .toList();
 
-        // FIXME: 파일 URL 부분 수정 필요
         List<FileResponse> files = portfolio.getFiles()
                 .stream()
-                .map(file -> new FileResponse(
-                        file.getOriginalFilename(),
-                        file.getStoredUrl(),
-                        file.getFileType()
-                ))
+                .map(file -> {
+                    String newUrl = null;
+                    try {
+                        newUrl = fileStorageService.generateSignedUrl(file.getStoredFilename(), 3600);
+                    } catch (Exception e) {
+                        throw new FileManagementException("파일 URL 생성에 실패했습니다.");
+                    }
+                    return new FileResponse(
+                            file.getOriginalFilename(),
+                            newUrl,
+                            file.getFileType());
+                })
                 .toList();
 
         return new PortfolioResponse(

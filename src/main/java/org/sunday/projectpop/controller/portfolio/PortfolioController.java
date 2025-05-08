@@ -76,13 +76,14 @@ public class PortfolioController {
     }
 
     // 포트폴리오 상세 조회
-    // TODO: 회고 column 추가해서 보이기 -> 프론트에서 처리.
     @GetMapping("/{portfolioId}")
-    public ResponseEntity<PortfolioResponse> getPortfolio(@PathVariable String portfolioId) {
-        PortfolioResponse response = portfolioService.getPortfolio(portfolioId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .body(response);
+    public String getPortfolio(@PathVariable String portfolioId, Model model) {
+//        PortfolioDetailResponse portfolioDetail = portfolioService.getPortfolioDetail(portfolioId);
+        PortfolioResponse portfolio = portfolioService.getPortfolio(portfolioId);
+        model.addAttribute("portfolio", portfolio);
+        model.addAttribute("title", "포트폴리오 상세");
+        model.addAttribute("viewName", "portfolio/details");
+        return "portfolio/layout";
     }
 
     // 포트폴리오 수정
@@ -112,6 +113,7 @@ public class PortfolioController {
 
     // 포트폴리오에 대한 노트 조회 목록
     @GetMapping("/{portfolioId}/notes")
+    @ResponseBody
     public ResponseEntity<List<PortfolioNoteResponse>> getPortfolioNoteList(@PathVariable String portfolioId) {
         List<PortfolioNoteResponse> notes = portfolioNoteService.getPortfolioNoteList(portfolioId);
         return ResponseEntity

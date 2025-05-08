@@ -17,6 +17,7 @@ import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -65,12 +66,14 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
 
         List<PortfolioNote> noteList = findAll(portfolio);
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
         List<PortfolioNoteResponse> responseList = new ArrayList<>();
         for (PortfolioNote note : noteList) {
             PortfolioNoteResponse portfolioNoteResponse = new PortfolioNoteResponse(
                     note.getId(),
                     note.getContent(),
-                    note.getCreatedAt().toString(),
+                    note.getCreatedAt().format(formatter),
                     !note.getFiles().isEmpty()
             );
             responseList.add(portfolioNoteResponse);

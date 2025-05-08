@@ -1,121 +1,173 @@
-<div th:replace="~{layout :: layout(viewName='details')}">
-    <!-- 포트폴리오 상세 정보 -->
-    <div class="mb-8">
-        <div class="flex justify-between items-start mb-4">
-            <div>
-                <span class="bg-purple-100 text-primary text-xs px-2 py-1 rounded-full mb-2 inline-block"
-                      th:text="${portfolio.portfolioType}">타입</span>
-                <h1 class="text-2xl font-bold text-gray-900" th:text="${portfolio.title}">포트폴리오 제목</h1>
-            </div>
-            <div class="flex space-x-2">
-                <a th:href="@{'/portfolios/' + ${portfolio.portfolioId} + '/edit'}"
-                   class="bg-gray-200 text-gray-700 px-3 py-1 rounded-button text-sm flex items-center">
-                    <i class="ri-edit-line mr-1"></i> 수정
-                </a>
-                <form th:action="@{'/portfolios/' + ${portfolio.portfolioId}}" method="post" th:if="${portfolio.userId == #authentication.name}">
-                    <input type="hidden" name="_method" value="DELETE">
-                    <button type="submit" class="bg-red-100 text-red-600 px-3 py-1 rounded-button text-sm flex items-center">
-                        <i class="ri-delete-bin-line mr-1"></i> 삭제
-                    </button>
-                </form>
-            </div>
+<div th:fragment="content" class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md"
+     th:attr="data-portfolio-id=${portfolio.portfolioId}"
+    id="portfolio-container"
+>
+
+    <!-- 포트폴리오 헤더 -->
+    <div class="flex justify-between items-start mb-8 pb-6 border-b border-gray-200">
+        <div>
+            <span class="bg-purple-100 text-primary text-xs px-3 py-1 rounded-full mb-3 inline-block"
+                  th:text="${portfolio.portfolioType}">타입</span>
+            <h1 class="text-3xl font-bold text-gray-900 mb-2" th:text="${portfolio.title}">포트폴리오 제목</h1>
+            <p class="text-gray-600" th:text="${portfolio.description}">포트폴리오 설명</p>
         </div>
-
-        <p class="text-gray-700 mb-6" th:text="${portfolio.description}">포트폴리오 설명</p>
-
-        <!-- 첨부 파일 -->
-        <div th:if="${not #lists.isEmpty(portfolio.files)}" class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">첨부 파일</h3>
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2">
-                <div th:each="file : ${portfolio.files}" class="border border-gray-200 rounded p-3 flex items-center">
-                    <i class="ri-file-line text-gray-500 mr-2"></i>
-                    <a th:href="@{'/portfolios/' + ${portfolio.portfolioId} + '/files/' + ${file.id} + '/download'}"
-                       th:text="${file.originalFilename}"
-                       class="text-sm text-primary hover:underline"></a>
-                </div>
-            </div>
+        <div class="flex space-x-3">
+            <a th:href="@{'/portfolios/' + ${portfolio.portfolioId} + '/edit'}"
+               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
+                <i class="ri-edit-line mr-2"></i> 수정
+            </a>
         </div>
+    </div>
 
-        <!-- URL 링크 -->
-        <div th:if="${not #lists.isEmpty(portfolio.urls)}" class="mb-6">
-            <h3 class="text-lg font-semibold text-gray-900 mb-2">관련 링크</h3>
-            <div class="space-y-2">
-                <div th:each="url : ${portfolio.urls}" class="flex items-center">
-                    <i class="ri-link text-gray-500 mr-2"></i>
-                    <a th:href="${url.url}" target="_blank" class="text-sm text-primary hover:underline" th:text="${url.url}">링크</a>
+    <!-- 첨부 파일 섹션 -->
+    <div th:if="${not #lists.isEmpty(portfolio.files)}" class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="ri-attachment-line mr-2"></i> 첨부 파일
+        </h2>
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+            <div th:each="file : ${portfolio.files}"
+                 class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center">
+                    <i class="ri-file-line text-gray-400 text-xl mr-3"></i>
+                    <div class="flex-1 min-w-0">
+                        <a th:href="${file.fileUrl}"
+                           th:text="${file.filename}"
+                           class="text-primary hover:underline font-medium block truncate"
+                           target="_blank"></a>
+                        <span class="text-xs text-gray-500" th:text="${createdAt}"></span>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- 노트 및 분석 섹션 -->
-    <div class="border-t border-gray-200 pt-6">
-        <h2 class="text-xl font-semibold text-primary mb-4">피드백</h2>
+    <!-- 관련 링크 섹션 -->
+    <div th:if="${not #lists.isEmpty(portfolio.urls)}" class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="ri-links-line mr-2"></i> 관련 링크
+        </h2>
+        <div class="space-y-3">
+            <div th:each="url : ${portfolio.urls}"
+                 class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
+                <div class="flex items-center">
+                    <i class="ri-external-link-line text-gray-400 text-xl mr-3"></i>
+                    <a th:href="${url}"
+                       th:text="${url}"
+                       class="text-primary hover:underline font-medium block truncate"
+                       target="_blank"></a>
+                </div>
+            </div>
+        </div>
+    </div>
 
-        <!-- 노트 작성 폼 -->
-        <div class="mb-8">
-            <form th:action="@{'/portfolios/' + ${portfolio.portfolioId} + '/notes'}" method="post" class="space-y-3">
-                <div>
-                    <label for="note-content" class="block text-sm font-medium text-gray-700 mb-1">노트 작성</label>
-                    <textarea id="note-content" name="content" rows="3" class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
+    <!-- 회고 노트 작성 섹션 -->
+    <div class="pt-6 border-t border-gray-200">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <i class="ri-book-read-line mr-2"></i> 회고 노트 작성
+        </h2>
+
+        <div class="bg-gray-50 rounded-lg p-6 mb-8">
+            <form id="note-form">
+                <div class="mb-4">
+                    <label for="note-content" class="block text-sm font-medium text-gray-700 mb-2">프로젝트 회고 작성</label>
+                    <textarea id="note-content" name="content" rows="4"
+                              class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                              placeholder="프로젝트를 진행하면서 배운 점, 어려웠던 점, 개선할 점 등을 작성해주세요"></textarea>
                 </div>
                 <div class="flex justify-end">
-                    <button type="submit" class="bg-primary text-white px-4 py-2 rounded-button text-sm">작성</button>
+                    <button type="submit"
+                            class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                        작성 완료
+                    </button>
                 </div>
             </form>
         </div>
+    </div>
 
-        <!-- 노트 목록 -->
-        <div class="space-y-6">
-            <div th:each="note : ${portfolio.notes}" class="border border-gray-200 rounded-lg p-4">
-                <div class="flex justify-between items-start mb-2">
-                    <div class="flex items-center space-x-2">
-                        <span class="font-medium text-gray-900" th:text="${note.userId}">작성자</span>
-                        <span class="text-xs text-gray-500" th:text="${#temporals.format(note.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
-                    </div>
-                    <div th:if="${note.userId == #authentication.name}" class="flex space-x-1">
-                        <button class="text-gray-500 hover:text-primary text-sm">수정</button>
-                        <form th:action="@{'/portfolios/' + ${portfolio.portfolioId} + '/notes/' + ${note.id}}" method="post">
-                            <input type="hidden" name="_method" value="DELETE">
-                            <button type="submit" class="text-gray-500 hover:text-red-500 text-sm">삭제</button>
-                        </form>
-                    </div>
-                </div>
-                <p class="text-gray-700 mb-3" th:text="${note.content}">노트 내용</p>
+    <!-- 회고 노트 목록 -->
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
+            <i class="ri-list-check-2 mr-2"></i> 회고 노트 목록
+        </h2>
 
-                <!-- 분석 작성 폼 -->
-                <div class="pl-6 border-l-2 border-gray-200 mt-3">
-                    <form th:action="@{'/portfolios/' + ${portfolio.portfolioId} + '/notes/' + ${note.id} + '/analyses'}" method="post" class="space-y-3">
-                        <div>
-                            <label for="analysis-content" class="block text-sm font-medium text-gray-700 mb-1">분석 추가</label>
-                            <textarea id="analysis-content" name="content" rows="2" class="w-full border border-gray-300 rounded px-3 py-2"></textarea>
-                        </div>
-                        <div class="flex justify-end">
-                            <button type="submit" class="bg-secondary text-white px-3 py-1 rounded-button text-sm">작성</button>
-                        </div>
-                    </form>
-                </div>
-
-                <!-- 분석 목록 -->
-                <div class="pl-6 border-l-2 border-gray-200 mt-3 space-y-4">
-                    <div th:each="analysis : ${note.analyses}" class="pt-3">
-                        <div class="flex justify-between items-start mb-1">
-                            <div class="flex items-center space-x-2">
-                                <span class="font-medium text-gray-900 text-sm" th:text="${analysis.userId}">작성자</span>
-                                <span class="text-xs text-gray-500" th:text="${#temporals.format(analysis.createdAt, 'yyyy-MM-dd HH:mm')}">날짜</span>
-                            </div>
-                            <div th:if="${analysis.userId == #authentication.name}" class="flex space-x-1">
-                                <button class="text-gray-500 hover:text-primary text-xs">수정</button>
-                                <form th:action="@{'/portfolios/' + ${portfolio.portfolioId} + '/analyses/' + ${analysis.id}}" method="post">
-                                    <input type="hidden" name="_method" value="DELETE">
-                                    <button type="submit" class="text-gray-500 hover:text-red-500 text-xs">삭제</button>
-                                </form>
-                            </div>
-                        </div>
-                        <p class="text-gray-700 text-sm" th:text="${analysis.content}">분석 내용</p>
-                    </div>
-                </div>
-            </div>
+        <div class="space-y-6" id="note-list">
+            <!-- 여기에 회고 노트가 동적으로 추가될 예정 -->
         </div>
     </div>
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const portfolioId = document.getElementById('portfolio-container').dataset.portfolioId;
+            console.log(portfolioId);
+            // 회고 노트 목록을 처음에 불러오기
+            fetch(`/portfolios/${portfolioId}/notes`)
+                .then(response => response.json())
+                .then(notes => {
+                    console.log("오냐")
+                    const noteList = document.getElementById('note-list');
+                    notes.forEach(note => {
+                        const noteItem = document.createElement('div');
+                        noteItem.classList.add('border', 'border-gray-200', 'rounded-lg', 'p-6');
+                        noteItem.innerHTML = `
+                    <div class="flex justify-between items-start mb-4">
+                        <div>
+                            <span class="text-sm text-gray-500 ml-2">${note.createdAt}</span>
+                        </div>
+                        <div class="flex space-x-3">
+                            <button class="text-gray-500 hover:text-primary text-sm">수정</button>
+                            <button class="text-gray-500 hover:text-red-500 text-sm">삭제</button>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-6">${note.content}</p>
+                    <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm mb-4">
+                        피드백 요청하기
+                    </button>
+                `;
+                        noteList.appendChild(noteItem); // 기존 노트 목록에 추가
+                    });
+                });
+
+            // 회고 노트 작성 폼 처리
+            document.getElementById('note-form').addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                const content = document.getElementById('note-content').value;  // 회고 내용
+
+                // 회고 노트 작성 API 호출
+                fetch('/portfolio/{{portfolioId}}/note', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({content: content}),  // 회고 노트 내용
+                })
+                    .then(response => response.json())
+                    .then(note => {
+                        // 새로운 회고 노트 UI에 추가
+                        const noteList = document.getElementById('note-list');
+                        const noteItem = document.createElement('div');
+                        noteItem.classList.add('border', 'border-gray-200', 'rounded-lg', 'p-6');
+                        noteItem.innerHTML = `
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <span class="text-sm text-gray-500 ml-2">${note.createdAt}</span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="text-gray-500 hover:text-primary text-sm">수정</button>
+                        <button class="text-gray-500 hover:text-red-500 text-sm">삭제</button>
+                    </div>
+                </div>
+                <p class="text-gray-700 mb-6">${note.content}</p>
+                <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm mb-4">
+                    피드백 요청하기
+                </button>
+            `;
+                        noteList.appendChild(noteItem); // 새로운 회고 노트 추가
+                        document.getElementById('note-content').value = ''; // 입력창 초기화
+                    });
+            });
+        });
+    </script>
+
 </div>
