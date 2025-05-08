@@ -110,6 +110,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                 .map(PortfolioUrl::getUrl)
                 .toList();
 
+        // FIXME: 파일 URL 부분 수정 필요
         List<FileResponse> files = portfolio.getFiles()
                 .stream()
                 .map(file -> new FileResponse(

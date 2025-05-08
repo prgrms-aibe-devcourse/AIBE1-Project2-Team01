@@ -3,7 +3,9 @@ package org.sunday.projectpop.service.feedback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.sunday.projectpop.exceptions.FeedbackNotFoundException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
+import org.sunday.projectpop.model.dto.FeedbackResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.model.entity.PortfolioAnalysis;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
@@ -11,6 +13,8 @@ import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.service.llm.LLMClient;
 import reactor.core.scheduler.Schedulers;
+
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -22,7 +26,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final LLMClient llmClient;
 
     @Override
-    public void generateFeedback(String id) {
+    public void generatePortfolioFeedback(String id) {
         // 포트폴리오 있는지 확인
         Portfolio portfolio = findById(id);
         PortfolioAnalysis analysis = analysisRepository.findByPortfolio(portfolio);
@@ -50,7 +54,17 @@ public class FeedbackServiceImpl implements FeedbackService {
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
+    }
 
+    @Override
+    public List<FeedbackResponse> getFeedbackList(String portfolioId) {
+        Portfolio portfolio = findById(portfolioId);
+        List<FeedbackResponse> feedbackResponses = analysisRepository.findFeedbackAndStatusByPortfolio(portfolio);
+        if (feedbackResponses.stream().anyMatch(feedbackResponse -> feedbackResponse.feedbackStatus() == null)) {
+            throw new FeedbackNotFoundException("등록된 피드백이 없습니다.");
+        }
+
+        return feedbackResponses;
     }
 
     private Portfolio findById(String id) {

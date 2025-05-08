@@ -46,5 +46,11 @@ public class GlobalExceptionHandler {
     public ResponseEntity<String> handleGitHubManagement(GitHubManagementException ex) {
         return new ResponseEntity<>(ex.getMessage(), HttpStatus.BAD_REQUEST);
     }
+
+    @ExceptionHandler(FeedbackNotFoundException.class)
+    public ResponseEntity<String> handleFeedbackNotFound(FeedbackNotFoundException ex) {
+        return new ResponseEntity<>(ex.getMessage(), HttpStatus.NOT_FOUND);
+    }
+
 }
 

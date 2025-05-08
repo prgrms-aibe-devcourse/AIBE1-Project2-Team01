@@ -1,6 +1,7 @@
 package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
+import jdk.jfr.Timestamp;
 import lombok.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 
