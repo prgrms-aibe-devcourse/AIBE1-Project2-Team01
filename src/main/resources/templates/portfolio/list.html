@@ -26,8 +26,9 @@
 
     <!-- 포트폴리오 목록 -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div th:each="portfolio : ${portfolios}"
-             class="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow">
+        <a th:each="portfolio : ${portfolios}"
+           th:href="@{/portfolios/{id}(id=${portfolio.portfolioId})}"
+           class="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow block">
             <div class="p-4">
                 <div class="flex justify-between items-start mb-2">
                     <h3 class="text-lg font-bold text-primary" th:text="${portfolio.title()}">포트폴리오 제목</h3>
@@ -36,11 +37,10 @@
                 </div>
                 <div class="flex justify-between items-center text-xs text-gray-500">
                     <span th:text="${portfolio.createdAt}">2025-05-08</span>
-                    <a th:href="@{/portfolios/{id}(id=${portfolio.portfolioId})}"
-                       class="text-primary hover:underline">자세히 보기</a>
+                    <span class="text-primary hover:underline">자세히 보기</span>
                 </div>
             </div>
-        </div>
+        </a>
     </div>
 
     <!-- TODO: 페이지네이션 -->
