@@ -27,9 +27,9 @@ public class PortfolioRestController {
 
     // 포트폴리오 목록 조회
     @GetMapping("/me")
-    public ResponseEntity<?> getMyPortfolios() {
+    public ResponseEntity<List<PortfolioSimple>> getMyPortfolios() {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        List<Portfolio> portfolios = portfolioService.getMyPortfolios(userId);
+        List<PortfolioSimple> portfolios = portfolioService.getMyPortfolios(userId);
         return ResponseEntity
                 .status(HttpStatus.OK)
                 .body(portfolios);

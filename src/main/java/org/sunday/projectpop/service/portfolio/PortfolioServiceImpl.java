@@ -7,10 +7,7 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
-import org.sunday.projectpop.model.dto.FileResponse;
-import org.sunday.projectpop.model.dto.PortfolioCreateRequest;
-import org.sunday.projectpop.model.dto.PortfolioResponse;
-import org.sunday.projectpop.model.dto.PortfolioUpdateRequest;
+import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.Portfolio;
 import org.sunday.projectpop.model.entity.PortfolioAnalysis;
 import org.sunday.projectpop.model.entity.PortfolioFile;
@@ -87,7 +84,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public List<Portfolio> getMyPortfolios(String userId) {
+    public List<PortfolioSimple> getMyPortfolios(String userId) {
         // TODO: userId 한번더 체크
 //        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
 //        () -> new UserNotFoundException("유저를 찾을 수 없습니다."));
@@ -97,7 +94,14 @@ public class PortfolioServiceImpl implements PortfolioService {
         if (portfolios.isEmpty()) {
             throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
         }
-        return portfolios;
+        return portfolios.stream()
+                .map(portfolio -> new PortfolioSimple(
+                        portfolio.getPortfolioId(),
+                        portfolio.getPortfolioType(),
+                        portfolio.getTitle(),
+                        portfolio.getCreatedAt().toString()
+                        ))
+                .toList();
     }
 
     @Override
