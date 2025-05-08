@@ -71,7 +71,7 @@ public class PortfolioServiceImpl implements PortfolioService {
 
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
-        // NOTE:: 확인필요!!!
+        // 요약을 위한 분석 생성 및 저장.
         PortfolioAnalysis analysis = PortfolioAnalysis.builder()
                 .portfolio(savedPortfolio)
                 .summaryStatus(AnalysisStatus.NOT_STARTED)
@@ -111,9 +111,12 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
 
-        List<String> urls = portfolio.getUrls()
+        List<UrlResponse> urls = portfolio.getUrls()
                 .stream()
-                .map(PortfolioUrl::getUrl)
+                .map(url -> new UrlResponse(
+                        url.getPortfolioUrlId(),
+                        url.getUrl()
+                ))
                 .toList();
 
         List<FileResponse> files = portfolio.getFiles()
@@ -126,6 +129,7 @@ public class PortfolioServiceImpl implements PortfolioService {
                         throw new FileManagementException("파일 URL 생성에 실패했습니다.");
                     }
                     return new FileResponse(
+                            file.getPortfolioFileId(),
                             file.getOriginalFilename(),
                             newUrl,
                             file.getFileType());
@@ -170,8 +174,10 @@ public class PortfolioServiceImpl implements PortfolioService {
         // 파일 업로드
         if (newFiles != null) {
             for (MultipartFile file : newFiles) {
-                PortfolioFile uploaded = fileStorageService.uploadPortfolioFile(file, portfolio);
-                portfolio.getFiles().add(uploaded);
+                if (!file.isEmpty()) {
+                    PortfolioFile uploaded = fileStorageService.uploadPortfolioFile(file, portfolio);
+                    portfolio.getFiles().add(uploaded);
+                }
             }
         }
         // 중복 URL 검증 후 등록
@@ -179,15 +185,26 @@ public class PortfolioServiceImpl implements PortfolioService {
                 .stream()
                 .map(PortfolioUrl::getUrl)
                 .collect(Collectors.toSet());
-        for (String url : request.newUrls()) {
-            if (!existingUrls.contains(url)) {
-                PortfolioUrl portfolioUrl = new PortfolioUrl(url, portfolio);
-                portfolio.getUrls().add(portfolioUrl);
+
+        if (request.newUrls() != null) {
+            for (String url : request.newUrls()) {
+                if (!existingUrls.contains(url)) {
+                    PortfolioUrl portfolioUrl = new PortfolioUrl(url, portfolio);
+                    portfolio.getUrls().add(portfolioUrl);
+                }
             }
         }
 
-        log.info(portfolio.toString());
-        portfolioRepository.save(portfolio);
+        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
+
+        // NOTE:: 포트폴리오아이디로 요약 조회 후, 다시 저장 및 요청
+        PortfolioAnalysis analysis = portfolioAnalysisRepository.findByPortfolio(portfolio);
+        analysis.setSummaryStatus(AnalysisStatus.NOT_STARTED);
+        portfolioAnalysisRepository.save(analysis);
+
+        // 비동기 요약 요청
+        analysisService.handleAnalysis(savedPortfolio);
+
     }
 
     private void deletePortfolioUrls(List<Long> urlIds) {

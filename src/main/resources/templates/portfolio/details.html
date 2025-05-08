@@ -9,13 +9,30 @@
             <span class="bg-purple-100 text-primary text-xs px-3 py-1 rounded-full mb-3 inline-block"
                   th:text="${portfolio.portfolioType}">타입</span>
             <h1 class="text-3xl font-bold text-gray-900 mb-2" th:text="${portfolio.title}">포트폴리오 제목</h1>
-            <p class="text-gray-600" th:text="${portfolio.description}">포트폴리오 설명</p>
+
         </div>
-        <div class="flex space-x-3">
+        <div class="flex space-x-2">
             <a th:href="@{'/portfolios/' + ${portfolio.portfolioId} + '/edit'}"
-               class="bg-gray-100 hover:bg-gray-200 text-gray-700 px-4 py-2 rounded-lg text-sm flex items-center transition-colors">
-                <i class="ri-edit-line mr-2"></i> 수정
+               class="bg-gray-200 text-gray-700 px-3 py-1 rounded-button text-sm flex items-center">
+                <i class="ri-edit-line mr-1"></i> 수정
             </a>
+            <form th:action="@{'/portfolios/' + ${portfolio.portfolioId}}" method="post">
+<!--                  th:if="${portfolio.userId == #authentication.name}">-->
+                <input type="hidden" name="_method" value="DELETE">
+                <button type="submit"
+                        class="bg-red-100 text-red-600 px-3 py-1 rounded-button text-sm flex items-center">
+                    <i class="ri-delete-bin-line mr-1"></i> 삭제
+                </button>
+            </form>
+        </div>
+    </div>
+    <!-- 설명 세션 -->
+    <div class="mb-8">
+        <h2 class="text-xl font-semibold text-gray-800 mb-4 flex items-center">
+            <i class="ri-keyboard-box-line mr-2"></i> 설명
+        </h2>
+        <div class="space-y-3">
+            <pre class="text-gray-600" th:text="${portfolio.description}">포트폴리오 설명</pre>
         </div>
     </div>
 
@@ -51,8 +68,8 @@
                  class="border border-gray-200 rounded-lg p-4 hover:bg-gray-50 transition-colors">
                 <div class="flex items-center">
                     <i class="ri-external-link-line text-gray-400 text-xl mr-3"></i>
-                    <a th:href="${url}"
-                       th:text="${url}"
+                    <a th:href="${url.url}"
+                       th:text="${url.url}"
                        class="text-primary hover:underline font-medium block truncate"
                        target="_blank"></a>
                 </div>

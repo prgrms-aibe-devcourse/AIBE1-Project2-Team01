@@ -11,7 +11,7 @@ public record PortfolioResponse(
         String description,
         String createdAt,
 
-        List<String> urls,
+        List<UrlResponse> urls,
         List<FileResponse> files
 
 ) {

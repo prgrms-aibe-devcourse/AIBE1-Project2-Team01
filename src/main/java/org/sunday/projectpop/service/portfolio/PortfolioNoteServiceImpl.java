@@ -125,6 +125,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         List<FileResponse> files = note.getFiles()
                 .stream()
                 .map(file -> new FileResponse(
+                        file.getPortfolioNoteFileId(),
                         file.getOriginalFilename(),
                         file.getStoredUrl(),
                         file.getFileType()

@@ -90,29 +90,47 @@ public class PortfolioController {
         return "portfolio/layout";
     }
 
-    // 포트폴리오 수정
-    @PutMapping("/{portfolioId}")
-    public ResponseEntity<Void> updatePortfolio(
-            @PathVariable String portfolioId,
-            @Valid @RequestPart("request") PortfolioUpdateRequest request,
-            @RequestPart(value = "newFiles", required = false) List<MultipartFile> newFiles
+    // 포트폴리오 수정 폼
+    @GetMapping("/{portfolioId}/edit")
+    public String updatePortfolioForm(@PathVariable String portfolioId, Model model) {
 
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+
+        model.addAttribute("portfolio", portfolioService.getPortfolio(portfolioId));
+        model.addAttribute("allTypes", PortfoliosType.values());
+        model.addAttribute("title", "포트폴리오 수정");
+        model.addAttribute("viewName", "portfolio/form");
+        return "portfolio/layout";
+    }
+
+    // 포트폴리오 수정
+    @PostMapping("/{portfolioId}/edit")
+    public String updatePortfolio(
+            @PathVariable String portfolioId,
+            @Valid @ModelAttribute("portfolio") PortfolioUpdateRequest request,
+            BindingResult bindingResult,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            Model model
     ) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioService.updatePortfolio(userId, portfolioId, request, newFiles);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("portfolio", request);
+            model.addAttribute("allTypes", PortfoliosType.values());
+            model.addAttribute("title", "포트폴리오 수정");
+            model.addAttribute("viewName", "portfolio/form");
+            return "portfolio/layout";
+        }
+        portfolioService.updatePortfolio(userId, portfolioId, request, files);
+        return "redirect:/portfolios/{portfolioId}";
     }
 
     // 포트폴리오 삭제
     @DeleteMapping("/{portfolioId}")
-    public ResponseEntity<Void> deletePortfolio(@PathVariable String portfolioId) {
+    public String deletePortfolio(@PathVariable String portfolioId) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
         portfolioService.deletePortfolio(userId, portfolioId);
-        return ResponseEntity
-                .status(HttpStatus.NO_CONTENT)
-                .build();
+        return "redirect:/portfolios";
     }
 
     // 포트폴리오에 대한 노트 조회 목록
