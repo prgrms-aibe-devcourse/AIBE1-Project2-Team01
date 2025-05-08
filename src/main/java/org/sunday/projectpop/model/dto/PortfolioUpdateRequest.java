@@ -1,11 +1,11 @@
 package org.sunday.projectpop.model.dto;
 
-import org.sunday.projectpop.model.enums.PortfoliosType;
+import org.sunday.projectpop.model.enums.PortfolioType;
 
 import java.util.List;
 
 public record PortfolioUpdateRequest(
-        PortfoliosType portfolioType,
+        PortfolioType portfolioType,
         String title,
         String description,
 

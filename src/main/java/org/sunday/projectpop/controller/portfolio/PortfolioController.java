@@ -5,7 +5,6 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -16,15 +15,13 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.PortfolioNote;
-import org.sunday.projectpop.model.enums.PortfoliosType;
+import org.sunday.projectpop.model.enums.PortfolioType;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
-
-import static org.sunday.projectpop.model.dto.PortfolioCreateRequest.emptyCreateRequest;
 
 @Controller
 @RequestMapping("/portfolios")
@@ -50,8 +47,8 @@ public class PortfolioController {
     // 포트폴리오 등록 폼
     @GetMapping("/new")
     public String portfolioForm(Model model) {
-        model.addAttribute("portfolio", emptyCreateRequest());
-        model.addAttribute("allTypes", PortfoliosType.values());
+        model.addAttribute("portfolio", PortfolioRequest.emptyCreateRequest());
+        model.addAttribute("allTypes", PortfolioType.values());
         model.addAttribute("title", "포트폴리오 등록");
         model.addAttribute("viewName", "portfolio/form");
         return "portfolio/layout";
@@ -60,22 +57,22 @@ public class PortfolioController {
     // 포트폴리오 등록
     @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String addPortfolio(
-            @Valid @ModelAttribute("portfolio") PortfolioCreateRequest request,
+            @Valid @ModelAttribute("portfolio") PortfolioRequest request,
             BindingResult bindingResult,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+//            @RequestParam(value = "files", required = false) List<MultipartFile> files,
             Model model) {
 
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("portfolio", request);
-            model.addAttribute("allTypes", PortfoliosType.values());
+            model.addAttribute("allTypes", PortfolioType.values());
             model.addAttribute("title", "포트폴리오 등록");
             model.addAttribute("viewName", "portfolio/form");
             return "portfolio/layout";
         }
-        System.out.println(files);
-        portfolioService.createPortfolio(userId, request, files);
+//        System.out.println(files);
+        portfolioService.createPortfolio(userId, request);
         return "redirect:/portfolios";
     }
 
@@ -97,7 +94,7 @@ public class PortfolioController {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
 
         model.addAttribute("portfolio", portfolioService.getPortfolio(portfolioId));
-        model.addAttribute("allTypes", PortfoliosType.values());
+        model.addAttribute("allTypes", PortfolioType.values());
         model.addAttribute("title", "포트폴리오 수정");
         model.addAttribute("viewName", "portfolio/form");
         return "portfolio/layout";
@@ -116,7 +113,7 @@ public class PortfolioController {
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("portfolio", request);
-            model.addAttribute("allTypes", PortfoliosType.values());
+            model.addAttribute("allTypes", PortfolioType.values());
             model.addAttribute("title", "포트폴리오 수정");
             model.addAttribute("viewName", "portfolio/form");
             return "portfolio/layout";

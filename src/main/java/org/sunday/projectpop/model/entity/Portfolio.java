@@ -2,7 +2,7 @@ package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;
-import org.sunday.projectpop.model.enums.PortfoliosType;
+import org.sunday.projectpop.model.enums.PortfolioType;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -24,7 +24,7 @@ public class Portfolio {
 
     @Column(nullable = false)
     @Enumerated(EnumType.STRING)
-    private PortfoliosType portfolioType;
+    private PortfolioType portfolioType;
 
     @Column(nullable = false)
     private String title;

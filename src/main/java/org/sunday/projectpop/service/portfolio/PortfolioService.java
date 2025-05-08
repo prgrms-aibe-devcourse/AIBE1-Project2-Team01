@@ -7,7 +7,7 @@ import org.sunday.projectpop.model.dto.*;
 import java.util.List;
 
 public interface PortfolioService {
-    void createPortfolio(String userId, PortfolioCreateRequest request, List<MultipartFile> files);
+    void createPortfolio(String userId, PortfolioRequest request);
 
     List<PortfolioSimple> getMyPortfolios(String userId) throws PortfolioNotFoundException;
 

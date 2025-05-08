@@ -35,23 +35,12 @@ public class PortfolioRestController {
     }
 
     // 포트폴리오 등록
-    @Operation(summary = "포트폴리오 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                            encoding = {
-                                    @Encoding(name = "request", contentType = "application/json"),
-                                    @Encoding(name = "files", contentType = "application/octet-stream")
-                            }
-                    )
-            )
-    )
     @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> addPortfolio(
-            @Valid @RequestPart("request") PortfolioCreateRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+            @Valid @RequestPart("request") PortfolioRequest request) {
 
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioService.createPortfolio(userId, request, files);
+        portfolioService.createPortfolio(userId, request);
         return ResponseEntity
                 .status(HttpStatus.CREATED)
                 .build();

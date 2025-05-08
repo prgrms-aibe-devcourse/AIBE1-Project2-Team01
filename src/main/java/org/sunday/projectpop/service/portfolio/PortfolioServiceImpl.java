@@ -38,7 +38,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final AnalysisService analysisService;
 
     @Override
-    public void createPortfolio(String userId, PortfolioCreateRequest request, List<MultipartFile> files) {
+    public void createPortfolio(String userId, PortfolioRequest request) {
         // TODO: userId 한번더 체크
 //        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
 //        () -> new UserNotFoundException("유저를 찾을 수 없습니다."));
@@ -59,7 +59,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setUrls(urls);
 
         // 파일 업로드 및 저장
-        List<PortfolioFile> fileList = Optional.ofNullable(files)
+        List<PortfolioFile> fileList = Optional.ofNullable(request.files())
                 .orElse(Collections.emptyList())
                 .stream()
                 .filter(file -> !file.isEmpty()) // 추가: 파일이 비어있지 않은 경우만 처리
@@ -91,7 +91,8 @@ public class PortfolioServiceImpl implements PortfolioService {
 //        portfolioRepository.findAllByUserId(userAccount.getUserId())
         List<Portfolio> portfolios = portfolioRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
         if (portfolios.isEmpty()) {
-            throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
+//            throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
+            return Collections.emptyList();
         }
 
         DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")

@@ -1,10 +1,10 @@
 package org.sunday.projectpop.model.dto;
 
-import org.sunday.projectpop.model.enums.PortfoliosType;
+import org.sunday.projectpop.model.enums.PortfolioType;
 
 public record PortfolioSimple(
         String portfolioId,
-        PortfoliosType portfolioType,
+        PortfolioType portfolioType,
         String title,
         String createdAt
 ) {
