@@ -10,6 +10,7 @@ import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
@@ -55,10 +56,21 @@ public class PortfolioController {
     // 포트폴리오 등록
     @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String addPortfolio(
-            @Valid @RequestPart("request") PortfolioCreateRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
+            @Valid @ModelAttribute("portfolio") PortfolioCreateRequest request,
+            BindingResult bindingResult,
+            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            Model model) {
 
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+
+        if (bindingResult.hasErrors()) {
+            model.addAttribute("portfolio", request);
+            model.addAttribute("allTypes", PortfoliosType.values());
+            model.addAttribute("title", "포트폴리오 등록");
+            model.addAttribute("viewName", "portfolio/form");
+            return "portfolio/layout";
+        }
+        System.out.println(files);
         portfolioService.createPortfolio(userId, request, files);
         return "redirect:/portfolios";
     }

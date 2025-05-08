@@ -5,19 +5,10 @@
         포트폴리오 등록 <!--TODO: 등록/수정 제목 -->
     </h1>
 
-    <form th:action="@{/portfolios/new}" method="post" enctype="multipart/form-data" th:object="${portfolio}"
-          class="space-y-8">
+    <form th:action="@{/portfolios/new}" method="post" enctype="multipart/form-data"
+          class="space-y-8" id="portfolio-form">
         <!-- TODO:CSRF -->
-<!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">-->
-
-
-        <!-- 유효성 오류 표시 -->
-        <div th:if="${#fields.hasErrors('*')}" class="p-4 bg-red-50 rounded-lg border border-red-200">
-            <h3 class="text-red-600 font-medium mb-2">다음 오류를 확인해주세요:</h3>
-            <ul class="list-disc list-inside text-red-500 space-y-1">
-                <li th:each="err : ${#fields.errors('*')}" th:text="${err}"></li>
-            </ul>
-        </div>
+        <!--        <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}">-->
 
         <!-- 타입 선택 섹션 -->
         <div class="space-y-4">
@@ -61,25 +52,41 @@
         <!-- 파일 업로드 섹션 -->
         <div class="space-y-2">
             <label class="block text-lg font-semibold text-gray-700">파일 첨부</label>
-            <div class="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors bg-gray-50">
+
+            <!-- 실제 파일 입력 (숨겨둠) -->
+            <input id="file-upload" name="files" type="file" multiple class="hidden">
+
+            <!-- 드래그 앤 드롭 영역 -->
+            <div class="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors bg-gray-50 cursor-pointer"
+                 onclick="document.getElementById('file-upload').click()"
+                 ondragover="event.preventDefault(); this.classList.add('border-primary', 'bg-blue-50')"
+                 ondragleave="this.classList.remove('border-primary', 'bg-blue-50')"
+                 ondrop="handleDrop(event)">
+
                 <div class="space-y-3 text-center">
-                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48"
-                         aria-hidden="true">
-                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
-                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
                     </svg>
-                    <div class="flex justify-center text-sm text-gray-600">
-                        <label for="file-upload"
-                               class="relative cursor-pointer bg-white rounded-md font-medium text-primary hover:text-secondary focus-within:outline-none">
-                            <span>파일 선택</span>
-                            <input id="file-upload" name="files" type="file" multiple class="sr-only">
-                        </label>
-                        <p class="pl-1">또는 드래그 앤 드롭</p>
+                    <p class="text-sm text-gray-600">
+                        <span class="font-medium text-primary">파일 선택</span>
+                        또는 드래그 앤 드롭
+                    </p>
+                    <p class="text-xs text-gray-500">PNG, JPG, PDF, ZIP 파일 (최대 10MB)</p>
+
+                    <!-- 선택된 파일 목록 -->
+                    <div id="file-list" class="text-sm text-gray-700 mt-2 space-y-1 max-h-40 overflow-y-auto">
+                        <p class="text-gray-400">선택된 파일 없음</p>
                     </div>
-                    <p class="text-xs text-gray-500">PDF, DOC, XLS, PNG, JPG 파일 (최대 10MB)</p>
                 </div>
             </div>
+            <!-- 파일 크기 제한 알림 메시지 -->
+            <div id="file-size-error" class="hidden mt-2 text-sm text-red-500">
+                50MB 이상의 파일은 업로드할 수 없습니다.
+            </div>
         </div>
+
+        <!-- 선택된 파일 관리용 컨테이너 (폼 제출 시 여기에 있는 파일들이 전송됨) -->
+        <div id="selected-files-container"></div>
 
         <!-- URL 추가 섹션 -->
         <div class="space-y-2">
@@ -116,14 +123,199 @@
                class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors">
                 취소
             </a>
-            <button type="submit"
-                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
-                저장하기
+            <button type="submit" id="submit-button"
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center">
+                <span>저장하기</span>
+                <!-- 로딩 스피너 (기본적으로 숨김) -->
+                <svg id="loading-spinner" class="hidden ml-2 animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
             </button>
         </div>
     </form>
 
     <script>
+        // 전역 변수: 선택된 파일들 저장
+        let selectedFiles = [];
+
+        // 파일 크기 제한 (바이트 단위)
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+
+        // DOM 요소
+        const fileInput = document.getElementById('file-upload');
+        const fileList = document.getElementById('file-list');
+        const selectedFilesContainer = document.getElementById('selected-files-container');
+        const fileSizeError = document.getElementById('file-size-error');
+
+        // 파일 입력 변경 이벤트 처리
+        fileInput.addEventListener('change', function(e) {
+            if (this.files.length > 0) {
+                // 파일 크기 확인
+                const oversizedFiles = Array.from(this.files).filter(file => file.size > MAX_FILE_SIZE);
+
+                if (oversizedFiles.length > 0) {
+                    // 오류 메시지 표시
+                    fileSizeError.classList.remove('hidden');
+                    fileSizeError.textContent = `${oversizedFiles.length}개 파일이 50MB 제한을 초과했습니다. 파일을 다시 선택해주세요.`;
+
+                    // 3초 후 오류 메시지 숨기기
+                    setTimeout(() => {
+                        fileSizeError.classList.add('hidden');
+                    }, 3000);
+
+                    // 제한을 초과하지 않는 파일만 추가
+                    const validFiles = Array.from(this.files).filter(file => file.size <= MAX_FILE_SIZE);
+                    selectedFiles = [...selectedFiles, ...validFiles];
+                } else {
+                    // 모든 파일이 크기 제한을 충족하면 추가
+                    selectedFiles = [...selectedFiles, ...Array.from(this.files)];
+                    fileSizeError.classList.add('hidden');
+                }
+
+                // 화면에 표시 업데이트
+                updateFileDisplay();
+                // 파일 입력 초기화 (같은 파일 다시 선택 가능하게)
+                this.value = '';
+            }
+        });
+
+        // 드래그 앤 드롭 처리
+        function handleDrop(event) {
+            event.preventDefault();
+            event.currentTarget.classList.remove('border-primary', 'bg-blue-50');
+
+            if (event.dataTransfer.files.length > 0) {
+                // 파일 크기 확인
+                const oversizedFiles = Array.from(event.dataTransfer.files).filter(file => file.size > MAX_FILE_SIZE);
+
+                if (oversizedFiles.length > 0) {
+                    // 오류 메시지 표시
+                    fileSizeError.classList.remove('hidden');
+                    fileSizeError.textContent = `${oversizedFiles.length}개 파일이 50MB 제한을 초과했습니다.`;
+
+                    // 3초 후 오류 메시지 숨기기
+                    setTimeout(() => {
+                        fileSizeError.classList.add('hidden');
+                    }, 3000);
+
+                    // 제한을 초과하지 않는 파일만 추가
+                    const validFiles = Array.from(event.dataTransfer.files).filter(file => file.size <= MAX_FILE_SIZE);
+                    selectedFiles = [...selectedFiles, ...validFiles];
+                } else {
+                    // 모든 파일이 크기 제한을 충족하면 추가
+                    selectedFiles = [...selectedFiles, ...Array.from(event.dataTransfer.files)];
+                    fileSizeError.classList.add('hidden');
+                }
+
+                // 화면에 표시 업데이트
+                updateFileDisplay();
+            }
+        }
+
+        // 파일 목록 표시 업데이트
+        function updateFileDisplay() {
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '<p class="text-gray-400">선택된 파일 없음</p>';
+                return;
+            }
+
+            let html = `<p class="font-medium">선택된 파일 (${selectedFiles.length}개):</p><ul class="list-disc pl-5">`;
+            selectedFiles.forEach((file, index) => {
+                html += `
+                <li class="flex justify-between items-center">
+                    <span class="truncate">${file.name} <span class="text-gray-500">(${formatFileSize(file.size)})</span></span>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-400 hover:text-red-600 ml-2">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </li>`;
+            });
+            html += '</ul>';
+            fileList.innerHTML = html;
+
+            // 폼 제출 준비
+            prepareFilesForSubmission();
+        }
+
+        // 파일 삭제
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileDisplay();
+        }
+
+        // 파일 크기 포맷팅
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 폼 제출을 위한 파일 준비
+        function prepareFilesForSubmission() {
+            // 기존 파일 입력 제거
+            selectedFilesContainer.innerHTML = '';
+
+            // 선택된 파일들이 없으면 반환
+            if (selectedFiles.length === 0) return;
+
+            // 폼 제출을 위해 파일 입력 요소 생성
+            selectedFiles.forEach((file, index) => {
+                const dataTransfer = new DataTransfer();
+                dataTransfer.items.add(file);
+
+                const input = document.createElement('input');
+                input.type = 'file';
+                input.name = 'files';
+                input.style.display = 'none';
+                input.files = dataTransfer.files;
+
+                selectedFilesContainer.appendChild(input);
+            });
+        }
+
+        // 폼 제출 이벤트
+        document.getElementById('portfolio-form').addEventListener('submit', function(e) {
+            // 제출 버튼과 로딩 스피너 요소 가져오기
+            const submitButton = document.getElementById('submit-button');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            // 크기 제한 초과 파일 확인
+            const oversizedFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
+            if (oversizedFiles.length > 0) {
+                e.preventDefault(); // 폼 제출 방지
+                fileSizeError.classList.remove('hidden');
+                fileSizeError.textContent = `${oversizedFiles.length}개 파일이 50MB 제한을 초과했습니다. 제한 초과 파일을 제거하고 다시 시도하세요.`;
+                window.scrollTo({ top: fileSizeError.offsetTop - 100, behavior: 'smooth' });
+                return;
+            }
+
+            // 버튼 비활성화 및 로딩 스피너 표시
+            submitButton.disabled = true;
+            submitButton.classList.add('opacity-75', 'cursor-not-allowed');
+            loadingSpinner.classList.remove('hidden');
+            submitButton.querySelector('span').textContent = '저장 중...';
+
+            // 파일이 선택되었는지 확인
+            if (selectedFiles.length > 0) {
+                // 이미 prepareFilesForSubmission에서 처리했으므로 추가 작업 불필요
+            }
+
+            // 폼이 제출된 후 10초 동안 버튼이 비활성화되지 않았다면 다시 활성화
+            // (네트워크 오류나 예상치 못한 문제가 발생했을 경우를 대비)
+            setTimeout(function() {
+                if (submitButton.disabled) {
+                    submitButton.disabled = false;
+                    submitButton.classList.remove('opacity-75', 'cursor-not-allowed');
+                    loadingSpinner.classList.add('hidden');
+                    submitButton.querySelector('span').textContent = '저장하기';
+                }
+            }, 10000);
+        });
+
         // URL 추가 기능
         document.getElementById('add-url').addEventListener('click', function () {
             const urlInput = document.getElementById('url-input');
@@ -132,7 +324,6 @@
             if (!url) return;
 
             const container = document.getElementById('url-container');
-            const urlId = 'url-' + Date.now();
 
             const div = document.createElement('div');
             div.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg';
