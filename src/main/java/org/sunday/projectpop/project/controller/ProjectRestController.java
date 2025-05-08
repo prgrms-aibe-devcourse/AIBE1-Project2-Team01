@@ -1,5 +1,6 @@
 package org.sunday.projectpop.project.controller;
 
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.http.ResponseEntity;
@@ -19,6 +20,7 @@ import org.springframework.data.domain.Pageable;
 import java.util.List;
 
 
+    @Tag(name = "프로젝트", description = "프로젝트 공고 관련 API")
     @RestController
     @RequestMapping("/api/projects")
     @RequiredArgsConstructor
@@ -28,12 +30,12 @@ import java.util.List;
         private final SkillTagService skillTagService;
         private final UserAccountService userAccountService;
 
-        // 🔍 공고 목록 조회 API (JSON)
-        @GetMapping
-        public Page<ProjectResponse> listProjects(@ModelAttribute ProjectSearchCondition condition,Pageable pageable) {
-            return projectService.searchProjects(condition,pageable)
-                    .map(ProjectResponse::from);
-        }
+//        // 🔍 공고 목록 조회 API (JSON)
+//        @GetMapping
+//        public Page<ProjectResponse> listProjects(@ModelAttribute ProjectSearchCondition condition,Pageable pageable) {
+//            return projectService.searchProjects(condition,pageable)
+//                    .map(ProjectResponse::from);
+//        }
 
         // 📨 공고 생성 API (JSON)
         @PostMapping
@@ -45,6 +47,11 @@ import java.util.List;
 
             Project created = projectService.create(request, leader, requiredTags, selectiveTags);
             return ResponseEntity.ok(created);
+        }
+        @GetMapping("/{projectId}")
+        public ResponseEntity<ProjectResponse> getProjectDetail(@PathVariable String projectId) {
+            ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
+            return ResponseEntity.ok(response);
         }
     }
 

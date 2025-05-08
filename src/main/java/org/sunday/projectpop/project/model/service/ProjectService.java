@@ -6,6 +6,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.sunday.projectpop.project.model.dto.ProjectRequest;
+import org.sunday.projectpop.project.model.dto.ProjectResponse;
 import org.sunday.projectpop.project.model.entity.*;
 import org.sunday.projectpop.project.model.repository.ProjectRepository;
 import org.sunday.projectpop.project.model.repository.ProjectRequireTagRepository;
@@ -20,6 +21,8 @@ import org.sunday.projectpop.project.model.repository.ProjectSpecification;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -90,8 +93,45 @@ public class ProjectService {
         });
 
         return result;
+
     }
 
+    public ProjectResponse getProjectDetailWithTags(String projectId) {
+        Project project = projectRepository.findById(projectId)
+                .orElseThrow(() -> new IllegalArgumentException("존재하지 않는 프로젝트입니다."));
+
+        List<String> requiredTags = getRequiredTagNames(projectId);
+        List<String> selectiveTags = getSelectiveTagNames(projectId);
+
+        return ProjectResponse.builder()
+                .projectId(project.getProjectId())
+                .title(project.getTitle())
+                .description(project.getDescription())
+                .type(project.getType())
+                .status(project.getStatus())
+                .generatedByAi(project.getGeneratedByAi())
+                .field(project.getField())
+                .experienceLevel(project.getExperienceLevel())
+                .locationType(project.getLocationType())
+                .durationWeeks(project.getDurationWeeks())
+                .teamSize(project.getTeamSize())
+                .createdAt(project.getCreatedAt())
+                .leaderEmail(project.getLeader().getEmail())
+                .requiredTags(requiredTags)
+                .selectiveTags(selectiveTags)
+                .build();
+    }
+    public List<String> getRequiredTagNames(String projectId) {
+        return requireTagRepository.findByProject_ProjectId(projectId).stream()
+                .map(rt -> rt.getTag().getName())
+                .collect(Collectors.toList());
+    }
+
+    public List<String> getSelectiveTagNames(String projectId) {
+        return selectiveTagRepository.findByProject_ProjectId(projectId).stream()
+                .map(st -> st.getTag().getName())
+                .collect(Collectors.toList());
+    }
 
 
 

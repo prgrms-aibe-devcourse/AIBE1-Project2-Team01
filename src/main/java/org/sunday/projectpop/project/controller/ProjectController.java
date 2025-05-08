@@ -7,6 +7,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.sunday.projectpop.project.model.dto.ProjectRequest;
+import org.sunday.projectpop.project.model.dto.ProjectResponse;
 import org.sunday.projectpop.project.model.entity.UserAccount;
 import org.sunday.projectpop.project.model.service.ProjectService;
 import org.sunday.projectpop.project.model.service.SkillTagService;
@@ -101,6 +102,19 @@ public String filterProjectsAjax(
     model.addAttribute("projects",projects.getContent());
     return "project/list :: projectList";
 }
+
+    @GetMapping("/{projectId}")
+    public String viewProjectDetail(@PathVariable String projectId, Model model) {
+        ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
+        List<String> requiredTags = projectService.getRequiredTagNames(projectId);
+        List<String> selectiveTags = projectService.getSelectiveTagNames(projectId);
+
+        model.addAttribute("project", response);
+        model.addAttribute("requiredTags", requiredTags);
+        model.addAttribute("selectiveTags", selectiveTags);
+        return "project/details"; // Thymeleaf 템플릿
+    }
+
 
 }
 
