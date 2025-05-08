@@ -38,19 +38,19 @@ public class SpecificationServiceImpl implements SpecificationService {
     @Override
     public List<Specification> getSpecificationsByProjectId(Long onGoingProjectId) {
         // 프로젝트 ID를 기준으로 명세서를 가져오는 로직
-        return specificationRepository.findByOnGoingProjectId(onGoingProjectId);  // 변경된 메소드 호출
+        return specificationRepository.findByOnGoingProject_OnGoingProjectId(onGoingProjectId);  // 변경된 메소드 호출
     }
 
     @Override
     public long countCompletedSpecifications(Long projectId) {
         // 진행 완료된 명세서의 수를 카운트
-        return specificationRepository.countByOnGoingProjectIdAndStatus(projectId, "진행 완료");  // 변경된 메소드 호출
+        return specificationRepository.countByOnGoingProject_OnGoingProjectIdAndStatus(projectId, "SUCCESS");  // 변경된 메소드 호출
     }
 
     @Override
     public long countAllSpecifications(Long projectId) {
         // 모든 명세서의 수를 카운트
-        return specificationRepository.countByOnGoingProjectId(projectId);  // 변경된 메소드 호출
+        return specificationRepository.countByOnGoingProject_OnGoingProjectId(projectId);  // 변경된 메소드 호출
     }
 
     @Override

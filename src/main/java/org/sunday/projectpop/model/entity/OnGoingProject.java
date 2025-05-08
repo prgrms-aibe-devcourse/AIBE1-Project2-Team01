@@ -21,9 +21,8 @@ public class OnGoingProject {
     @Column(name = "team_leader_id", length = 36)
     private String teamLeaderId;
 
-    @Enumerated(EnumType.STRING)
-    @Column(name = "status", columnDefinition = "ENUM('ONGOING', 'COMPLETED', 'CANCELLED') DEFAULT 'ONGOING'")
-    private Status status = Status.ONGOING;
+    @Column(name = "status", nullable = false)
+    private String status;
 
     @Column(name = "start_date")
     private LocalDate startDate;
