@@ -39,10 +39,12 @@ public class ProjectProgressController {
         }
         // 프로젝트 진행 상태 계산
         int progress = specificationService.calculateProgressPercentage(onGoingProjectId);
+        System.out.println(">>>>> projectProgress = " + progress);  // 확인용 로그
         model.addAttribute("projectProgress", progress);
 
         return "onproject/index";
     }
+
     //프로젝트의 명세서 출력
     @GetMapping("/{onGoingProjectId}/specs")
     public String getSpecificationsByProject(@PathVariable Long onGoingProjectId, Model model) {
@@ -58,17 +60,7 @@ public class ProjectProgressController {
         return "onproject/specifications";  // Thymeleaf 템플릿명
     }
 
-    @GetMapping("/test1")
-    public String testProjectProgress(Model model) {
-        try {
-            int progress = specificationService.calculateProgressPercentage(3L);
-            model.addAttribute("projectProgress", progress);
-        } catch (Exception e) {
-            e.printStackTrace(); // 로그에 출력
-            model.addAttribute("projectProgress", 0); // fallback
-        }
-        return "onproject/index";
-    }
+
     //프로젝트 기여도
     @GetMapping("/{onGoingProjectId}/contribution")
     public String contribution(@PathVariable Long onGoingProjectId, Model model) {

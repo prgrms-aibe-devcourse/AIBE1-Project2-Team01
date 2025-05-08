@@ -52,7 +52,7 @@ public class SpecificationServiceImpl implements SpecificationService {
     @Override
     public long countCompletedSpecifications(Long projectId) {
         // 진행 완료된 명세서의 수를 카운트
-        return specificationRepository.countByOnGoingProject_OnGoingProjectIdAndStatus(projectId, "완료");  // 변경된 메소드 호출, status값 변경
+        return specificationRepository.countByOnGoingProject_OnGoingProjectIdAndStatus(projectId, "completed");  // 변경된 메소드 호출, status값 변경
     }
 
     @Override
