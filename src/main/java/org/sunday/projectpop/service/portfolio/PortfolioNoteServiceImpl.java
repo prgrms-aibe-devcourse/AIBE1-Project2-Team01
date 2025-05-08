@@ -35,7 +35,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     private final PortfolioNoteFileRepository portfolioNoteFileRepository;
 
     @Override
-    public void createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
+    public PortfolioNote createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
         // 해당 포트폴리오 있는지 확인
         Portfolio portfolio = findPortfolio(portfolioId);
 
@@ -57,7 +57,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                         .uploadPortfolioNoteFile(file, portfolioNote))
                 .toList();
         portfolioNote.setFiles(fileList);
-        portfolioNoteRepository.save(portfolioNote);
+        return portfolioNoteRepository.save(portfolioNote);
     }
 
     @Override

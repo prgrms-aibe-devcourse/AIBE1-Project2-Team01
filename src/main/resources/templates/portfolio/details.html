@@ -99,12 +99,10 @@
     <script>
         document.addEventListener('DOMContentLoaded', function () {
             const portfolioId = document.getElementById('portfolio-container').dataset.portfolioId;
-            console.log(portfolioId);
             // 회고 노트 목록을 처음에 불러오기
             fetch(`/portfolios/${portfolioId}/notes`)
                 .then(response => response.json())
                 .then(notes => {
-                    console.log("오냐")
                     const noteList = document.getElementById('note-list');
                     notes.forEach(note => {
                         const noteItem = document.createElement('div');
@@ -135,7 +133,7 @@
                 const content = document.getElementById('note-content').value;  // 회고 내용
 
                 // 회고 노트 작성 API 호출
-                fetch('/portfolio/{{portfolioId}}/note', {
+                fetch(`/portfolios/${portfolioId}/notes`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

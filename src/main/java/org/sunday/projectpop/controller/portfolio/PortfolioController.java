@@ -5,6 +5,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Encoding;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -14,10 +15,13 @@ import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
+import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.enums.PortfoliosType;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 
+import java.time.ZoneId;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 import static org.sunday.projectpop.model.dto.PortfolioCreateRequest.emptyCreateRequest;
@@ -121,6 +125,29 @@ public class PortfolioController {
                 .body(notes);
     }
 
+    @PostMapping("/{portfolioId}/notes")
+    @ResponseBody
+    public PortfolioNoteResponse addPortfolioNote(
+            @PathVariable String portfolioId,
+            @Valid @RequestBody PortfolioNoteCreateRequest request) {
+
+        System.out.println("---------------------------");
+        System.out.println(portfolioId);
+        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+//        portfolioNoteService.createNote(userId, portfolioId, request, files);
+        PortfolioNote note = portfolioNoteService.createNote(userId, portfolioId, request, null);
+
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")
+                .withZone(ZoneId.of("Asia/Seoul"));
+
+        return new PortfolioNoteResponse(
+                note.getId(),
+                note.getContent(),
+                note.getCreatedAt().format(formatter),
+                false
+        );
+    }
+/*
     // 포트폴리오에 대한 노트 등록
     @Operation(summary = "포트폴리오-노트 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
             requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
@@ -145,6 +172,7 @@ public class PortfolioController {
                 .status(HttpStatus.CREATED)
                 .build();
     }
+*/
 
     // 포트폴리오에 대한 노트 상세
     @GetMapping("/{portfolioId}/notes/{noteId}")
