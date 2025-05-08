@@ -13,10 +13,13 @@ import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
+import org.sunday.projectpop.model.enums.PortfoliosType;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 
 import java.util.List;
+
+import static org.sunday.projectpop.model.dto.PortfolioCreateRequest.emptyCreateRequest;
 
 @Controller
 @RequestMapping("/portfolios")
@@ -39,27 +42,25 @@ public class PortfolioController {
         return "portfolio/layout";
     }
 
+    // 포트폴리오 등록 폼
+    @GetMapping("/new")
+    public String portfolioForm(Model model) {
+        model.addAttribute("portfolio", emptyCreateRequest());
+        model.addAttribute("allTypes", PortfoliosType.values());
+        model.addAttribute("title", "포트폴리오 등록");
+        model.addAttribute("viewName", "portfolio/form");
+        return "portfolio/layout";
+    }
+
     // 포트폴리오 등록
-    @Operation(summary = "포트폴리오 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                            encoding = {
-                                    @Encoding(name = "request", contentType = "application/json"),
-                                    @Encoding(name = "files", contentType = "application/octet-stream")
-                            }
-                    )
-            )
-    )
-    @PostMapping(consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> addPortfolio(
+    @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public String addPortfolio(
             @Valid @RequestPart("request") PortfolioCreateRequest request,
             @RequestPart(value = "files", required = false) List<MultipartFile> files) {
 
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
         portfolioService.createPortfolio(userId, request, files);
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
+        return "redirect:/portfolios";
     }
 
     // 포트폴리오 상세 조회

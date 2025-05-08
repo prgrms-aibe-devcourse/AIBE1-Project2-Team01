@@ -19,6 +19,8 @@ public record PortfolioCreateRequest(
         String description,
 
         List<String> urls
-
 ) {
+    public static PortfolioCreateRequest emptyCreateRequest() {
+        return new PortfolioCreateRequest(null, null, null, null);
+    }
 }
