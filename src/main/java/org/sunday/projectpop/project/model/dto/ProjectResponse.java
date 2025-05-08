@@ -26,12 +26,13 @@ public record ProjectResponse(
         List<String> selectiveTags
 ) {
     public static ProjectResponse from(Project project, List<String> requiredTags, List<String> selectiveTags) {
+        String status = calculateStatus(project.getCreatedAt(), project.getDurationWeeks());
         return ProjectResponse.builder()
                 .projectId(project.getProjectId())
                 .title(project.getTitle())
                 .description(project.getDescription())
                 .type(project.getType())
-                .status(project.getStatus())
+                .status(status)
                 .generatedByAi(project.getGeneratedByAi())
                 .field(project.getField())
                 .experienceLevel(project.getExperienceLevel())
@@ -43,5 +44,13 @@ public record ProjectResponse(
                 .requiredTags(requiredTags)
                 .selectiveTags(selectiveTags)
                 .build();
+    }
+    private static String calculateStatus(LocalDateTime createdAt, int durationWeeks) {
+        LocalDateTime endDate = createdAt.plusWeeks(durationWeeks);
+        LocalDateTime now = LocalDateTime.now();
+
+        if (now.isBefore(createdAt)) return "모집중";
+        else if (now.isAfter(endDate)) return "완료";
+        else return "진행중";
     }
 }

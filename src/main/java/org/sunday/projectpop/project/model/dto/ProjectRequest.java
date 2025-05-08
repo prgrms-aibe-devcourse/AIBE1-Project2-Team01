@@ -11,8 +11,9 @@ public class ProjectRequest {
     private String locationType;
     private Integer durationWeeks;
     private Integer teamSize;
-    private String requirement;
+//    private String requirement;
     private String type;
+    private String experienceLevel;
 
     private List<Long> requiredTagIds;
     private List<Long> selectiveTagIds;

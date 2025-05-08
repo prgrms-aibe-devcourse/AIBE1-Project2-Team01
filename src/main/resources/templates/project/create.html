@@ -1,33 +1,92 @@
-<!-- templates/project/create.html -->
 <!DOCTYPE html>
-<html xmlns:th="http://www.thymeleaf.org">
+<html xmlns:th="http://www.thymeleaf.org" lang="ko">
 <head>
     <meta charset="UTF-8">
-    <title>공고 작성</title>
+    <title>공고 생성</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-<h1>공고 작성</h1>
+<body class="bg-gray-50 py-10 px-4">
+<div class="max-w-4xl mx-auto bg-white shadow-md rounded p-8">
+    <h1 class="text-2xl font-bold mb-6">프로젝트 공고 생성</h1>
 
-<form th:action="@{/projects/submit}" th:object="${projectRequest}" th:method="post">
-    <input type="text" th:field="*{title}" placeholder="제목"/><br/>
-    <textarea th:field="*{description}" placeholder="설명"></textarea><br/>
-    <input type="text" th:field="*{field}" placeholder="분야"/><br/>
-    <input type="text" th:field="*{type}" placeholder="타입 (PROJECT 등)"/><br/>
-    <input type="text" th:field="*{locationType}" placeholder="대면/비대면"/><br/>
-    <input type="number" th:field="*{durationWeeks}" placeholder="진행 주"/><br/>
-    <input type="number" th:field="*{teamSize}" placeholder="팀 인원"/><br/><br/>
+    <form th:action="@{/projects/submit}" th:object="${projectRequest}" method="post" class="space-y-6">
+        <div>
+            <label class="block font-semibold">제목</label>
+            <input type="text" th:field="*{title}" class="w-full border p-2 rounded" required>
+        </div>
 
-    <label>필수 기술 태그:</label><br/>
-    <div th:each="tag : ${tags}">
-        <input type="checkbox" th:value="${tag.tagId}" th:name="requiredTagIds" /> <span th:text="${tag.name}"></span><br/>
-    </div><br/>
+        <div>
+            <label class="block font-semibold">설명</label>
+            <textarea th:field="*{description}" rows="4" class="w-full border p-2 rounded" required></textarea>
+        </div>
 
-    <label>선택 기술 태그:</label><br/>
-    <div th:each="tag : ${tags}">
-        <input type="checkbox" th:value="${tag.tagId}" th:name="selectiveTagIds" /> <span th:text="${tag.name}"></span><br/>
-    </div><br/>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <label class="block font-semibold">분야</label>
+                <input type="text" th:field="*{field}" class="w-full border p-2 rounded">
+            </div>
 
-    <button type="submit">공고 등록</button>
-</form>
+            <div>
+                <label class="block font-semibold">지역</label>
+                <select th:field="*{locationType}" class="w-full border p-2 rounded">
+                    <option value="대면">대면</option>
+                    <option value="비대면">비대면</option>
+                </select>
+            </div>
+
+            <div>
+                <label class="block font-semibold">진행 주(weeks)</label>
+                <input type="number" th:field="*{durationWeeks}" class="w-full border p-2 rounded">
+            </div>
+
+            <div>
+                <label class="block font-semibold">팀 인원 수</label>
+                <input type="number" th:field="*{teamSize}" class="w-full border p-2 rounded">
+            </div>
+
+            <div>
+                <label class="block font-semibold">유형</label>
+                <input type="text" th:field="*{type}" class="w-full border p-2 rounded">
+            </div>
+
+            <div>
+                <label class="block font-semibold">경력 수준</label>
+                <input type="text" th:field="*{experienceLevel}" class="w-full border p-2 rounded">
+            </div>
+        </div>
+
+        <div>
+            <label class="block font-semibold">필수 기술 태그</label>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <div th:each="tag : ${tags}">
+                    <label class="inline-flex items-center gap-1 text-sm">
+                        <input type="checkbox" name="requiredTagIds" th:value="${tag.tagId}" class="accent-purple-600">
+                        <span th:text="${tag.name}">태그</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <label class="block font-semibold">선택 기술 태그</label>
+            <div class="flex flex-wrap gap-2 mt-2">
+                <div th:each="tag : ${tags}">
+                    <label class="inline-flex items-center gap-1 text-sm">
+                        <input type="checkbox" name="selectiveTagIds" th:value="${tag.tagId}" class="accent-purple-600">
+                        <span th:text="${tag.name}">태그</span>
+                    </label>
+                </div>
+            </div>
+        </div>
+
+        <div>
+            <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded hover:bg-purple-700">
+                생성하기
+            </button>
+        </div>
+    </form>
+
+    <div th:if="${param.success}" class="text-green-600 mt-4">✅ 공고가 성공적으로 생성되었습니다.</div>
+</div>
 </body>
 </html>

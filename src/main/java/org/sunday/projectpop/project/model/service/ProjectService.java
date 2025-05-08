@@ -43,6 +43,7 @@ public class ProjectService {
                 .status("모집중")
                 .generatedByAi(false)
                 .createdAt(LocalDateTime.now())
+                .experienceLevel(request.getExperienceLevel())
                 .leader(leader)
 
                 .field(request.getField())
