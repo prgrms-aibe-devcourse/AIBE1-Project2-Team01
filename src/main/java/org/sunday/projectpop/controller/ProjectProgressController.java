@@ -28,7 +28,7 @@ public class ProjectProgressController {
     public String index() {
         return "onproject/index";
     }
-
+    //프로젝트 기본 페이지
     @GetMapping("/{onGoingProjectId}")
     public String getOnGoingProjectDetail(@PathVariable Long onGoingProjectId, Model model) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
@@ -42,7 +42,7 @@ public class ProjectProgressController {
 
         return "onproject/index";
     }
-
+    //프로젝트의 명세서 출력
     @GetMapping("/{onGoingProjectId}/specs")
     public String getSpecificationsByProject(@PathVariable Long onGoingProjectId, Model model) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
@@ -69,7 +69,7 @@ public class ProjectProgressController {
         return "onproject/index";
     }
 
-    @PostMapping("/{onGoingProjectId}/add")
+    @PostMapping("/{onGoingProjectId}/specs/add")
     public String addSpecification(@PathVariable Long onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
         Specification specification = new Specification();
 

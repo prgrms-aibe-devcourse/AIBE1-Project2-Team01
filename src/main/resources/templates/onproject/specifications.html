@@ -9,8 +9,7 @@
 
 <h1 class="text-2xl font-bold mb-6">프로젝트 사양 목록</h1>
 
-<!-- 📌 사양 추가 폼 -->
-<form th:action="@{'/' + ${onGoingProjectId} + '/add'}" method="post" class="mb-8 space-y-4">
+<form th:action="@{'/projects/onprojects/' + ${onGoingProjectId} + '/specs/add'}" method="post" class="mb-8 space-y-4">
     <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
         <div>
             <label class="block text-sm font-medium text-gray-700">요구사항</label>
@@ -23,9 +22,9 @@
         <div>
             <label class="block text-sm font-medium text-gray-700">상태</label>
             <select name="status" class="mt-1 block w-full border rounded-md p-2 border-gray-300">
-                <option>대기중</option>
-                <option>진행중</option>
-                <option>완료</option>
+                <option value="waiting">대기중</option>
+                <option value="onGoing">진행중</option>
+                <option value="completed">완료</option>
             </select>
         </div>
         <div>
@@ -40,7 +39,6 @@
     <button type="submit" class="mt-4 px-4 py-2 bg-blue-600 text-white rounded hover:bg-blue-700">사양 추가</button>
 </form>
 
-<!-- 🔽 사양 목록 테이블 -->
 <table class="min-w-full table-auto border border-gray-300">
     <thead class="bg-gray-100">
     <tr>
@@ -55,7 +53,7 @@
     </tr>
     </thead>
     <tbody>
-    <tr th:each="spec : ${specifications}" class="hover:bg-gray-50">
+    <tr th:each="spec : ${specList}" class="hover:bg-gray-50">
         <td class="px-4 py-2 border" th:text="${spec.id}">1</td>
         <td class="px-4 py-2 border" th:text="${spec.requirement}">요구사항</td>
         <td class="px-4 py-2 border" th:text="${spec.assignee}">담당자</td>
