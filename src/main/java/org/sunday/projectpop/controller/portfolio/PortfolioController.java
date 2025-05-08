@@ -104,9 +104,8 @@ public class PortfolioController {
     @PostMapping("/{portfolioId}/edit")
     public String updatePortfolio(
             @PathVariable String portfolioId,
-            @Valid @ModelAttribute("portfolio") PortfolioUpdateRequest request,
+            @Valid @ModelAttribute("portfolio") PortfolioRequest request,
             BindingResult bindingResult,
-            @RequestParam(value = "files", required = false) List<MultipartFile> files,
             Model model
     ) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
@@ -118,7 +117,7 @@ public class PortfolioController {
             model.addAttribute("viewName", "portfolio/form");
             return "portfolio/layout";
         }
-        portfolioService.updatePortfolio(userId, portfolioId, request, files);
+        portfolioService.updatePortfolio(userId, portfolioId, request);
         return "redirect:/portfolios/{portfolioId}";
     }
 

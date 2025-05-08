@@ -152,7 +152,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
-    public void updatePortfolio(String userId, String portfolioId, PortfolioUpdateRequest request, List<MultipartFile> newFiles) {
+    public void updatePortfolio(String userId, String portfolioId, PortfolioRequest request) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
 
@@ -173,8 +173,8 @@ public class PortfolioServiceImpl implements PortfolioService {
         deletePortfolioUrls(request.deleteUrlIds());
 
         // 파일 업로드
-        if (newFiles != null) {
-            for (MultipartFile file : newFiles) {
+        if (request.files() != null) {
+            for (MultipartFile file : request.files()) {
                 if (!file.isEmpty()) {
                     PortfolioFile uploaded = fileStorageService.uploadPortfolioFile(file, portfolio);
                     portfolio.getFiles().add(uploaded);

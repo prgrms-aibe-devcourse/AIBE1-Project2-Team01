@@ -60,12 +60,10 @@ public class PortfolioRestController {
     @PutMapping("/{portfolioId}")
     public ResponseEntity<Void> updatePortfolio(
             @PathVariable String portfolioId,
-            @Valid @RequestPart("request") PortfolioUpdateRequest request,
-            @RequestPart(value = "newFiles", required = false) List<MultipartFile> newFiles
-
+            @Valid @RequestPart("request") PortfolioRequest request
     ) {
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioService.updatePortfolio(userId, portfolioId, request, newFiles);
+        portfolioService.updatePortfolio(userId, portfolioId, request);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
