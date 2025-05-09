@@ -15,6 +15,7 @@ import org.sunday.projectpop.model.entity.PortfolioNoteFile;
 import org.sunday.projectpop.model.repository.PortfolioNoteFileRepository;
 import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
+import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
 import java.time.ZoneId;
@@ -33,6 +34,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     private final FileStorageService fileStorageService;
     private final PortfolioRepository portfolioRepository;
     private final PortfolioNoteFileRepository portfolioNoteFileRepository;
+    private final AnalysisService analysisService;
 
     @Override
     public PortfolioNote createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
@@ -57,10 +59,13 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                         .uploadPortfolioNoteFile(file, portfolioNote))
                 .toList();
         portfolioNote.setFiles(fileList);
-        return portfolioNoteRepository.save(portfolioNote);
+        PortfolioNote savedNote = portfolioNoteRepository.save(portfolioNote);
 
         // TODO: 노트 등록시 원활한 피드백요청을 위해 summary 확인해야함
         // 파일은 변화가 없을 확률이 높은데, GitHub의 경우 업로드될수도 있기 때문에 재추출 및 요약 필요
+        analysisService.handleNoteSubmit(portfolio);
+
+        return savedNote;
     }
 
     @Override

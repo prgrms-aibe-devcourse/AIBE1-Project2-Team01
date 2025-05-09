@@ -11,6 +11,9 @@ import org.sunday.projectpop.service.llm.LLMSummaryService;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
 
+import java.time.Instant;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
@@ -34,8 +37,8 @@ public class AnalysisService {
         // 깃허브 및 파일 추출
         List<String> githubText = extractGithubTexts(portfolio.getUrls());
         List<String> fileText = extractFileTexts(portfolio);
-        log.info("githubText = " + githubText.toString());
-        log.info("fileText = " + fileText.toString());
+//        log.info("githubText = " + githubText.toString());
+//        log.info("fileText = " + fileText.toString());
         if (githubText.isEmpty() && fileText.isEmpty()) {
             portfolioSummary.setStatus(AnalysisStatus.NOT_STARTED);
             summaryRepository.save(portfolioSummary);
@@ -64,6 +67,10 @@ public class AnalysisService {
                     summaryRepository.save(portfolioSummary);
                 });
 
+        if (portfolioSummary.getCreatedAt() == null) {
+            portfolioSummary.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
+        }
+
         // 두 요약 결과 병합
         Mono.zip(githubSummaryMono, fileSummaryMono)
                 .flatMap(tuple -> {
@@ -90,6 +97,36 @@ public class AnalysisService {
                         }
                 );
     }
+
+    public void handleNoteSubmit(Portfolio portfolio) {
+        // 깃허브 링크 유무 확인
+        List<PortfolioUrl> urls = portfolio.getUrls();
+        if (urls == null || urls.isEmpty()) return;
+
+        Instant updatedAt = null;
+        for (PortfolioUrl url : urls) {
+            String link = url.getUrl();
+            if (link != null && link.contains("github.com")) {
+                updatedAt = gitHubService.fetchUpdatedAtFromGithub(link);
+            }
+        }
+        if (updatedAt == null) return;
+
+        // summary 확인
+        PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
+        if (summary == null) return;
+        if (summary.getStatus() != AnalysisStatus.COMPLETED) return;
+
+        Instant summaryTime = summary.getCreatedAt().toInstant();
+
+//        log.info("service - updatedAt: " + updatedAt);
+//        log.info("service - summaryTime: " + summaryTime);
+        // summary의 시각이랑 마지막 커밋한 시각 체크
+        if (updatedAt.isAfter(summaryTime)) {
+            handleAnalysis(portfolio);
+        }
+    }
+
 
     private List<String> extractFileTexts(Portfolio portfolio) {
         // 파일이 있는지 확인

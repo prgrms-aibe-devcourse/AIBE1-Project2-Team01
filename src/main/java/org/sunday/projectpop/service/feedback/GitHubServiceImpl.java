@@ -11,8 +11,10 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.sunday.projectpop.exceptions.GitHubManagementException;
 import org.sunday.projectpop.model.dto.GitHubRepoInfo;
+import reactor.core.publisher.Mono;
 
 import java.net.URI;
+import java.time.Instant;
 import java.util.*;
 
 @Service
@@ -73,7 +75,7 @@ public class GitHubServiceImpl implements GitHubService {
                 String path = node.get("path").asText();
                 if (extentions.stream().anyMatch(path::endsWith)) {
                     filePaths.add(path);
-                    if (filePaths.size() >= 100) break; // 조건에 맞는 파일 최대 50개. 추후 조정
+                    if (filePaths.size() >= 100) break; // 조건에 맞는 파일 최대 100개. 추후 조정
                 }
             }
 //            log.info("filePaths = " + filePaths);
@@ -82,7 +84,7 @@ public class GitHubServiceImpl implements GitHubService {
             List<FileScore> scoredFiles = new ArrayList<>();
             for (String path : filePaths) {
                 int score = calculateFileScore(path, mainLang);
-                log.info("path: %s, score: %d".formatted(path, score));
+//                log.info("path: %s, score: %d".formatted(path, score));
                 scoredFiles.add(new FileScore(path, score));
             }
 
@@ -250,6 +252,23 @@ public class GitHubServiceImpl implements GitHubService {
         } catch (Exception e) {
             throw new GitHubManagementException("유효하지 않은 GitHub URL입니다.");
         }
+    }
+
+
+    // 마지막 커밋 시간 리턴
+    public Instant fetchUpdatedAtFromGithub(String githubUrl) {
+        GitHubRepoInfo repoInfo = parseGitHubUrl(githubUrl);
+
+        return createWebClient().get()
+                .uri("/repos/{owner}/{repo}", repoInfo.owner(), repoInfo.repo())
+                .retrieve()
+                .bodyToMono(Map.class)
+                .map(response -> {
+//                    log.info("githubPushed: " + response.toString());
+                    String updatedAt = (String) response.get("updated_at");
+//                    log.info("updatedAt: " + updatedAt);
+                    return Instant.parse(updatedAt);
+                }).block();
     }
 
     private record FileScore(

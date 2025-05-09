@@ -4,6 +4,10 @@ import jakarta.persistence.*;
 import lombok.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.time.ZonedDateTime;
+
 @Entity
 @Getter
 @Setter
@@ -30,4 +34,5 @@ public class PortfolioSummary {
     @Enumerated(EnumType.STRING)
     private AnalysisStatus status;
 
+    private ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
 }
