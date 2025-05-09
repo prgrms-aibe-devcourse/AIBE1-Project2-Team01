@@ -82,4 +82,18 @@ public class SpecificationController {
         // 명세서 목록 페이지로 리다이렉트
         return "redirect:/projects/onprojects/" + onGoingProjectId;
     }
+
+    @PostMapping("/{onGoingProjectId}/specs/delete/{specId}")
+    public String deleteSpecification(@PathVariable Long onGoingProjectId, @PathVariable Long specId) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        Optional<Specification> specificationOpt = specificationService.findById(specId);
+
+        if (projectOpt.isEmpty() || specificationOpt.isEmpty()) {
+            // 프로젝트 또는 명세서가 존재하지 않으면 에러 처리 (여기서는 간단히 리다이렉트)
+            return "redirect:/projects/onprojects/" + onGoingProjectId + "?error=notfound";
+        }
+
+        specificationService.delete(specId);
+        return "redirect:/projects/onprojects/" + onGoingProjectId;
+    }
 }

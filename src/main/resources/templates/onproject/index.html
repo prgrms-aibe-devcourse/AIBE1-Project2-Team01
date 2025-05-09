@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -27,29 +28,33 @@
             font-family: 'Inter', sans-serif;
             background-color: #f9fafb;
         }
+
         .progress-bar {
             height: 8px;
             border-radius: 4px;
             background: linear-gradient(to right, #A855F7, #8B5CF6);
         }
+
         .chart-container {
             width: 100%;
             height: 300px;
-            display: flex; /* Added */
-            justify-content: center; /* Added */
-            align-items: center; /* Added */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
+
         .chart-container canvas {
-            max-width: 100%;  /*Added to make the chart responsive*/
-            max-height: 100%; /*Added to make the chart responsive*/
+            max-width: 100%;
+            max-height: 100%;
         }
     </style>
 </head>
+
 <body class="p-6">
 <div class="container mx-auto space-y-10">
 
     <div class="bg-white rounded-lg p-6 shadow-sm">
-        <div class="flex justify-between items-center mb-2">
+        <div class="flex justify-between items-center mb-4">
             <h2 class="font-medium">프로젝트 진행도 <span th:text="${projectProgress + '%'}">0%</span></h2>
             <span class="text-sm text-gray-500">목표 완료일: 2025년 6월 15일</span>
         </div>
@@ -74,13 +79,15 @@
             </div>
         </div>
     </div>
-    <div class="bg-white rounded-lg p-5 shadow-sm mb-6">
+
+    <div class="bg-white rounded-lg p-6 shadow-sm">
         <div class="flex justify-between items-center mb-4">
             <h2 class="font-medium">프로젝트 헬스 체크</h2>
-            <button class="text-xs text-primary px-3 py-1 rounded-button border border-primary whitespace-nowrap">상세 보기</button>
+            <button class="text-xs text-primary px-3 py-1 rounded-button border border-primary whitespace-nowrap">상세
+                보기</button>
         </div>
 
-        <div class="grid grid-cols-4 gap-4">
+        <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
             <div class="p-4 border border-gray-100 rounded-lg bg-gray-50">
                 <div class="flex items-center gap-3 mb-2">
                     <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600">
@@ -91,8 +98,8 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${scheduleCompliance + '%'}">92%</span>
                     <span class="text-xs text-green-600 flex items-center">
-                    <i class="ri-arrow-up-line"></i> 5%
-                </span>
+                            <i class="ri-arrow-up-line"></i> 5%
+                        </span>
                 </div>
             </div>
 
@@ -106,8 +113,8 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${projectProgress + '%'}">68%</span>
                     <span class="text-xs text-green-600 flex items-center">
-                    <i class="ri-arrow-up-line"></i> 3%
-                </span>
+                            <i class="ri-arrow-up-line"></i> 3%
+                        </span>
                 </div>
             </div>
 
@@ -121,28 +128,34 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${riskStatus}">3</span>
                     <span class="text-xs text-red-600 flex items-center">
-                    <i class="ri-arrow-up-line"></i> 1
-                </span>
+                            <i class="ri-arrow-up-line"></i> 1
+                        </span>
                 </div>
             </div>
 
+            <div class="p-4 border border-gray-100 rounded-lg bg-gray-50"></div>
         </div>
     </div>
+
     <div class="bg-white rounded-lg p-6 shadow-sm">
         <h2 class="text-lg font-medium mb-4">프로젝트 사양 목록</h2>
-        <form th:action="@{'/projects/onprojects/' + ${onGoingProjectId} + '/specs/add'}" method="post" class="space-y-4 mb-6">
+        <form th:action="@{'/projects/onprojects/' + ${onGoingProjectId} + '/specs/add'}" method="post"
+              class="space-y-4 mb-6">
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
                     <label for="requirement" class="block text-gray-700 text-sm font-bold mb-1">요구사항</label>
-                    <input type="text" name="requirement" id="requirement" placeholder="요구사항" required class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    <input type="text" name="requirement" id="requirement" placeholder="요구사항" required
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
                 <div>
                     <label for="assignee" class="block text-gray-700 text-sm font-bold mb-1">담당자</label>
-                    <input type="text" name="assignee" id="assignee" placeholder="담당자" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    <input type="text" name="assignee" id="assignee" placeholder="담당자"
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
                 <div>
                     <label for="status" class="block text-gray-700 text-sm font-bold mb-1">상태</label>
-                    <select name="status" id="status" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
+                    <select name="status" id="status"
+                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline">
                         <option value="waiting">대기중</option>
                         <option value="onGoing">진행중</option>
                         <option value="completed">완료</option>
@@ -150,53 +163,89 @@
                 </div>
                 <div>
                     <label for="dueDate" class="block text-gray-700 text-sm font-bold mb-1">마감일</label>
-                    <input type="date" name="dueDate" id="dueDate" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    <input type="date" name="dueDate" id="dueDate"
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
                 <div>
                     <label for="progressRate" class="block text-gray-700 text-sm font-bold mb-1">진행률 (%)</label>
-                    <input type="number" name="progressRate" id="progressRate" min="0" max="100" value="0" class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
+                    <input type="number" name="progressRate" id="progressRate" min="0" max="100" value="0"
+                           class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
                 <div class="flex items-end">
-                    <button type="submit" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">사양 추가</button>
+                    <button type="submit"
+                            class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700 focus:outline-none focus:shadow-outline">사양
+                        추가</button>
                 </div>
             </div>
         </form>
 
         <div class="overflow-x-auto">
-            <table class="min-w-full table-auto">
+            <table class="min-w-full table-auto border border-gray-300">
                 <thead class="bg-gray-100">
                 <tr>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">ID</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">요구사항</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">담당자</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">상태</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">마감일</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">진행률</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">생성일</th>
-                    <th class="px-4 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">수정일</th>
-                    <th class="px-4 py-3 text-right text-xs font-medium text-gray-500 uppercase tracking-wider">액션</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        ID</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        요구사항</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        담당자</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        상태</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        마감일</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        진행률</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        생성일</th>
+                    <th
+                            class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        수정일</th>
+                    <th
+                            class="px-4 py-2 border text-right text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        액션</th>
                 </tr>
                 </thead>
                 <tbody class="bg-white divide-y divide-gray-200">
                 <tr th:each="spec : ${specList}" class="hover:bg-gray-50">
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500" th:text="${spec.id}">1</td>
-                    <td class="px-4 py-2 whitespace-normal text-sm text-gray-900" th:text="${spec.requirement}">요구사항</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.assignee}">담당자</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.status}">상태</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.dueDate}">마감일</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.progressRate + '%'}">진행률</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500" th:text="${spec.createdAt}">생성일</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500" th:text="${spec.updatedAt}">수정일</td>
-                    <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.id}">1
+                    </td>
+                    <td class="px-4 py-2 border whitespace-normal text-sm text-gray-900"
+                        th:text="${spec.requirement}">요구사항</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.assignee}">
+                        담당자</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.status}">
+                        상태</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.dueDate}">
+                        마감일</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900"
+                        th:text="${spec.progressRate + '%'}">진행률</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.createdAt}">
+                        생성일</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.updatedAt}">
+                        수정일</td>
+                    <td class="px-4 py-2 border whitespace-nowrap text-right text-sm font-medium">
                         <a th:href="@{/projects/onprojects/{projectId}/specs/edit/{specId}(projectId=${onGoingProjectId}, specId=${spec.id})}"
-                           class="text-indigo-600 hover:text-indigo-900">수정</a>
+                           class="bg-yellow-500 hover:bg-yellow-700 text-white font-bold py-2 px-4 rounded text-sm mr-2 focus:outline-none focus:shadow-outline">수정</a>
+                        <form
+                                th:action="@{/projects/onprojects/{projectId}/specs/delete/{specId}(projectId=${onGoingProjectId}, specId=${spec.id})}"
+                                method="post" class="inline">
+                            <button type="submit"
+                                    class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded text-sm focus:outline-none focus:shadow-outline"
+                                    onclick="return confirm('정말로 삭제하시겠습니까?')">삭제</button>
+                        </form>
                     </td>
                 </tr>
                 </tbody>
             </table>
         </div>
     </div>
-
 
 </div>
 
@@ -222,11 +271,11 @@
                 }]
             },
             options: {
-                responsive: true, // Enable responsiveness
-                maintainAspectRatio: false, // Disable aspect ratio maintenance
+                responsive: true,
+                maintainAspectRatio: false,
                 plugins: {
                     legend: {
-                        position: 'top' // You can adjust the legend position
+                        position: 'top'
                     },
                     tooltip: {
                         callbacks: {
@@ -234,7 +283,6 @@
                         }
                     }
                 },
-                // Add these options to center the chart
                 layout: {
                     padding: {
                         left: 0,
@@ -258,7 +306,9 @@
             },
             options: {
                 scales: {
-                    y: { beginAtZero: true }
+                    y: {
+                        beginAtZero: true
+                    }
                 }
             }
         });
@@ -270,4 +320,5 @@
     });
 </script>
 </body>
+
 </html>
