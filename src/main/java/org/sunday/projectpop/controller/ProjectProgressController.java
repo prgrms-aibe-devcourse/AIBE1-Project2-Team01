@@ -30,7 +30,7 @@ public class ProjectProgressController {
 
     // 프로젝트 기본 페이지
     @GetMapping("/{onGoingProjectId}")
-    public String getProjectDashboard(@PathVariable Long onGoingProjectId, Model model) {
+    public String getProjectDashboard(@PathVariable String onGoingProjectId, Model model) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
         if (projectOpt.isEmpty()) {
             model.addAttribute("error", "존재하지 않는 프로젝트입니다.");

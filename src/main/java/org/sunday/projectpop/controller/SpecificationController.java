@@ -22,7 +22,7 @@ public class SpecificationController {
 
     // 명세서 수정 폼 요청 처리
     @GetMapping("/{onGoingProjectId}/specs/edit/{specId}")
-    public String editSpecificationForm(@PathVariable Long onGoingProjectId, @PathVariable Long specId, Model model) {
+    public String editSpecificationForm(@PathVariable String onGoingProjectId, @PathVariable String specId, Model model) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
         Optional<Specification> specificationOpt = specificationService.findById(specId);
 
@@ -33,11 +33,11 @@ public class SpecificationController {
 
         model.addAttribute("onGoingProjectId", onGoingProjectId);
         model.addAttribute("specification", specificationService.convertToDto(specificationOpt.get()));
-        return "onproject/editSpecification"; // 수정 폼 템플릿
+        return "onproject/editspecification"; // 수정 폼 템플릿
     }
 
     @PostMapping("/{onGoingProjectId}/specs/edit/{specId}")
-    public String updateSpecification(@PathVariable Long onGoingProjectId, @PathVariable Long specId, @ModelAttribute SpecificationDto specificationDto, Model model) {
+    public String updateSpecification(@PathVariable String onGoingProjectId, @PathVariable String specId, @ModelAttribute SpecificationDto specificationDto, Model model) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
         if (projectOpt.isEmpty()) {
             model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
@@ -50,7 +50,7 @@ public class SpecificationController {
     }
 
     @PostMapping("/{onGoingProjectId}/specs/add")
-    public String addSpecification(@PathVariable Long onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
+    public String addSpecification(@PathVariable String onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
         Specification specification = new Specification();
 
         // OnGoingProject 엔티티를 찾아서 설정
@@ -84,7 +84,7 @@ public class SpecificationController {
     }
 
     @PostMapping("/{onGoingProjectId}/specs/delete/{specId}")
-    public String deleteSpecification(@PathVariable Long onGoingProjectId, @PathVariable Long specId) {
+    public String deleteSpecification(@PathVariable String onGoingProjectId, @PathVariable String specId) {
         Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
         Optional<Specification> specificationOpt = specificationService.findById(specId);
 

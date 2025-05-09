@@ -1,19 +1,24 @@
 package org.sunday.projectpop.model.entity; // 'package'를 'pkg'로 변경
 //
 import jakarta.persistence.*;
-import lombok.Data;
+
+import lombok.NoArgsConstructor;
+
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import lombok.*;
 
 @Entity
-@Data
 @Table(name = "specification")
+@Data
+@AllArgsConstructor
+@Builder
 public class Specification {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id") // 이 부분이 누락됨
-    private Long id;
+    private String id;
 
     @ManyToOne
     @JoinColumn(name = "ongoing_project_id", nullable = false)

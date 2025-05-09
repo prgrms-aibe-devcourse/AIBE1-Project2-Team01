@@ -9,20 +9,20 @@ import java.util.Optional;
 public interface SpecificationService {
     List<Specification> findAll();
     Specification save(Specification specification);
-    void delete(long id);
-    Optional<Specification> findById(long id); // Optional로 반환하도록 수정
-    List<Specification> getSpecificationsByProjectId(Long onGoingProjectId);
+    void delete(String id);
+    Optional<Specification> findById(String id); // Optional로 반환하도록 수정
+    List<Specification> getSpecificationsByProjectId(String onGoingProjectId);
 
     // 진행률 계산을 위한 메소드 추가
-    long countCompletedSpecifications(Long projectId);
-    long countAllSpecifications(Long projectId);
-    int calculateProgressPercentage(Long projectId);
+    int countCompletedSpecifications(String projectId);
+    int countAllSpecifications(String projectId);
+    int calculateProgressPercentage(String projectId);
 
-    List<SpecificationDto> getSpecificationsDtoByProjectId(Long onGoingProjectId);
+    List<SpecificationDto> getSpecificationsDtoByProjectId(String onGoingProjectId);
     SpecificationDto convertToDto(Specification specification); // DTO 변환 메서드 추가
     Specification convertToEntity(SpecificationDto dto);     // 엔티티 변환 메서드 추가
 
-    List<MemberContributionDto> calculateMemberContributions(Long onGoingProjectId);
+    List<MemberContributionDto> calculateMemberContributions(String onGoingProjectId);
 
-    void updateSpecification(Long id, SpecificationDto specificationDto); // 업데이트 메서드 추가
+    void updateSpecification(String id, SpecificationDto specificationDto); // 업데이트 메서드 추가
 }

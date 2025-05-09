@@ -1,22 +1,29 @@
 package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
+import lombok.NoArgsConstructor;
 
 import java.time.LocalDate;
 
 @Entity
-@Data
 @Table(name = "ongoing_project")
+@Data
+@NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class OnGoingProject {
 
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.UUID)
     @Column(name = "id") // 이 부분이 누락됨
-    private Long id;
+    private String id;
 
-    @Column(name = "project_id")
-    private Long projectId;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "project_id", nullable = false)
+    private Project project;
 
     @Column(name = "team_leader_id", length = 36)
     private String teamLeaderId;

@@ -10,8 +10,8 @@ import java.time.LocalDate;
 @NoArgsConstructor
 @Data
 public class OnGoingProjectDto {
-    private Long onGoingProjectId;
-    private Long projectId;
+    private String onGoingProjectId;
+    private String projectId;
     private String teamLeaderId;
     private String status;
     private LocalDate startDate;

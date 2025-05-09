@@ -98,7 +98,6 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${scheduleCompliance + '%'}">92%</span>
                     <span class="text-xs text-green-600 flex items-center">
-                            <i class="ri-arrow-up-line"></i> 5%
                         </span>
                 </div>
             </div>
@@ -113,7 +112,6 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${projectProgress + '%'}">68%</span>
                     <span class="text-xs text-green-600 flex items-center">
-                            <i class="ri-arrow-up-line"></i> 3%
                         </span>
                 </div>
             </div>
@@ -128,7 +126,6 @@
                 <div class="flex items-end gap-2">
                     <span class="text-2xl font-bold" th:text="${riskStatus}">3</span>
                     <span class="text-xs text-red-600 flex items-center">
-                            <i class="ri-arrow-up-line"></i> 1
                         </span>
                 </div>
             </div>
@@ -162,7 +159,7 @@
                     </select>
                 </div>
                 <div>
-                    <label for="dueDate" class="block text-gray-700 text-sm font-bold mb-1">마감일</label>
+                    <label for="dueDate" class="block text-gray-700 text-sm font-bold mb-1">마감 목표일</label>
                     <input type="date" name="dueDate" id="dueDate"
                            class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" />
                 </div>
@@ -197,7 +194,7 @@
                         상태</th>
                     <th
                             class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
-                        마감일</th>
+                         마감 목표일</th>
                     <th
                             class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         진행률</th>
@@ -223,7 +220,7 @@
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.status}">
                         상태</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.dueDate}">
-                        마감일</td>
+                        마감 목표일</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900"
                         th:text="${spec.progressRate + '%'}">진행률</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.createdAt}">

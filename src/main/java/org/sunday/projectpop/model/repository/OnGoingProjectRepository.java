@@ -5,5 +5,5 @@ import org.sunday.projectpop.model.entity.OnGoingProject;
 import org.springframework.data.jpa.repository.JpaRepository;
 
 @Repository
-public interface OnGoingProjectRepository extends JpaRepository<OnGoingProject, Long> {
+public interface OnGoingProjectRepository extends JpaRepository<OnGoingProject, String> {
 }

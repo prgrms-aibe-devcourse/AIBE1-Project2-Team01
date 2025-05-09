@@ -39,37 +39,37 @@ public class SpecificationServiceImpl implements SpecificationService {
     }
 
     @Override
-    public void delete(long id) {
+    public void delete(String id) {
         specificationRepository.deleteById(id);
     }
 
     @Override
-    public Optional<Specification> findById(long id) {
+    public Optional<Specification> findById(String id) {
         return specificationRepository.findById(id);
     }
 
     @Override
-    public List<Specification> getSpecificationsByProjectId(Long onGoingProjectId) {
+    public List<Specification> getSpecificationsByProjectId(String onGoingProjectId) {
         // 프로젝트 ID를 기준으로 명세서를 가져오는 로직
         return specificationRepository.findByOnGoingProject_Id(onGoingProjectId);  // 변경된 메소드 호출
     }
 
     @Override
-    public long countCompletedSpecifications(Long projectId) {
+    public int countCompletedSpecifications(String projectId) {
         // 진행 완료된 명세서의 수를 카운트
         return specificationRepository.countByOnGoingProject_IdAndStatus(projectId, "completed");  // 변경된 메소드 호출, status값 변경
     }
 
     @Override
-    public long countAllSpecifications(Long projectId) {
+    public int countAllSpecifications(String projectId) {
         // 모든 명세서의 수를 카운트
         return specificationRepository.countByOnGoingProject_Id(projectId);  // 변경된 메소드 호출
     }
 
     @Override
-    public int calculateProgressPercentage(Long projectId) {
-        long completed = countCompletedSpecifications(projectId);
-        long total = countAllSpecifications(projectId);
+    public int calculateProgressPercentage(String projectId) {
+        int completed = countCompletedSpecifications(projectId);
+        int total = countAllSpecifications(projectId);
 
         if (total == 0) {
             return 0; // 0으로 나누지 않도록 주의
@@ -79,7 +79,7 @@ public class SpecificationServiceImpl implements SpecificationService {
     }
 
     @Override
-    public List<SpecificationDto> getSpecificationsDtoByProjectId(Long onGoingProjectId) {
+    public List<SpecificationDto> getSpecificationsDtoByProjectId(String onGoingProjectId) {
         // 해당 프로젝트의 명세서 목록을 가져온다.
         List<Specification> specifications = specificationRepository.findByOnGoingProject_Id(onGoingProjectId);
         // 가져온 명세서 목록을 SpecificationDto로 변환하여 반환한다.
@@ -123,7 +123,7 @@ public class SpecificationServiceImpl implements SpecificationService {
 
     @Override
     // 새로운 메서드: 팀원별 기여도 계산
-    public List<MemberContributionDto> calculateMemberContributions(Long onGoingProjectId) {
+    public List<MemberContributionDto> calculateMemberContributions(String onGoingProjectId) {
         List<Specification> specifications = specificationRepository.findByOnGoingProject_Id(onGoingProjectId);
         // 1. 팀원별 완료한 작업 수 계산
         Map<String, Long> completedTaskCounts = specifications.stream()
@@ -153,7 +153,7 @@ public class SpecificationServiceImpl implements SpecificationService {
 
     @Transactional
     @Override
-    public void updateSpecification(Long id, SpecificationDto specificationDto) {
+    public void updateSpecification(String id, SpecificationDto specificationDto) {
         Optional<Specification> specificationOpt = specificationRepository.findById(id);
         if (specificationOpt.isPresent()) {
             Specification specification = specificationOpt.get();

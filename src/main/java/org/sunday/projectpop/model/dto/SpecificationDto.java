@@ -8,8 +8,8 @@ import lombok.*;
 @NoArgsConstructor
 @Data
 public class SpecificationDto {
-    private Long id;
-    private Long onGoingProjectId;
+    private String id;
+    private String onGoingProjectId;
     private String requirement;
     private String assignee;
     private String status;

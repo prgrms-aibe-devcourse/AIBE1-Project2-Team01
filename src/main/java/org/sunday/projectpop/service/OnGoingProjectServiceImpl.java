@@ -17,12 +17,12 @@ public class OnGoingProjectServiceImpl implements OnGoingProjectService {
     private final OnGoingProjectRepository onGoingProjectRepository;
 
     @Override
-    public Optional<OnGoingProject> findById(Long id) {
+    public Optional<OnGoingProject> findById(String id) {
         return onGoingProjectRepository.findById(id);
     }
 
     @Override
-    public boolean existsById(Long id) {
+    public boolean existsById(String id) {
         return onGoingProjectRepository.existsById(id);
     }
 
