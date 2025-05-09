@@ -214,7 +214,7 @@
                     return await response.json();
                 }
 
-                // 노트 UI에 추가
+                // 노트 UI에 추가 (최신순으로 위에 표시)
                 function addNoteToUI(note) {
                     const noteElement = noteTemplate.cloneNode(true);
                     noteElement.classList.remove('hidden');
@@ -231,7 +231,12 @@
                     feedbackBtn.addEventListener('click', () => requestFeedback(note.id));
                     feedbackBtn.classList.remove('hidden'); // 초기 상태 표시
 
-                    noteList.appendChild(noteElement);
+                    // 변경된 부분: appendChild 대신 insertBefore 사용
+                    if (noteList.firstChild) {
+                        noteList.insertBefore(noteElement, noteList.firstChild);
+                    } else {
+                        noteList.appendChild(noteElement);
+                    }
                 }
 
                 // 피드백 요청 처리
