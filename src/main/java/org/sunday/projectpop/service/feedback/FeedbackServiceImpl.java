@@ -32,9 +32,9 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final PortfolioNoteRepository portfolioNoteRepository;
 
     @Override
-    public FeedbackResponse generatePortfolioFeedback(String id, Long noteId) {
+    public FeedbackResponse generatePortfolioFeedback(String portfolioId, Long noteId) {
         // 포트폴리오 있는지 확인
-        Portfolio portfolio = findById(id);
+        Portfolio portfolio = findById(portfolioId);
         PortfolioNote note = portfolio.getNotes().stream()
                 .filter(n -> n.getId().equals(noteId))
                 .findFirst()
@@ -120,9 +120,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     public FeedbackResponse getLatestFeedback(String portfolioId, Long noteId) {
         Portfolio portfolio = findById(portfolioId);
         PortfolioNote note = findNote(noteId);
-        FeedbackResponse latestFeedback = portfolioFeedbackRepository.findLatestFeedback(portfolio, note);
-        log.info(latestFeedback.llmFeedback());
-        return latestFeedback;
+        return portfolioFeedbackRepository.findLatestFeedback(portfolio, note);
     }
 
     private Portfolio findById(String id) {

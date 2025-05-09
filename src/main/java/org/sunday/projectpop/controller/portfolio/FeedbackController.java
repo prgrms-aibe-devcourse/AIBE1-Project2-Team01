@@ -1,6 +1,7 @@
 package org.sunday.projectpop.controller.portfolio;
 
 import lombok.RequiredArgsConstructor;
+import org.apache.poi.ss.formula.functions.T;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -43,10 +44,8 @@ public class FeedbackController {
             @PathVariable Long noteId) {
 
         FeedbackResponse response = feedbackService.getLatestFeedback(portfolioId, noteId);
-        System.out.println(response.toString());
         return ResponseEntity.ok(response);
     }
-
 
 
     // 피드백 목록/단건 조회
