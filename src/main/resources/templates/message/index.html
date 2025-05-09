@@ -7,23 +7,9 @@
 <main class="max-w-6xl mx-auto px-4 py-10">
     <h1 class="text-2xl font-bold text-primary mb-6">쪽지함</h1>
 
-    <div class="grid grid-cols-2 gap-6">
-        <div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 보낸 메시지</h2>
-            <div id="sent-messages" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
-        </div>
-        <div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 받은 메시지</h2>
-            <div id="received-messages" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
-        </div>
-        <div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 보낸 제안</h2>
-            <div id="sent-suggestions" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
-        </div>
-        <div>
-            <h2 class="text-lg font-semibold text-gray-800 mb-2">내가 받은 제안</h2>
-            <div id="received-suggestions" class="bg-white p-4 border rounded shadow-sm text-sm text-gray-700 whitespace-pre-wrap h-64 overflow-y-auto">(조회결과 없음)</div>
-        </div>
+    <!-- 메시지 리스트 (보낸/받은 통합 출력) -->
+    <div class="space-y-4">
+        <div id="message-list" class="space-y-4"></div>
     </div>
 
     <div class="text-right mt-8">
@@ -31,6 +17,7 @@
     </div>
 </main>
 
+<!-- 쪽지 보내기 모달 -->
 <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
     <div class="bg-white rounded-lg p-6 w-full max-w-md relative">
         <button id="close-modal" class="absolute top-2 right-2 text-gray-400 text-xl">&times;</button>
@@ -45,37 +32,103 @@
     </div>
 </div>
 
+<!-- 메시지 상세 모달 -->
+<div id="message-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md relative">
+        <button id="close-detail-modal" class="absolute top-2 right-2 text-gray-400 text-xl">&times;</button>
+        <h2 class="text-xl font-semibold mb-4">쪽지 상세</h2>
+        <div id="message-detail-content" class="text-sm text-gray-800 whitespace-pre-line"></div>
+        <div id="message-detail-actions" class="mt-4 flex justify-end gap-2"></div>
+    </div>
+</div>
+
 <footer th:replace="fragments/footer :: footer"></footer>
 
 <script th:inline="javascript">
     const userId = [[${userId}]];
 
-    async function loadMessagesAndSuggestions() {
-        const endpoints = [
-            { id: 'sent-messages', url: `/message/sent?senderId=${userId}` },
-            { id: 'received-messages', url: `/message/received?receiverId=${userId}` },
-            { id: 'sent-suggestions', url: `/suggestions/sent?senderId=${userId}` },
-            { id: 'received-suggestions', url: `/suggestions/received?receiverId=${userId}` }
-        ];
+    async function loadMessagesCombined() {
+        const sent = await (await fetch(`/message/sent?senderId=${userId}`)).json();
+        const received = await (await fetch(`/message/received?receiverId=${userId}`)).json();
+        const sentSuggestions = await (await fetch(`/suggestions/sent?senderId=${userId}`)).json();
+        const receivedSuggestions = await (await fetch(`/suggestions/received?receiverId=${userId}`)).json();
 
-        for (const { id, url } of endpoints) {
-            const res = await fetch(url);
-            const data = await res.json();
-            document.getElementById(id).innerText = data.length ? JSON.stringify(data, null, 2) : '(조회결과 없음)';
+        const messages = [...sent.map(m => ({...m, type: '보냄', isSuggestion: false})),
+            ...received.map(m => ({...m, type: '받음', isSuggestion: false}))];
+        const suggestions = [...sentSuggestions.map(s => ({...s, type: '보냄', isSuggestion: true})),
+            ...receivedSuggestions.map(s => ({...s, type: '받음', isSuggestion: true}))];
+
+        const combined = [...messages, ...suggestions].sort((a, b) => new Date(b.sentAt) - new Date(a.sentAt));
+
+        const container = document.getElementById("message-list");
+        container.innerHTML = combined.map(msg => {
+            const date = msg.sentAt ? msg.sentAt.replace('T', ' ').slice(0, 16).replace(/-/g, '.') : '(시간 없음)';
+            const targetUser = msg.type === '보냄' ? msg.receiverId : msg.senderId;
+            return `
+                <div class="border p-3 rounded shadow cursor-pointer hover:bg-gray-50" onclick='showMessageDetail(${JSON.stringify(JSON.stringify(msg) || '{}')})'>
+                    <div class="text-sm text-gray-500">${msg.isSuggestion ? '제안' : '메시지'} ${msg.type} • ${date}</div>
+                    <div class="text-base font-semibold">상대: ${targetUser}</div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function showMessageDetail(raw) {
+        const msg = JSON.parse(JSON.parse(raw));
+        const date = msg.sentAt.replace('T', ' ').slice(0, 16).replace(/-/g, '.');
+        const targetUser = msg.type === '보냄' ? msg.receiverId : msg.senderId;
+        const direction = msg.type === '보냄' ? '받는 사람' : '보낸 사람';
+        const status = msg.checking ? '읽음' : '안 읽음';
+
+        const html = `
+            <div><strong>${direction}:</strong> ${targetUser}</div>
+            <div><strong>보낸 시간:</strong> ${date}</div>
+            ${msg.isSuggestion ? '' : `<div><strong>읽음 여부:</strong> ${status}</div>`}
+            <hr class="my-2">
+            <div>${msg.content || msg.message || '(내용 없음)'}</div>
+        `;
+        document.getElementById("message-detail-content").innerHTML = html;
+
+        const actions = [];
+        if (msg.type === '받음') {
+            actions.push(`<button class="px-4 py-1 bg-secondary text-white rounded" onclick="replyTo('${targetUser}')">답장</button>`);
+            if (msg.isSuggestion) {
+                actions.push(`<button class="px-4 py-1 bg-green-600 text-white rounded" onclick="acceptSuggestion(${msg.id})">수락</button>`);
+                actions.push(`<button class="px-4 py-1 bg-red-600 text-white rounded" onclick="rejectSuggestion(${msg.id})">거절</button>`);
+            }
         }
+        document.getElementById("message-detail-actions").innerHTML = actions.join(' ');
+
+        document.getElementById("message-detail-modal").classList.remove("hidden");
     }
 
-    document.addEventListener("DOMContentLoaded", loadMessagesAndSuggestions);
-
-    function openMessageModal() {
-        document.getElementById('message-modal').classList.remove('hidden');
+    function replyTo(userId) {
+        document.getElementById("message-modal").classList.remove("hidden");
+        document.querySelector("#send-message-form [name='receiverId']").value = userId;
+        document.getElementById("message-detail-modal").classList.add("hidden");
     }
 
-    document.getElementById('close-modal').onclick = () => {
-        document.getElementById('message-modal').classList.add('hidden');
+    async function acceptSuggestion(id) {
+        await fetch(`/suggestions/${id}/accept`, { method: 'POST' });
+        alert('제안을 수락했습니다.');
+        document.getElementById("message-detail-modal").classList.add("hidden");
+        loadMessagesCombined();
     }
 
-    document.getElementById('send-message-form').onsubmit = async function (e) {
+    async function rejectSuggestion(id) {
+        alert('제안을 거절했습니다. (구현 예정)');
+        document.getElementById("message-detail-modal").classList.add("hidden");
+    }
+
+    document.getElementById("close-detail-modal").onclick = () => {
+        document.getElementById("message-detail-modal").classList.add("hidden");
+    };
+
+    document.getElementById("close-modal").onclick = () => {
+        document.getElementById("message-modal").classList.add("hidden");
+    };
+
+    document.getElementById("send-message-form").onsubmit = async function (e) {
         e.preventDefault();
         const receiverId = e.target.receiverId.value;
         const message = e.target.message.value;
@@ -87,10 +140,12 @@
         if (res.ok) {
             alert('보냈습니다!');
             e.target.reset();
-            document.getElementById('message-modal').classList.add('hidden');
-            loadMessagesAndSuggestions();
+            document.getElementById("message-modal").classList.add("hidden");
+            loadMessagesCombined();
         }
-    }
+    };
+
+    document.addEventListener("DOMContentLoaded", loadMessagesCombined);
 </script>
 </body>
 </html>
