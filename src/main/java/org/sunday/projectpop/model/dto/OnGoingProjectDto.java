@@ -8,6 +8,7 @@ import java.time.LocalDate;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class OnGoingProjectDto {
     private Long onGoingProjectId;
     private Long projectId;

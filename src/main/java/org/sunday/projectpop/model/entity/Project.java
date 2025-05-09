@@ -18,9 +18,9 @@ import java.time.LocalDateTime;
 public class Project {
 
     @Id
-    @Column(name = "project_id")
     @GeneratedValue(strategy = GenerationType.UUID)
-    private String projectId;
+    @Column(name = "id") // 이 부분이 누락됨
+    private String id;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)

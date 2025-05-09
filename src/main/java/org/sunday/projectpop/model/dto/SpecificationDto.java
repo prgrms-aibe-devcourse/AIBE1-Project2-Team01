@@ -1,14 +1,12 @@
 package org.sunday.projectpop.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@Data
 public class SpecificationDto {
     private Long id;
     private Long onGoingProjectId;

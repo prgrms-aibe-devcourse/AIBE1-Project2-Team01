@@ -12,8 +12,8 @@ import lombok.*;
 public class UserAccount {
 
     @Id
-    @Column(name = "user_id", length = 36, nullable = false)
-    private String userId;
+    @Column(name = "id", length = 36, nullable = false)
+    private String id;
 
     @Column(nullable = false, length = 255)
     private String email;

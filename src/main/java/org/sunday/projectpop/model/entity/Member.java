@@ -18,6 +18,7 @@ public class Member {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id") // 이 부분이 누락됨
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)

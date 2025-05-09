@@ -12,8 +12,8 @@ public class Specification {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "specification_id")
-    private Long specificationId;
+    @Column(name = "id") // 이 부분이 누락됨
+    private Long id;
 
     @ManyToOne
     @JoinColumn(name = "ongoing_project_id", nullable = false)
@@ -50,6 +50,7 @@ public class Specification {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
+    public Specification() {} // 기본 생성자 추가
 
 
 }

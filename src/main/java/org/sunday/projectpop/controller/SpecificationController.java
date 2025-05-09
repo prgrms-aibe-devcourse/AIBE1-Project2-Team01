@@ -3,10 +3,7 @@ package org.sunday.projectpop.controller;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
-import org.springframework.web.bind.annotation.ModelAttribute;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.OnGoingProject;
 import org.sunday.projectpop.model.entity.Specification;
@@ -22,6 +19,35 @@ import java.util.Optional;
 public class SpecificationController {
     private final OnGoingProjectService onGoingProjectService;
     private final SpecificationService specificationService;
+
+    // 명세서 수정 폼 요청 처리
+    @GetMapping("/{onGoingProjectId}/specs/edit/{specId}")
+    public String editSpecificationForm(@PathVariable Long onGoingProjectId, @PathVariable Long specId, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        Optional<Specification> specificationOpt = specificationService.findById(specId);
+
+        if (projectOpt.isEmpty() || specificationOpt.isEmpty()) {
+            model.addAttribute("error", "프로젝트 또는 명세서를 찾을 수 없습니다.");
+            return "error";
+        }
+
+        model.addAttribute("onGoingProjectId", onGoingProjectId);
+        model.addAttribute("specification", specificationService.convertToDto(specificationOpt.get()));
+        return "onproject/editSpecification"; // 수정 폼 템플릿
+    }
+
+    @PostMapping("/{onGoingProjectId}/specs/edit/{specId}")
+    public String updateSpecification(@PathVariable Long onGoingProjectId, @PathVariable Long specId, @ModelAttribute SpecificationDto specificationDto, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error";
+        }
+
+        specificationDto.setOnGoingProjectId(onGoingProjectId); // DTO에 프로젝트 ID 설정
+        specificationService.updateSpecification(specId, specificationDto);
+        return "redirect:/projects/onprojects/" + onGoingProjectId;
+    }
 
     @PostMapping("/{onGoingProjectId}/specs/add")
     public String addSpecification(@PathVariable Long onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {

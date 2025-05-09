@@ -10,13 +10,15 @@ public interface SpecificationRepository extends JpaRepository<Specification, Lo
     boolean existsByRequirement(String requirement);
 
     // 프로젝트 ID로 모든 명세서를 찾는 메서드
-    List<Specification> findByOnGoingProject_OnGoingProjectId(Long projectId); // 수정됨
+    List<Specification> findByOnGoingProject_Id(Long projectId); // 수정됨
 
     // 특정 프로젝트의 상태가 '진행 완료'인 명세서의 수를 카운트
-    int countByOnGoingProject_OnGoingProjectIdAndStatus(Long onGoingProjectId, String status); // 수정됨
+    int countByOnGoingProject_IdAndStatus(Long onGoingProjectId, String status); // 수정됨
 
     // 프로젝트 ID로 모든 명세서의 수를 카운트
-    int countByOnGoingProject_OnGoingProjectId(Long onGoingProjectId); // 수정됨
+    int countByOnGoingProject_Id(Long onGoingProjectId); // 수정됨
+
+
 
     // 예: 특정 상태의 명세서 찾기
     // List<Specification> findByStatus(String status);

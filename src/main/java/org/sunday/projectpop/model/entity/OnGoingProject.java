@@ -12,8 +12,8 @@ public class OnGoingProject {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "ongoing_project_id")
-    private Long onGoingProjectId;
+    @Column(name = "id") // 이 부분이 누락됨
+    private Long id;
 
     @Column(name = "project_id")
     private Long projectId;

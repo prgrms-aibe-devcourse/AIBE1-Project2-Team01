@@ -1,12 +1,12 @@
 package org.sunday.projectpop.model.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.Setter;
+import lombok.*;
 
 @Getter
 @Setter
 @AllArgsConstructor
+@NoArgsConstructor
+@Data
 public class MemberContributionDto {
     private String memberName;
     private Long completedTasks;
