@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.portfolio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
@@ -41,6 +42,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final PortfolioSummaryRepository portfolioSummaryRepository;
 
     @Override
+    @Transactional
     public void createPortfolio(String userId, PortfolioRequest request) {
         // TODO: userId 한번더 체크
 //        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
@@ -52,9 +54,6 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setPortfolioType(request.portfolioType());
         portfolio.setTitle(request.title());
         portfolio.setDescription(request.description());
-
-//        log.info("url " + request.urls().toString());
-        log.info("new " + request.newUrls().toString());
 
         // URL 저장
         List<PortfolioUrl> urls = Optional.ofNullable(request.newUrls())
@@ -90,6 +89,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PortfolioSimple> getMyPortfolios(String userId) {
         // TODO: userId 한번더 체크
 //        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
@@ -115,6 +115,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PortfolioResponse getPortfolio(String portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
@@ -159,6 +160,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
+    @Transactional
     public void updatePortfolio(String userId, String portfolioId, PortfolioRequest request) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));
@@ -234,6 +236,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     }
 
     @Override
+    @Transactional
     public void deletePortfolio(String userId, String portfolioId) {
         Portfolio portfolio = portfolioRepository.findById(portfolioId)
                 .orElseThrow(() -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다."));

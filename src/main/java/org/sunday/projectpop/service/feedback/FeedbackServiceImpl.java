@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.feedback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sunday.projectpop.exceptions.FeedbackNotFoundException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.dto.FeedbackResponse;
@@ -32,6 +33,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final PortfolioNoteRepository portfolioNoteRepository;
 
     @Override
+    @Transactional(rollbackFor = Exception.class)  // 모든 예외 발생 시 롤백
     public FeedbackResponse generatePortfolioFeedback(String portfolioId, Long noteId) {
         // 포트폴리오 있는지 확인
         Portfolio portfolio = findById(portfolioId);
@@ -45,42 +47,69 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         if (!summary.getStatus().equals(AnalysisStatus.COMPLETED)) {
             log.info("요약이 완료되지 않았습니다.");
-            // TODO: 어떻게 처리할지 고민
             return null;
         }
         String finalSummary = summary.getFinalSummary();
         PortfolioFeedback prevFeedback = portfolioFeedbackRepository.findTopByPortfolioOrderByCreatedAtDesc(portfolio);
 
+        // 추가 데이터 (포트폴리오설명 + 노트내용)
+        String description = portfolio.getDescription();
+        String noteContent = note.getContent();
+        String data = """
+                    [포트폴리오 설명] %s
+                    [회고 및 노트 내용] %s
+                    [포트폴리오 요약] %s
+                    """.formatted(description, noteContent, finalSummary);
+        boolean isFirst = true;
+
+        // 이전 피드백 유무에 따라 분기
+        if (prevFeedback != null) {
+            String prev = prevFeedback.getLlmFeedback();
+            log.info("prev = " + prev);
+            data += """
+                    [이전 피드백] %s
+                    """.formatted(prev);
+            isFirst = false;
+        }
+
+        log.info("data = " + data);
+
+        PortfolioFeedback feedback = generateFeedbackLLM(portfolio, note, data, isFirst);
+        return getFeedback(feedback.getId());
+    }
+
+    @Override
+    @Transactional(readOnly = true)
+    public List<FeedbackResponse> getFeedbackList(String portfolioId) {
+        Portfolio portfolio = findById(portfolioId);
+        List<FeedbackResponse> feedbackResponses = portfolioFeedbackRepository.findFeedbackAndStatusByPortfolio(portfolio);
+        if (feedbackResponses.stream().anyMatch(feedbackResponse -> feedbackResponse.feedbackStatus() == null)) {
+            throw new FeedbackNotFoundException("등록된 피드백이 없습니다.");
+        }
+        return feedbackResponses;
+    }
+
+    @Override
+    @Transactional(readOnly = true)  // 읽기 전용 트랜잭션
+    public FeedbackResponse getFeedback(Long feedbackId) {
+        return portfolioFeedbackRepository.findFeedbackAndStatusById(feedbackId);
+    }
+
+    @Override
+    @Transactional(readOnly = true)  // 읽기 전용 트랜잭션
+    public FeedbackResponse getLatestFeedback(String portfolioId, Long noteId) {
+        Portfolio portfolio = findById(portfolioId);
+        PortfolioNote note = findNote(noteId);
+        return portfolioFeedbackRepository.findLatestFeedback(portfolio, note);
+    }
+
+    @Transactional
+    protected PortfolioFeedback generateFeedbackLLM(Portfolio portfolio, PortfolioNote note, String data, boolean isFirst) {
         PortfolioFeedback feedback = new PortfolioFeedback();
         feedback.setPortfolio(portfolio);
         feedback.setNote(note);
         feedback.setStatus(AnalysisStatus.FEEDBACK_IN_PROCESSING);
         portfolioFeedbackRepository.save(feedback); // 상태 업데이트
-
-        // 추가 데이터 (포트폴리오설명 + 노트내용)
-        String description = portfolio.getDescription();
-        String noteContent = note.getContent();
-        String data = "";
-        boolean isFirst = true;
-
-        // TODO: 이전 피드백 유무에 따라 분기
-        if (prevFeedback != null) {
-            String prev = prevFeedback.getLlmFeedback();
-            log.info("prev = " + prev);
-            data = """
-                    [포트폴리오 설명] %s
-                    [회고 및 노트 내용] %s
-                    [포트폴리오 요약] %s
-                    [이전 피드백] %s
-                    """.formatted(description, noteContent, finalSummary, prev);
-            isFirst = false;
-        } else {
-            data = """
-                    [포트폴리오 설명] %s
-                    [회고 및 노트 내용] %s
-                    [포트폴리오 요약] %s
-                    """.formatted(description, noteContent, finalSummary);
-        }
 
         llmClient.feedback(data, isFirst)
                 .doOnNext(result -> {
@@ -96,31 +125,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
-
-        return getFeedback(feedback.getId());
-    }
-
-    @Override
-    public List<FeedbackResponse> getFeedbackList(String portfolioId) {
-        Portfolio portfolio = findById(portfolioId);
-        List<FeedbackResponse> feedbackResponses = portfolioFeedbackRepository.findFeedbackAndStatusByPortfolio(portfolio);
-        if (feedbackResponses.stream().anyMatch(feedbackResponse -> feedbackResponse.feedbackStatus() == null)) {
-            throw new FeedbackNotFoundException("등록된 피드백이 없습니다.");
-        }
-
-        return feedbackResponses;
-    }
-
-    @Override
-    public FeedbackResponse getFeedback(Long feedbackId) {
-        return portfolioFeedbackRepository.findFeedbackAndStatusById(feedbackId);
-    }
-
-    @Override
-    public FeedbackResponse getLatestFeedback(String portfolioId, Long noteId) {
-        Portfolio portfolio = findById(portfolioId);
-        PortfolioNote note = findNote(noteId);
-        return portfolioFeedbackRepository.findLatestFeedback(portfolio, note);
+        return feedback;
     }
 
     private Portfolio findById(String id) {
@@ -134,4 +139,6 @@ public class FeedbackServiceImpl implements FeedbackService {
                 () -> new PortfolioNotFoundException("해당 노트를 찾을 수 없습니다.")
         );
     }
+
+
 }

@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.feedback;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 import org.sunday.projectpop.model.repository.PortfolioFileRepository;
@@ -31,34 +32,117 @@ public class AnalysisService {
     private final PortfolioFileRepository portfolioFileRepository;
     private final LLMSummaryService llmSummaryService;
 
-    public void handleAnalysis(Portfolio portfolio) {
-        PortfolioSummary portfolioSummary = portfolio.getSummary();
 
-        // 깃허브 및 파일 추출
-        List<String> githubText = extractGithubTexts(portfolio.getUrls());
-        List<String> fileText = extractFileTexts(portfolio);
-//        log.info("githubText = " + githubText.toString());
-//        log.info("fileText = " + fileText.toString());
-        if (githubText.isEmpty() && fileText.isEmpty()) {
-            portfolioSummary.setStatus(AnalysisStatus.NOT_STARTED);
-            summaryRepository.save(portfolioSummary);
+    /**
+     * 포트폴리오 분석 처리 (쓰기 작업)
+     * - 트랜잭션 범위: DB 상태 변경까지 포함
+     * - rollbackFor: 모든 예외 발생 시 롤백
+     * - Reactor 스케줄러와의 충돌 방지를 위해 트랜잭션 분리
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void handleAnalysis(Portfolio portfolio) {
+        PortfolioSummary portfolioSummary = initAnalysisProcess(portfolio);
+        AnalysisData data = extractAnalysisData(portfolio);
+
+        if (data.isEmpty()) {
+            abortAnalysis(portfolioSummary);
             return;
         }
-
         // 요약 시작
-        portfolioSummary.setStatus(AnalysisStatus.GITHUB_IN_PROCESSING);
-        summaryRepository.save(portfolioSummary);
+        startAsyncAnalysis(portfolioSummary, data);
+    }
 
-        // LLM 비동기 요약 호출
-        Mono<String> githubSummaryMono = llmSummaryService.summarizeGithubText(githubText)
-                .publishOn(Schedulers.boundedElastic())
-                .doOnSuccess(summary -> {
-                    log.info("gitHubSummary = " + summary);
-                    portfolioSummary.setGithubSummary(summary);
-                    portfolioSummary.setStatus(AnalysisStatus.FILE_IN_PROCESSING);
-                    summaryRepository.save(portfolioSummary);
+    /**
+     * 노트 제출 처리 (쓰기 작업)
+     * - 트랜잭션 범위: DB 상태 변경까지 포함
+     * - GitHub 갱신 여부 확인 후 분석 재시작
+     */
+    @Transactional(rollbackFor = Exception.class)
+    public void handleNoteSubmit(Portfolio portfolio) {
+        // 깃허브 링크 유무 확인
+        List<PortfolioUrl> urls = portfolio.getUrls();
+
+        urls.stream()
+                .filter(url -> url.getUrl() != null && url.getUrl().contains("github.com"))
+                .findFirst()
+                .map(url -> gitHubService.fetchUpdatedAtFromGithub(url.getUrl()))
+                .ifPresent(updatedAt -> {
+                    PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
+                    if (shouldRestartAnalysis(summary, updatedAt)) {
+                        handleAnalysis(portfolio);
+                    }
                 });
-        Mono<String> fileSummaryMono = llmSummaryService.summarizeFileText(fileText)
+    }
+
+    /**
+     * 비동기 분석 시작
+     * - 트랜잭션 외부에서 실행 (Reactor 스케줄러와의 충돌 방지)
+     * - 각 단계별 상태 업데이트는 별도 트랜잭션으로 처리
+     */
+    private void startAsyncAnalysis(PortfolioSummary summary, AnalysisData data) {
+        Mono.zip(
+                        processGithubData(summary, data.githubTexts),
+                        processFileData(summary, data.fileTexts)
+                )
+                .flatMap(tuple -> generateFinalSummary(tuple.getT1(), tuple.getT2()))
+                .doOnSuccess(finalSummary -> completeAnalysis(summary, finalSummary))
+                .doOnError(error -> failAnalysis(summary, error))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+    }
+
+    /**
+     * 최종 요약 생성
+     */
+    private Mono<String> generateFinalSummary(String githubSummary, String fileSummary) {
+        String combined = githubSummary + "\n" + fileSummary;
+        return (combined.length() > MAX_SAFE_LENGTH)
+                ? llmSummaryService.summarizeCombinedText(combined)
+                : Mono.just(combined);
+    }
+
+    /**
+     * 분석 완료 처리
+     */
+    private void completeAnalysis(PortfolioSummary summary, String finalSummary) {
+        updateAnalysisStatus(
+                summary.getId(),
+                AnalysisStatus.COMPLETED,
+                s -> s.setFinalSummary(finalSummary)
+        );
+        log.info("포트폴리오 분석 완료: " + summary.getId());
+    }
+
+    /**
+     * 분석 실패 처리
+     */
+    private void failAnalysis(PortfolioSummary summary, Throwable error) {
+        log.warning("분석 실패: " + error.getMessage());
+        updateAnalysisStatus(
+                summary.getId(),
+                AnalysisStatus.FAILED,
+                s -> {
+                }
+        );
+    }
+
+    /**
+     * 상태 업데이트 공통 처리 (별도 트랜잭션)
+     */
+    @Transactional
+    protected void updateAnalysisStatus(Long summaryId, AnalysisStatus status, java.util.function.Consumer<PortfolioSummary> updater) {
+        summaryRepository.findById(summaryId).ifPresent(summary -> {
+            summary.setStatus(status);
+            updater.accept(summary);
+            summaryRepository.save(summary);
+        });
+    }
+
+    /**
+     * 파일 데이터 요약
+     */
+    private Mono<String> processFileData(PortfolioSummary portfolioSummary, List<String> texts) {
+        return llmSummaryService.summarizeFileText(texts)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(summary -> {
                     log.info("fileSummary = " + summary);
@@ -66,94 +150,95 @@ public class AnalysisService {
                     portfolioSummary.setStatus(AnalysisStatus.COMBINED_IN_PROCESSING);
                     summaryRepository.save(portfolioSummary);
                 });
+    }
 
-        if (portfolioSummary.getCreatedAt() == null) {
-            portfolioSummary.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
-        }
-
-        // 두 요약 결과 병합
-        Mono.zip(githubSummaryMono, fileSummaryMono)
-                .flatMap(tuple -> {
-                    String combined = tuple.getT1() + "\n" + tuple.getT2();
-                    // 다시 요약 필요하면 비동기 요약 호출
-                    return (combined.length() > MAX_SAFE_LENGTH)
-                            ? llmSummaryService.summarizeCombinedText(combined)
-                            : Mono.just(combined);
-                })
-                .doOnSuccess(finalSummary -> {
-                    log.info("finalSummary = " + finalSummary);
-                    portfolioSummary.setFinalSummary(finalSummary);
-                    portfolioSummary.setStatus(AnalysisStatus.COMPLETED);
+    /**
+     * GitHub 데이터 요약
+     */
+    private Mono<String> processGithubData(PortfolioSummary portfolioSummary, List<String> texts) {
+        return llmSummaryService.summarizeGithubText(texts)
+                .publishOn(Schedulers.boundedElastic())
+                .doOnSuccess(summary -> {
+                    log.info("gitHubSummary = " + summary);
+                    portfolioSummary.setGithubSummary(summary);
+                    portfolioSummary.setStatus(AnalysisStatus.FILE_IN_PROCESSING);
                     summaryRepository.save(portfolioSummary);
-
-                })
-                .subscribeOn(Schedulers.boundedElastic())
-                .subscribe(
-                        success -> log.info("요약 완료"),
-                        error -> {
-                            log.warning("요약 중 오류 발생 : " + error.getMessage());
-                            portfolioSummary.setStatus(AnalysisStatus.FAILED);
-                            summaryRepository.save(portfolioSummary);
-                        }
-                );
+                });
     }
 
-    public void handleNoteSubmit(Portfolio portfolio) {
-        // 깃허브 링크 유무 확인
-        List<PortfolioUrl> urls = portfolio.getUrls();
-        if (urls == null || urls.isEmpty()) return;
+    /**
+     * 분석 중단 처리
+     */
+    private void abortAnalysis(PortfolioSummary summary) {
+        summary.setStatus(AnalysisStatus.NOT_STARTED);
+        summaryRepository.save(summary);
+    }
 
-        Instant updatedAt = null;
-        for (PortfolioUrl url : urls) {
-            String link = url.getUrl();
-            if (link != null && link.contains("github.com")) {
-                updatedAt = gitHubService.fetchUpdatedAtFromGithub(link);
-            }
+    /**
+     * 분석 데이터 추출 (읽기 전용)
+     */
+    private AnalysisData extractAnalysisData(Portfolio portfolio) {
+        return new AnalysisData(
+                extractGithubTexts(portfolio.getUrls()),
+                extractFileTexts(portfolio)
+        );
+    }
+
+    /**
+     * 요약 프로세스 초기화
+     */
+    private PortfolioSummary initAnalysisProcess(Portfolio portfolio) {
+        PortfolioSummary summary = portfolio.getSummary();
+        summary.setStatus(AnalysisStatus.GITHUB_IN_PROCESSING);
+
+        if (summary.getCreatedAt() == null) {
+            summary.setCreatedAt(ZonedDateTime.now(ZoneOffset.UTC));
         }
-        if (updatedAt == null) return;
+        return summaryRepository.save(summary);
+    }
 
-        // summary 확인
-        PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
-        if (summary == null) return;
-        if (summary.getStatus() != AnalysisStatus.COMPLETED) return;
-
-        Instant summaryTime = summary.getCreatedAt().toInstant();
-
-//        log.info("service - updatedAt: " + updatedAt);
-//        log.info("service - summaryTime: " + summaryTime);
-        // summary의 시각이랑 마지막 커밋한 시각 체크
-        if (updatedAt.isAfter(summaryTime)) {
-            handleAnalysis(portfolio);
-        }
+    /**
+     * 분석 재시작 여부 확인
+     */
+    private boolean shouldRestartAnalysis(PortfolioSummary summary, Instant lastUpdate) {
+        return summary != null
+                && summary.getStatus() == AnalysisStatus.COMPLETED
+                && lastUpdate.isAfter(summary.getCreatedAt().toInstant());
     }
 
 
-    private List<String> extractFileTexts(Portfolio portfolio) {
+    /**
+     * 파일 텍스트 추출 (읽기 전용)
+     */
+    @Transactional(readOnly = true)
+    protected List<String> extractFileTexts(Portfolio portfolio) {
         // 파일이 있는지 확인
         List<PortfolioFile> portfolioFiles = portfolioFileRepository.findAllByPortfolio(portfolio);
         if (portfolioFiles.isEmpty()) {
             return Collections.emptyList();
         }
         List<ReadableFile> allFiles = new ArrayList<>(portfolioFiles);
-
-        // 파일에서 텍스트 추출
         return fileReadService.extractTextsFromFiles(allFiles);
     }
 
-    private List<String> extractGithubTexts(List<PortfolioUrl> urls) {
-        // urls가 바이었다면 바로 빈 리스트 반환
+    /**
+     * GitHub 텍스트 추출 (읽기 전용)
+     */
+    @Transactional(readOnly = true)
+    protected List<String> extractGithubTexts(List<PortfolioUrl> urls) {
         if (urls == null || urls.isEmpty()) {
             return Collections.emptyList();
         }
-        // github.com이 포함된 URL 찾기
-        for (PortfolioUrl url : urls) {
-            String link = url.getUrl();
-            if (link != null && link.contains("github.com")) {
-                return gitHubService.fetchAndConvertFiles(link);
-                // 현재는 하나의 링크만 처리
-            }
+        return urls.stream()
+                .filter(url -> url.getUrl() != null && url.getUrl().contains("github.com"))
+                .findFirst()
+                .map(url -> gitHubService.fetchAndConvertFiles(url.getUrl()))
+                .orElse(Collections.emptyList());
+    }
+
+    private record AnalysisData(List<String> githubTexts, List<String> fileTexts) {
+        boolean isEmpty() {
+            return githubTexts.isEmpty() && fileTexts.isEmpty();
         }
-        // 없다면 빈 리스트 반환
-        return Collections.emptyList();
     }
 }

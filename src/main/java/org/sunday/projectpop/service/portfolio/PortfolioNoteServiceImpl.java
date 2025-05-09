@@ -3,6 +3,7 @@ package org.sunday.projectpop.service.portfolio;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
@@ -37,6 +38,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     private final AnalysisService analysisService;
 
     @Override
+    @Transactional
     public PortfolioNote createNote(String userId, String portfolioId, PortfolioNoteCreateRequest request, List<MultipartFile> files) {
         // 해당 포트폴리오 있는지 확인
         Portfolio portfolio = findPortfolio(portfolioId);
@@ -61,14 +63,14 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         portfolioNote.setFiles(fileList);
         PortfolioNote savedNote = portfolioNoteRepository.save(portfolioNote);
 
-        // TODO: 노트 등록시 원활한 피드백요청을 위해 summary 확인해야함
-        // 파일은 변화가 없을 확률이 높은데, GitHub의 경우 업로드될수도 있기 때문에 재추출 및 요약 필요
+        // 노트 등록시 원활한 피드백요청을 위해 summary 확인해
         analysisService.handleNoteSubmit(portfolio);
 
         return savedNote;
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<PortfolioNoteResponse> getPortfolioNoteList(String portfolioId) {
         // 해당 포트폴리오 확인
         Portfolio portfolio = findPortfolio(portfolioId);
@@ -115,13 +117,14 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         }
     }
 
-    private void checkByNote(Portfolio portfolio, PortfolioNote note)  {
+    private void checkByNote(Portfolio portfolio, PortfolioNote note) {
         log.info("checkByNote: %s %s".formatted(portfolio, note.getPortfolio()));
         if (!note.getPortfolio().equals(portfolio))
             throw new UnauthorizedException("해당 노트에 대한 권한이 없습니다.");
     }
 
     @Override
+    @Transactional(readOnly = true)
     public PortfolioNoteDetailResponse getPortfolioNote(String portfolioId, Long noteId) {
         Portfolio portfolio = findPortfolio(portfolioId);
         PortfolioNote note = findPortfolioNote(noteId);
@@ -149,6 +152,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     }
 
     @Override
+    @Transactional
     public void updatePortfolioNote(String userId, String portfolioId, Long noteId, PortfolioNoteUpdateRequest request, List<MultipartFile> newFiles) throws Exception {
         // 해당 포트폴리오 유무 및 자격 확인
         Portfolio portfolio = findPortfolio(portfolioId);
@@ -181,7 +185,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
         portfolioNoteRepository.save(note);
     }
 
-    private void deleteFile (Long fileId) {
+    private void deleteFile(Long fileId) {
         PortfolioNoteFile file = portfolioNoteFileRepository.findById(fileId)
                 .orElseThrow();
         portfolioNoteFileRepository.delete(file);
@@ -194,6 +198,7 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
     }
 
     @Override
+    @Transactional
     public void deletePortfolioNote(String userId, String portfolioId, Long noteId) {
         Portfolio portfolio = findPortfolio(portfolioId);
         checkByUserId(portfolio, userId);
