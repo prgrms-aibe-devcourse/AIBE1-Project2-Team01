@@ -22,7 +22,9 @@ public class PortfolioFeedback {
     @JoinColumn(name = "portfolio_id")
     private Portfolio portfolio;
 
-    private Long noteId; // 회고 노트와의 연결
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "note_id", unique = true)
+    private PortfolioNote note;
 
     @Lob
     private String llmFeedback;

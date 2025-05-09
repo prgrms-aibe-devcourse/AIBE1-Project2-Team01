@@ -224,7 +224,7 @@ public class PortfolioController {
     }
 
     // 포트폴리오에 대한 노트 삭제
-    @DeleteMapping("/{portfolioId}/notes/{noteId}")
+    @DeleteMapping("/{portfolioId}/{noteId}")
     public ResponseEntity<Void> deletePortfolioNote(
             @PathVariable String portfolioId,
             @PathVariable Long noteId) {

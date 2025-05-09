@@ -5,7 +5,6 @@ import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
-import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import org.sunday.projectpop.model.repository.PortfolioFileRepository;
 import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
 import org.sunday.projectpop.service.llm.LLMSummaryService;
@@ -23,7 +22,6 @@ public class AnalysisService {
 
     public static final int MAX_SAFE_LENGTH = 5000;
 
-    private final PortfolioAnalysisRepository analysisRepository;
     private final PortfolioSummaryRepository summaryRepository;
     private final GitHubService gitHubService;
     private final FileReadService fileReadService;
@@ -31,7 +29,7 @@ public class AnalysisService {
     private final LLMSummaryService llmSummaryService;
 
     public void handleAnalysis(Portfolio portfolio) {
-        PortfolioSummary portfolioSummary = summaryRepository.findByPortfolio(portfolio);
+        PortfolioSummary portfolioSummary = portfolio.getSummary();
 
         // 깃허브 및 파일 추출
         List<String> githubText = extractGithubTexts(portfolio.getUrls());

@@ -3,7 +3,6 @@ package org.sunday.projectpop.service.llm;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import reactor.core.publisher.Mono;
 
 import java.util.List;
@@ -14,7 +13,6 @@ import java.util.List;
 public class LLMSummaryService {
 
     private final LLMClient llmClient;
-    private final PortfolioAnalysisRepository analysisRepository;
 
 
     public Mono<String> summarizeGithubText(List<String> githubText) {

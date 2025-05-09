@@ -29,4 +29,7 @@ public class PortfolioNote {
 
     @OneToMany(mappedBy = "portfolioNote", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PortfolioNoteFile> files = new ArrayList<>();
+
+     @OneToOne(mappedBy = "note", cascade = CascadeType.ALL)
+    private PortfolioFeedback feedback; // 해당 노트에 대한 피드백
 }

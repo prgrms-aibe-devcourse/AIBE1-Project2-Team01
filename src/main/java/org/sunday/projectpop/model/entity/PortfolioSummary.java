@@ -15,8 +15,7 @@ public class PortfolioSummary {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "portfolio_id")
+    @OneToOne(mappedBy = "summary") // Portfolio 엔티티의 'summary' 필드와 매핑
     private Portfolio portfolio;
 
     @Lob

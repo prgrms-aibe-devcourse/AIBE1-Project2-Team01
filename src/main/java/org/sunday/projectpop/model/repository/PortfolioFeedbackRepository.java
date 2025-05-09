@@ -6,8 +6,8 @@ import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 import org.sunday.projectpop.model.dto.FeedbackResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.model.entity.PortfolioAnalysis;
 import org.sunday.projectpop.model.entity.PortfolioFeedback;
+import org.sunday.projectpop.model.entity.PortfolioNote;
 
 import java.util.List;
 
@@ -25,7 +25,7 @@ public interface PortfolioFeedbackRepository extends JpaRepository<PortfolioFeed
     FeedbackResponse findFeedbackAndStatusById(@Param("id") Long id);
 
     @Query("SELECT new org.sunday.projectpop.model.dto.FeedbackResponse(p.id, p.status, p.llmFeedback) " +
-            "FROM PortfolioFeedback p WHERE p.portfolio = :portfolio AND p.noteId = :noteId")
-    FeedbackResponse findLatestFeedback(@Param("portfolio") Portfolio portfolio, @Param("noteId") Long noteId);
+            "FROM PortfolioFeedback p WHERE p.portfolio = :portfolio AND p.note = :note")
+    FeedbackResponse findLatestFeedback(@Param("portfolio") Portfolio portfolio, @Param("note") PortfolioNote note);
 }
 

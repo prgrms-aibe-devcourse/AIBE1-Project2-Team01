@@ -8,9 +8,15 @@ import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.*;
-import org.sunday.projectpop.model.entity.*;
+import org.sunday.projectpop.model.entity.Portfolio;
+import org.sunday.projectpop.model.entity.PortfolioFile;
+import org.sunday.projectpop.model.entity.PortfolioSummary;
+import org.sunday.projectpop.model.entity.PortfolioUrl;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
-import org.sunday.projectpop.model.repository.*;
+import org.sunday.projectpop.model.repository.PortfolioFileRepository;
+import org.sunday.projectpop.model.repository.PortfolioRepository;
+import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
+import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
 import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
@@ -31,7 +37,6 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final FileStorageService fileStorageService;
     private final PortfolioFileRepository portfolioFileRepository;
     private final PortfolioUrlRepository portfolioUrlRepository;
-    private final PortfolioAnalysisRepository portfolioAnalysisRepository;
     private final AnalysisService analysisService;
     private final PortfolioSummaryRepository portfolioSummaryRepository;
 
@@ -67,14 +72,15 @@ public class PortfolioServiceImpl implements PortfolioService {
         log.info(fileList.toString());
         portfolio.setFiles(fileList);
 
-        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
-        // 요약을 위한 분석 생성 및 저장.
+        // 요약을 위한 분석 생성
         PortfolioSummary summary = PortfolioSummary.builder()
-                .portfolio(savedPortfolio)
                 .status(AnalysisStatus.NOT_STARTED)
                 .build();
         portfolioSummaryRepository.save(summary);
+
+        portfolio.setSummary(summary);
+        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         // 비동기 요약 요청
         analysisService.handleAnalysis(savedPortfolio);
@@ -194,12 +200,13 @@ public class PortfolioServiceImpl implements PortfolioService {
             }
         }
 
-        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
-
-        // NOTE:: 포트폴리오아이디로 요약 조회 후, 다시 저장 및 요청
-        PortfolioSummary summary = portfolioSummaryRepository.findByPortfolio(portfolio);
+        PortfolioSummary summary = portfolio.getSummary();
         summary.setStatus(AnalysisStatus.NOT_STARTED);
         portfolioSummaryRepository.save(summary);
+        portfolio.setSummary(summary);
+
+        // 업데이트
+        Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         // 비동기 요약 요청
         analysisService.handleAnalysis(savedPortfolio);

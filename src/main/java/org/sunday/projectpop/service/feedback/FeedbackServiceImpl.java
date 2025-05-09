@@ -12,6 +12,7 @@ import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.entity.PortfolioSummary;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 import org.sunday.projectpop.model.repository.PortfolioFeedbackRepository;
+import org.sunday.projectpop.model.repository.PortfolioNoteRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
 import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
 import org.sunday.projectpop.service.llm.LLMClient;
@@ -28,6 +29,7 @@ public class FeedbackServiceImpl implements FeedbackService {
     private final PortfolioSummaryRepository summaryRepository;
     private final LLMClient llmClient;
     private final PortfolioFeedbackRepository portfolioFeedbackRepository;
+    private final PortfolioNoteRepository portfolioNoteRepository;
 
     @Override
     public FeedbackResponse generatePortfolioFeedback(String id, Long noteId) {
@@ -50,7 +52,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         PortfolioFeedback feedback = new PortfolioFeedback();
         feedback.setPortfolio(portfolio);
-        feedback.setNoteId(note.getId());
+        feedback.setNote(note);
         feedback.setStatus(AnalysisStatus.FEEDBACK_IN_PROCESSING);
         portfolioFeedbackRepository.save(feedback); // 상태 업데이트
 
@@ -102,7 +104,8 @@ public class FeedbackServiceImpl implements FeedbackService {
     @Override
     public FeedbackResponse getLatestFeedback(String portfolioId, Long noteId) {
         Portfolio portfolio = findById(portfolioId);
-        FeedbackResponse latestFeedback = portfolioFeedbackRepository.findLatestFeedback(portfolio, noteId);
+        PortfolioNote note = findNote(noteId);
+        FeedbackResponse latestFeedback = portfolioFeedbackRepository.findLatestFeedback(portfolio, note);
         log.info(latestFeedback.llmFeedback());
         return latestFeedback;
     }
@@ -110,6 +113,12 @@ public class FeedbackServiceImpl implements FeedbackService {
     private Portfolio findById(String id) {
         return portfolioRepository.findById(id).orElseThrow(
                 () -> new PortfolioNotFoundException("해당 포트폴리오를 찾을 수 없습니다.")
+        );
+    }
+
+    private PortfolioNote findNote(Long noteId) {
+        return portfolioNoteRepository.findById(noteId).orElseThrow(
+                () -> new PortfolioNotFoundException("해당 노트를 찾을 수 없습니다.")
         );
     }
 }
