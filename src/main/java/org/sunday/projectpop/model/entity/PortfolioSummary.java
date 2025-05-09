@@ -1,20 +1,16 @@
 package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
-import jdk.jfr.Timestamp;
 import lombok.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 
-import java.time.ZoneOffset;
-import java.time.ZonedDateTime;
-
 @Entity
-@Setter
 @Getter
+@Setter
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class PortfolioAnalysis {
+public class PortfolioSummary {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -32,15 +28,7 @@ public class PortfolioAnalysis {
     @Lob
     private String finalSummary;
 
-    @Lob
-    private String llmFeedback;
-
     @Enumerated(EnumType.STRING)
-    private AnalysisStatus summaryStatus;
-
-    @Enumerated(EnumType.STRING)
-    private AnalysisStatus feedbackStatus;
-
-    private ZonedDateTime createdAt = ZonedDateTime.now(ZoneOffset.UTC);
+    private AnalysisStatus status;
 
 }

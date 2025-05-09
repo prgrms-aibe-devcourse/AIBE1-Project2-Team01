@@ -7,10 +7,13 @@ import org.sunday.projectpop.exceptions.FeedbackNotFoundException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.model.dto.FeedbackResponse;
 import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.model.entity.PortfolioAnalysis;
+import org.sunday.projectpop.model.entity.PortfolioFeedback;
+import org.sunday.projectpop.model.entity.PortfolioNote;
+import org.sunday.projectpop.model.entity.PortfolioSummary;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
-import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
+import org.sunday.projectpop.model.repository.PortfolioFeedbackRepository;
 import org.sunday.projectpop.model.repository.PortfolioRepository;
+import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
 import org.sunday.projectpop.service.llm.LLMClient;
 import reactor.core.scheduler.Schedulers;
 
@@ -22,49 +25,86 @@ import java.util.List;
 public class FeedbackServiceImpl implements FeedbackService {
 
     private final PortfolioRepository portfolioRepository;
-    private final PortfolioAnalysisRepository analysisRepository;
+    private final PortfolioSummaryRepository summaryRepository;
     private final LLMClient llmClient;
+    private final PortfolioFeedbackRepository portfolioFeedbackRepository;
 
     @Override
-    public void generatePortfolioFeedback(String id) {
+    public FeedbackResponse generatePortfolioFeedback(String id, Long noteId) {
         // 포트폴리오 있는지 확인
         Portfolio portfolio = findById(id);
-        PortfolioAnalysis analysis = analysisRepository.findByPortfolio(portfolio);
+        PortfolioNote note = portfolio.getNotes().stream()
+                .filter(n -> n.getId().equals(noteId))
+                .findFirst()
+                .orElseThrow(() -> new PortfolioNotFoundException("해당 노트를 찾을 수 없습니다."));
+        log.info("note = " + note.getId());
 
-        if (!analysis.getSummaryStatus().equals(AnalysisStatus.COMPLETED)) {
+        PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
+
+        if (!summary.getStatus().equals(AnalysisStatus.COMPLETED)) {
             log.info("요약이 완료되지 않았습니다.");
             // TODO: 어떻게 처리할지 고민
-            return;
+            return null;
         }
-        String summary = analysis.getFinalSummary();
-        analysis.setFeedbackStatus(AnalysisStatus.FEEDBACK_IN_PROCESSING);
-        analysisRepository.save(analysis); // 상태 업데이트
+        String finalSummary = summary.getFinalSummary();
 
-        llmClient.feedback(summary)
-                .doOnNext(feedback -> {
-                    log.info("feedback = " + feedback);
-                    analysis.setLlmFeedback(feedback);
-                    analysis.setFeedbackStatus(AnalysisStatus.COMPLETED);
-                    analysisRepository.save(analysis); // 상태 업데이트
+        PortfolioFeedback feedback = new PortfolioFeedback();
+        feedback.setPortfolio(portfolio);
+        feedback.setNoteId(note.getId());
+        feedback.setStatus(AnalysisStatus.FEEDBACK_IN_PROCESSING);
+        portfolioFeedbackRepository.save(feedback); // 상태 업데이트
+
+        // 추가 데이터 (포트폴리오설명 + 노트내용)
+        String description = portfolio.getDescription();
+        String noteContent = note.getContent();
+
+        String data = """
+                [포트폴리오 설명] %s
+                [회고 및 노트 내용] %s
+                [포트폴리오 요약] %s
+                """.formatted(description, noteContent, finalSummary);
+
+
+        llmClient.feedback(data)
+                .doOnNext(result -> {
+                    log.info("feedback = " + result);
+                    feedback.setLlmFeedback(result);
+                    feedback.setStatus(AnalysisStatus.COMPLETED);
+                    portfolioFeedbackRepository.save(feedback); // 상태 업데이트
                 })
                 .doOnError(error -> {
                     log.warning("피드백 생성 중 오류 발생 : " + error.getMessage());
-                    analysis.setFeedbackStatus(AnalysisStatus.FAILED);
-                    analysisRepository.save(analysis); // 상태 업데이트
+                    feedback.setStatus(AnalysisStatus.FAILED);
+                    portfolioFeedbackRepository.save(feedback); // 상태 업데이트
                 })
                 .subscribeOn(Schedulers.boundedElastic())
                 .subscribe();
+
+        return getFeedback(feedback.getId());
     }
 
     @Override
     public List<FeedbackResponse> getFeedbackList(String portfolioId) {
         Portfolio portfolio = findById(portfolioId);
-        List<FeedbackResponse> feedbackResponses = analysisRepository.findFeedbackAndStatusByPortfolio(portfolio);
+        List<FeedbackResponse> feedbackResponses = portfolioFeedbackRepository.findFeedbackAndStatusByPortfolio(portfolio);
         if (feedbackResponses.stream().anyMatch(feedbackResponse -> feedbackResponse.feedbackStatus() == null)) {
             throw new FeedbackNotFoundException("등록된 피드백이 없습니다.");
         }
 
         return feedbackResponses;
+    }
+
+    @Override
+    public FeedbackResponse getFeedback(Long feedbackId) {
+        return portfolioFeedbackRepository.findFeedbackAndStatusById(feedbackId);
+    }
+
+    @Override
+    public FeedbackResponse getLatestFeedback(String portfolioId, Long noteId) {
+        Portfolio portfolio = findById(portfolioId);
+        FeedbackResponse latestFeedback = portfolioFeedbackRepository.findLatestFeedback(portfolio, noteId);
+        log.info(latestFeedback.llmFeedback());
+        return latestFeedback;
     }
 
     private Portfolio findById(String id) {

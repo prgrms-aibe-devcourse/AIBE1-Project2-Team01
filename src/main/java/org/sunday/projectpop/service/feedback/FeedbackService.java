@@ -6,7 +6,11 @@ import java.util.List;
 
 public interface FeedbackService {
 
-    void generatePortfolioFeedback(String id);
+    FeedbackResponse generatePortfolioFeedback(String id, Long noteId);
 
     List<FeedbackResponse> getFeedbackList(String portfolioId);
+
+    FeedbackResponse getFeedback(Long feedbackId);
+
+    FeedbackResponse getLatestFeedback(String portfolioId, Long noteId);
 }

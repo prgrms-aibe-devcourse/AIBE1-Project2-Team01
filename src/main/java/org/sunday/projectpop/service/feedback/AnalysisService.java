@@ -7,6 +7,7 @@ import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
 import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
 import org.sunday.projectpop.model.repository.PortfolioFileRepository;
+import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
 import org.sunday.projectpop.service.llm.LLMSummaryService;
 import reactor.core.publisher.Mono;
 import reactor.core.scheduler.Schedulers;
@@ -23,13 +24,14 @@ public class AnalysisService {
     public static final int MAX_SAFE_LENGTH = 5000;
 
     private final PortfolioAnalysisRepository analysisRepository;
+    private final PortfolioSummaryRepository summaryRepository;
     private final GitHubService gitHubService;
     private final FileReadService fileReadService;
     private final PortfolioFileRepository portfolioFileRepository;
     private final LLMSummaryService llmSummaryService;
 
     public void handleAnalysis(Portfolio portfolio) {
-        PortfolioAnalysis analysis = analysisRepository.findByPortfolio(portfolio);
+        PortfolioSummary portfolioSummary = summaryRepository.findByPortfolio(portfolio);
 
         // 깃허브 및 파일 추출
         List<String> githubText = extractGithubTexts(portfolio.getUrls());
@@ -37,31 +39,31 @@ public class AnalysisService {
         log.info("githubText = " + githubText.toString());
         log.info("fileText = " + fileText.toString());
         if (githubText.isEmpty() && fileText.isEmpty()) {
-            analysis.setSummaryStatus(AnalysisStatus.NOT_STARTED);
-            analysisRepository.save(analysis);
+            portfolioSummary.setStatus(AnalysisStatus.NOT_STARTED);
+            summaryRepository.save(portfolioSummary);
             return;
         }
 
         // 요약 시작
-        analysis.setSummaryStatus(AnalysisStatus.GITHUB_IN_PROCESSING);
-        analysisRepository.save(analysis);
+        portfolioSummary.setStatus(AnalysisStatus.GITHUB_IN_PROCESSING);
+        summaryRepository.save(portfolioSummary);
 
         // LLM 비동기 요약 호출
         Mono<String> githubSummaryMono = llmSummaryService.summarizeGithubText(githubText)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(summary -> {
                     log.info("gitHubSummary = " + summary);
-                    analysis.setGithubSummary(summary);
-                    analysis.setSummaryStatus(AnalysisStatus.FILE_IN_PROCESSING);
-                    analysisRepository.save(analysis);
+                    portfolioSummary.setGithubSummary(summary);
+                    portfolioSummary.setStatus(AnalysisStatus.FILE_IN_PROCESSING);
+                    summaryRepository.save(portfolioSummary);
                 });
         Mono<String> fileSummaryMono = llmSummaryService.summarizeFileText(fileText)
                 .publishOn(Schedulers.boundedElastic())
                 .doOnSuccess(summary -> {
                     log.info("fileSummary = " + summary);
-                    analysis.setFileSummary(summary);
-                    analysis.setSummaryStatus(AnalysisStatus.COMBINED_IN_PROCESSING);
-                    analysisRepository.save(analysis);
+                    portfolioSummary.setFileSummary(summary);
+                    portfolioSummary.setStatus(AnalysisStatus.COMBINED_IN_PROCESSING);
+                    summaryRepository.save(portfolioSummary);
                 });
 
         // 두 요약 결과 병합
@@ -75,9 +77,9 @@ public class AnalysisService {
                 })
                 .doOnSuccess(finalSummary -> {
                     log.info("finalSummary = " + finalSummary);
-                    analysis.setFinalSummary(finalSummary);
-                    analysis.setSummaryStatus(AnalysisStatus.COMPLETED);
-                    analysisRepository.save(analysis);
+                    portfolioSummary.setFinalSummary(finalSummary);
+                    portfolioSummary.setStatus(AnalysisStatus.COMPLETED);
+                    summaryRepository.save(portfolioSummary);
 
                 })
                 .subscribeOn(Schedulers.boundedElastic())
@@ -85,8 +87,8 @@ public class AnalysisService {
                         success -> log.info("요약 완료"),
                         error -> {
                             log.warning("요약 중 오류 발생 : " + error.getMessage());
-                            analysis.setSummaryStatus(AnalysisStatus.FAILED);
-                            analysisRepository.save(analysis);
+                            portfolioSummary.setStatus(AnalysisStatus.FAILED);
+                            summaryRepository.save(portfolioSummary);
                         }
                 );
     }

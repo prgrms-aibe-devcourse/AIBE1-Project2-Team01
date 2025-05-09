@@ -58,6 +58,9 @@ public class PortfolioNoteServiceImpl implements PortfolioNoteService {
                 .toList();
         portfolioNote.setFiles(fileList);
         return portfolioNoteRepository.save(portfolioNote);
+
+        // TODO: 노트 등록시 원활한 피드백요청을 위해 summary 확인해야함
+        // 파일은 변화가 없을 확률이 높은데, GitHub의 경우 업로드될수도 있기 때문에 재추출 및 요약 필요
     }
 
     @Override

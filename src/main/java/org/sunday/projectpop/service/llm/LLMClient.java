@@ -39,8 +39,8 @@ public class LLMClient {
     private GeminiRequest buildFeedbackPrompt(String content) {
         String prompt = """
                 당신은 실무경험이 10년 이상인 풀스택 개발자입니다.
-                다음은 사용자의 포트폴리오 요약 내용입니다.
-                아래 항목에 따라 구체적인 피드백을 각 300자 내외의 한글평문으로 작성. 미사여구 제외.
+                다음은 한 사용자의 포트폴리오 설명, 회고 내용, 포트폴리오 요약입니다.
+                아래 항목에 따라 구체적인 피드백을 300자 내외의 한글 평문으로 작성. 미사여구 제외.
                 
                 1. 기술적 강점
                 2. 보완할 점
@@ -49,7 +49,7 @@ public class LLMClient {
                 5. 실무 연계성
                 6. 추천 개선 방향
                 
-                포트폴리오 요약: %s
+                내용: %s
                 """.formatted(content);
         return new GeminiRequest(
                 List.of(new GeminiRequest.Content("user",

@@ -1,6 +1,6 @@
 <div th:fragment="content" class="max-w-4xl mx-auto p-6 bg-white rounded-lg shadow-md"
      th:attr="data-portfolio-id=${portfolio.portfolioId}"
-    id="portfolio-container"
+     id="portfolio-container"
 >
 
     <!-- 포트폴리오 헤더 -->
@@ -17,7 +17,7 @@
                 <i class="ri-edit-line mr-1"></i> 수정
             </a>
             <form th:action="@{'/portfolios/' + ${portfolio.portfolioId}}" method="post">
-<!--                  th:if="${portfolio.userId == #authentication.name}">-->
+                <!--                  th:if="${portfolio.userId == #authentication.name}">-->
                 <input type="hidden" name="_method" value="DELETE">
                 <button type="submit"
                         class="bg-red-100 text-red-600 px-3 py-1 rounded-button text-sm flex items-center">
@@ -86,7 +86,9 @@
         <div class="bg-gray-50 rounded-lg p-6 mb-8">
             <form id="note-form">
                 <div class="mb-4">
-                    <label for="note-content" class="block text-sm font-medium text-gray-700 mb-2">프로젝트 회고 작성</label>
+                    <label for="note-content" class="block text-sm font-medium text-gray-700 mb-2">
+                        프로젝트 회고 작성
+                    </label>
                     <textarea id="note-content" name="content" rows="4"
                               class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                               placeholder="프로젝트를 진행하면서 배운 점, 어려웠던 점, 개선할 점 등을 작성해주세요"></textarea>
@@ -101,88 +103,314 @@
         </div>
     </div>
 
-    <!-- 회고 노트 목록 -->
+    <!-- 회고 노트 목록 & 피드백 섹션 -->
     <div class="mb-8">
         <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-            <i class="ri-list-check-2 mr-2"></i> 회고 노트 목록
+            <i class="ri-list-check-2 mr-2"></i> 회고 노트 및 AI 피드백
         </h2>
 
         <div class="space-y-6" id="note-list">
-            <!-- 여기에 회고 노트가 동적으로 추가될 예정 -->
+            <!-- 동적으로 생성될 회고 노트 아이템들 -->
+            <div class="border border-gray-200 rounded-lg p-6 note-item-template hidden">
+                <div class="flex justify-between items-start mb-4">
+                    <div>
+                        <span class="text-sm text-gray-500 note-created-at"></span>
+                    </div>
+                    <div class="flex space-x-3">
+                        <button class="text-gray-500 hover:text-red-500 text-sm note-delete-btn">
+                            삭제
+                        </button>
+                    </div>
+                </div>
+                <p class="text-gray-700 mb-6 note-content"></p>
+
+                <!-- 피드백 요청 및 상태 표시 영역 -->
+                <div class="mt-4 feedback-section">
+                    <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm mb-2 feedback-request-btn">
+                        AI 피드백 요청하기
+                    </button>
+
+                    <div class="feedback-status hidden">
+                        <div class="flex items-center text-sm mt-2">
+                            <span data-role="status-indicator" class="inline-block w-3 h-3 rounded-full mr-2"></span>
+                            <span class="status-text">처리 중...</span>
+                        </div>
+                        <div class="feedback-content mt-3 p-3 bg-gray-50 rounded-lg hidden">
+                            <h4 class="font-medium mb-2">AI 피드백:</h4>
+                            <p class="feedback-text text-gray-700"></p>
+                        </div>
+                    </div>
+                </div>
+            </div>
         </div>
     </div>
 
-
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         document.addEventListener('DOMContentLoaded', function () {
-            const portfolioId = document.getElementById('portfolio-container').dataset.portfolioId;
-            // 회고 노트 목록을 처음에 불러오기
-            fetch(`/portfolios/${portfolioId}/notes`)
-                .then(response => response.json())
-                .then(notes => {
-                    const noteList = document.getElementById('note-list');
-                    notes.forEach(note => {
-                        const noteItem = document.createElement('div');
-                        noteItem.classList.add('border', 'border-gray-200', 'rounded-lg', 'p-6');
-                        noteItem.innerHTML = `
-                    <div class="flex justify-between items-start mb-4">
-                        <div>
-                            <span class="text-sm text-gray-500 ml-2">${note.createdAt}</span>
-                        </div>
-                        <div class="flex space-x-3">
-                            <button class="text-gray-500 hover:text-primary text-sm">수정</button>
-                            <button class="text-gray-500 hover:text-red-500 text-sm">삭제</button>
-                        </div>
-                    </div>
-                    <p class="text-gray-700 mb-6">${note.content}</p>
-                    <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm mb-4">
-                        피드백 요청하기
-                    </button>
-                `;
-                        noteList.appendChild(noteItem); // 기존 노트 목록에 추가
-                    });
+                const portfolioId = document.getElementById('portfolio-container').dataset.portfolioId;
+                const noteForm = document.getElementById('note-form');
+                const noteList = document.getElementById('note-list');
+                const noteTemplate = document.querySelector('.note-item-template');
+
+                // 상태 상수
+                const FEEDBACK_STATUS = {
+                    PROCESSING: 'FEEDBACK_IN_PROCESSING',
+                    COMPLETED: 'COMPLETED',
+                    FAILED: 'FAILED'
+                };
+
+                // 초기 데이터 로드
+                loadNotesAndFeedbacks();
+
+                // 회고 노트 작성 폼 제출 처리
+                noteForm.addEventListener('submit', async function (e) {
+                    e.preventDefault();
+                    const content = document.getElementById('note-content').value.trim();
+
+                    if (!content) {
+                        alert('회고 내용을 작성해주세요');
+                        return;
+                    }
+
+                    try {
+                        const newNote = await createNote(content);
+                        addNoteToUI(newNote);
+                        document.getElementById('note-content').value = '';
+                    } catch (error) {
+                        console.error('Error creating note:', error);
+                        alert('회고 노트 작성 중 오류가 발생했습니다');
+                    }
                 });
 
-            // 회고 노트 작성 폼 처리
-            document.getElementById('note-form').addEventListener('submit', function (e) {
-                e.preventDefault();
+                // 노트 및 피드백 로드 함수
+                async function loadNotesAndFeedbacks() {
+                    try {
+                        const notes = await fetchNotes();
+                        notes.forEach(note => {
+                            addNoteToUI(note);
+                            checkExistingFeedback(note.id);
+                        });
+                    } catch (error) {
+                        console.error('Error loading notes:', error);
+                    }
+                }
 
-                const content = document.getElementById('note-content').value;  // 회고 내용
-
-                // 회고 노트 작성 API 호출
-                fetch(`/portfolios/${portfolioId}/notes`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({content: content}),  // 회고 노트 내용
-                })
-                    .then(response => response.json())
-                    .then(note => {
-                        // 새로운 회고 노트 UI에 추가
-                        const noteList = document.getElementById('note-list');
-                        const noteItem = document.createElement('div');
-                        noteItem.classList.add('border', 'border-gray-200', 'rounded-lg', 'p-6');
-                        noteItem.innerHTML = `
-                <div class="flex justify-between items-start mb-4">
-                    <div>
-                        <span class="text-sm text-gray-500 ml-2">${note.createdAt}</span>
-                    </div>
-                    <div class="flex space-x-3">
-                        <button class="text-gray-500 hover:text-primary text-sm">수정</button>
-                        <button class="text-gray-500 hover:text-red-500 text-sm">삭제</button>
-                    </div>
-                </div>
-                <p class="text-gray-700 mb-6">${note.content}</p>
-                <button class="px-4 py-2 bg-secondary text-white rounded-lg hover:bg-secondary-dark transition-colors text-sm mb-4">
-                    피드백 요청하기
-                </button>
-            `;
-                        noteList.appendChild(noteItem); // 새로운 회고 노트 추가
-                        document.getElementById('note-content').value = ''; // 입력창 초기화
+                // 노트 생성 API 호출
+                async function createNote(content) {
+                    const response = await fetch(`/portfolios/${portfolioId}/notes`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                        },
+                        body: JSON.stringify({content})
                     });
-            });
-        });
-    </script>
+                    return await response.json();
+                }
 
+                // 노트 조회 API 호출
+                async function fetchNotes() {
+                    const response = await fetch(`/portfolios/${portfolioId}/notes`);
+                    return await response.json();
+                }
+
+                // 노트 UI에 추가
+                function addNoteToUI(note) {
+                    const noteElement = noteTemplate.cloneNode(true);
+                    noteElement.classList.remove('hidden');
+                    noteElement.dataset.noteId = note.id;
+
+                    noteElement.querySelector('.note-created-at').textContent = note.createdAt;
+                    noteElement.querySelector('.note-content').textContent = note.content;
+
+                    // 삭제 버튼 이벤트 연결
+                    noteElement.querySelector('.note-delete-btn').addEventListener('click', () => deleteNote(note.id));
+
+                    // 피드백 요청 버튼 이벤트 연결 (초기에는 보이도록 설정)
+                    const feedbackBtn = noteElement.querySelector('.feedback-request-btn');
+                    feedbackBtn.addEventListener('click', () => requestFeedback(note.id));
+                    feedbackBtn.classList.remove('hidden'); // 초기 상태 표시
+
+                    noteList.appendChild(noteElement);
+                }
+
+                // 피드백 요청 처리
+                async function requestFeedback(noteId) {
+                    const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+                    const feedbackBtn = noteElement.querySelector('.feedback-request-btn');
+                    const feedbackStatus = noteElement.querySelector('.feedback-status');
+
+                    try {
+                        feedbackBtn.disabled = true;
+                        feedbackBtn.textContent = '요청 중...';
+
+                        const feedback = await createFeedbackRequest(noteId);
+                        updateFeedbackUI(noteId, feedback);
+
+                        if (feedback.feedbackStatus === FEEDBACK_STATUS.PROCESSING) {
+                            startFeedbackPolling(noteId, feedback.id);
+                        }
+                    } catch (error) {
+                        console.error('Error requesting feedback:', error);
+                        feedbackBtn.disabled = false;
+                        feedbackBtn.textContent = 'AI 피드백 요청하기';
+                    }
+                }
+
+                // 피드백 생성 API 호출
+                async function createFeedbackRequest(noteId) {
+                    const response = await fetch(`/api/feedback/request/${portfolioId}/${noteId}`, {
+                        method: 'POST'
+                    });
+                    return await response.json();
+                }
+
+                // 기존 피드백 확인 로직
+                async function checkExistingFeedback(noteId) {
+                    try {
+                        const feedback = await fetchLatestFeedback(noteId);
+                        if (feedback) {
+                            updateFeedbackUI(noteId, feedback);
+                            if (feedback.feedbackStatus === FEEDBACK_STATUS.PROCESSING) {
+                                startFeedbackPolling(noteId, feedback.id);
+                            }
+                        } else {
+                            // 피드백이 없는 경우 UI 업데이트
+                            updateFeedbackUI(noteId, {feedbackStatus: null});
+                        }
+                    } catch (error) {
+                        console.error('Error checking existing feedback:', error);
+                        // 오류 발생 시도 UI 업데이트
+                        updateFeedbackUI(noteId, {feedbackStatus: null});
+                    }
+                }
+
+                // 최신 피드백 조회 API 호출
+                async function fetchLatestFeedback(noteId) {
+                    const response = await fetch(`/api/feedback/${portfolioId}/${noteId}/latest`);
+                    console.log("response = ", response)
+                    if (response.ok) return await response.json();
+                    return null;
+                }
+
+                // 피드백 상태 폴링
+                function startFeedbackPolling(noteId, feedbackId) {
+                    const pollingInterval = setInterval(async () => {
+                        try {
+                            const feedback = await fetchFeedback(noteId, feedbackId);
+                            if (!feedback) {
+                                console.error('Feedback data is null');
+                                clearInterval(pollingInterval);
+                                return;
+                            }
+
+                            updateFeedbackUI(noteId, feedback);
+
+                            if (feedback.feedbackStatus !== FEEDBACK_STATUS.PROCESSING) {
+                                clearInterval(pollingInterval);
+                            }
+                        } catch (error) {
+                            console.error('Error polling feedback:', error);
+                            clearInterval(pollingInterval);
+
+                            // 오류 발생 시 UI 업데이트
+                            updateFeedbackUI(noteId, {
+                                feedbackStatus: FEEDBACK_STATUS.FAILED,
+                                llmFeedback: "피드백 요청 중 오류가 발생했습니다"
+                            });
+                        }
+                    }, 3000);
+
+                    setTimeout(() => {
+                        clearInterval(pollingInterval);
+                        updateFeedbackUI(noteId, {
+                            feedbackStatus: FEEDBACK_STATUS.FAILED,
+                            llmFeedback: "피드백 요청 시간이 초과되었습니다"
+                        });
+                    }, 300000); // 5분 타임아웃
+                }
+
+                // 피드백 조회 API 호출
+                async function fetchFeedback(noteId, feedbackId) {
+                    const response = await fetch(`/api/feedback/${portfolioId}/${noteId}/${feedbackId}`);
+                    console.log("fetchFeedback ", response)
+                    return await response.json();
+                }
+
+                // 피드백 UI 업데이트
+                function updateFeedbackUI(noteId, feedback) {
+                    const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+                    if (!noteElement) return;
+
+                    const feedbackBtn = noteElement.querySelector('.feedback-request-btn');
+                    const feedbackStatus = noteElement.querySelector('.feedback-status');
+                    // const statusIndicator = noteElement.querySelector('.status-indicator');
+                    const statusIndicator = noteElement.querySelector('[data-role="status-indicator"]');
+                    const statusText = noteElement.querySelector('.status-text');
+                    const feedbackContent = noteElement.querySelector('.feedback-content');
+                    const feedbackText = noteElement.querySelector('.feedback-text');
+
+                    // 모든 필수 요소가 존재하는지 확인
+                    if (!feedbackStatus || !statusIndicator || !statusText || !feedbackContent || !feedbackText || !feedbackBtn) {
+                        console.error('Required feedback elements not found', {
+                            feedbackStatus, statusIndicator, statusText, feedbackContent, feedbackText, feedbackBtn
+                        });
+                        return;
+                    }
+
+                    feedbackStatus.classList.remove('hidden');
+
+                    switch (feedback.feedbackStatus) {
+                        case FEEDBACK_STATUS.PROCESSING:
+                            statusIndicator.className = 'inline-block w-3 h-3 rounded-full mr-2 bg-yellow-500 animate-pulse';
+                            statusText.textContent = 'AI가 피드백을 작성 중입니다...';
+                            feedbackBtn.classList.add('hidden'); // 버튼 숨김
+                            feedbackContent.classList.add('hidden');
+                            break;
+
+                        case FEEDBACK_STATUS.COMPLETED:
+                            statusIndicator.className = 'inline-block w-3 h-3 rounded-full mr-2 bg-green-500';
+                            statusText.textContent = '피드백 완료';
+                            feedbackText.innerHTML = marked.parse(feedback.llmFeedback); // 마크다운
+                            feedbackContent.classList.remove('hidden');
+                            feedbackBtn.classList.add('hidden'); // 버튼 숨김
+                            break;
+
+                        case FEEDBACK_STATUS.FAILED:
+                            statusIndicator.className = 'inline-block w-3 h-3 rounded-full mr-2 bg-red-500';
+                            statusText.textContent = '피드백 생성 실패';
+                            feedbackContent.classList.add('hidden');
+                            feedbackBtn.classList.remove('hidden'); // 버튼 표시
+                            feedbackBtn.disabled = false;
+                            feedbackBtn.textContent = '다시 시도하기';
+                            break;
+
+                        default:
+                            // 피드백이 없는 경우
+                            feedbackStatus.classList.add('hidden');
+                            feedbackBtn.classList.remove('hidden'); // 버튼 표시
+                            feedbackBtn.disabled = false;
+                            feedbackBtn.textContent = 'AI 피드백 요청하기';
+                            break;
+                    }
+                }
+
+                // 노트 삭제 처리
+                async function deleteNote(noteId) {
+                    if (!confirm('정말 이 회고 노트를 삭제하시겠습니까?')) return;
+
+                    try {
+                        await fetch(`/portfolios/${portfolioId}/${noteId}`, {
+                            method: 'DELETE'
+                        });
+                        document.querySelector(`[data-note-id="${noteId}"]`).remove();
+                    } catch (error) {
+                        console.error('Error deleting note:', error);
+                        alert('노트 삭제 중 오류가 발생했습니다');
+                    }
+                }
+
+            }
+        )
+    </script>
 </div>

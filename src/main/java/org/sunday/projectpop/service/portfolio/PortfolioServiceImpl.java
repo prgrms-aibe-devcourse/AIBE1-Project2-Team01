@@ -10,10 +10,7 @@ import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
-import org.sunday.projectpop.model.repository.PortfolioAnalysisRepository;
-import org.sunday.projectpop.model.repository.PortfolioFileRepository;
-import org.sunday.projectpop.model.repository.PortfolioRepository;
-import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
+import org.sunday.projectpop.model.repository.*;
 import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
@@ -36,6 +33,7 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final PortfolioUrlRepository portfolioUrlRepository;
     private final PortfolioAnalysisRepository portfolioAnalysisRepository;
     private final AnalysisService analysisService;
+    private final PortfolioSummaryRepository portfolioSummaryRepository;
 
     @Override
     public void createPortfolio(String userId, PortfolioRequest request) {
@@ -72,11 +70,11 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         // 요약을 위한 분석 생성 및 저장.
-        PortfolioAnalysis analysis = PortfolioAnalysis.builder()
+        PortfolioSummary summary = PortfolioSummary.builder()
                 .portfolio(savedPortfolio)
-                .summaryStatus(AnalysisStatus.NOT_STARTED)
+                .status(AnalysisStatus.NOT_STARTED)
                 .build();
-        portfolioAnalysisRepository.save(analysis);
+        portfolioSummaryRepository.save(summary);
 
         // 비동기 요약 요청
         analysisService.handleAnalysis(savedPortfolio);
@@ -199,9 +197,9 @@ public class PortfolioServiceImpl implements PortfolioService {
         Portfolio savedPortfolio = portfolioRepository.save(portfolio);
 
         // NOTE:: 포트폴리오아이디로 요약 조회 후, 다시 저장 및 요청
-        PortfolioAnalysis analysis = portfolioAnalysisRepository.findByPortfolio(portfolio);
-        analysis.setSummaryStatus(AnalysisStatus.NOT_STARTED);
-        portfolioAnalysisRepository.save(analysis);
+        PortfolioSummary summary = portfolioSummaryRepository.findByPortfolio(portfolio);
+        summary.setStatus(AnalysisStatus.NOT_STARTED);
+        portfolioSummaryRepository.save(summary);
 
         // 비동기 요약 요청
         analysisService.handleAnalysis(savedPortfolio);

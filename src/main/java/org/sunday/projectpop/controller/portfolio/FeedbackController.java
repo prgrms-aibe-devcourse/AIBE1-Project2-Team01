@@ -17,13 +17,37 @@ public class FeedbackController {
     private final FeedbackService feedbackService;
 
     // 피드백 생성 요청
-    @PostMapping("/request/{portfolioId}")
-    public ResponseEntity<Void> requestFeedback(@PathVariable String portfolioId) {
-        feedbackService.generatePortfolioFeedback(portfolioId);
-        return ResponseEntity
-                .status(HttpStatus.OK)
-                .build();
+    @PostMapping("/request/{portfolioId}/{noteId}")
+    public ResponseEntity<FeedbackResponse> requestFeedback(
+            @PathVariable String portfolioId,
+            @PathVariable Long noteId) {
+        FeedbackResponse response = feedbackService.generatePortfolioFeedback(portfolioId, noteId);
+        return ResponseEntity.ok(response);
     }
+
+    // 피드백 상태 조회
+    @GetMapping("/{portfolioId}/{noteId}/{feedbackId}")
+    public ResponseEntity<FeedbackResponse> getFeedback(
+            @PathVariable String portfolioId,
+            @PathVariable Long noteId,
+            @PathVariable Long feedbackId) {
+
+        FeedbackResponse response = feedbackService.getFeedback(feedbackId);
+        return ResponseEntity.ok(response);
+    }
+
+    // 최신 피드백 조회
+    @GetMapping("/{portfolioId}/{noteId}/latest")
+    public ResponseEntity<FeedbackResponse> getLatestFeedback(
+            @PathVariable String portfolioId,
+            @PathVariable Long noteId) {
+
+        FeedbackResponse response = feedbackService.getLatestFeedback(portfolioId, noteId);
+        System.out.println(response.toString());
+        return ResponseEntity.ok(response);
+    }
+
+
 
     // 피드백 목록/단건 조회
     @GetMapping("/{portfolioId}")
