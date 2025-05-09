@@ -3,6 +3,7 @@ package org.sunday.projectpop.controller.message;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.sunday.projectpop.model.dto.SuggestionDto;
 import org.sunday.projectpop.model.entity.Project;
 import org.sunday.projectpop.model.entity.SuggestFromLeader;
 import org.sunday.projectpop.model.entity.UserAccount;
@@ -47,17 +48,38 @@ public class SuggestController {
     }
 
     @GetMapping("/received")
-    public ResponseEntity<List<SuggestFromLeader>> getSuggestionsForReceiver(@RequestParam String receiverId) {
+    public ResponseEntity<List<SuggestionDto>> getSuggestionsForReceiver(@RequestParam String receiverId) {
         UserAccount receiver = userAccountRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("받는 유저 없음"));
-        return ResponseEntity.ok(service.getReceivedSuggestions(receiver));
+        List<SuggestionDto> dtoList = service.getReceivedSuggestions(receiver).stream()
+                .map(s -> new SuggestionDto(
+                        s.getId(),
+                        s.getMessage(),
+                        s.getProject().getProjectId(),
+                        s.getSender().getUserId(),
+                        s.getReceiver().getUserId(),
+                        s.getCreatedAt()
+                ))
+                .toList();
+
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/sent")
-    public ResponseEntity<List<SuggestFromLeader>> getSuggestionsFromSender(@RequestParam String senderId) {
+    public ResponseEntity<List<SuggestionDto>> getSuggestionsFromSender(@RequestParam String senderId) {
         UserAccount sender = userAccountRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("보내는 유저 없음"));
-        return ResponseEntity.ok(service.getSentSuggestions(sender));
+        List<SuggestionDto> dtoList = service.getSentSuggestions(sender).stream()
+                .map(s -> new SuggestionDto(
+                        s.getId(),
+                        s.getMessage(),
+                        s.getProject().getProjectId(),
+                        s.getSender().getUserId(),
+                        s.getReceiver().getUserId(),
+                        s.getCreatedAt()
+                ))
+                .toList();
+        return ResponseEntity.ok(dtoList);
     }
 
 }

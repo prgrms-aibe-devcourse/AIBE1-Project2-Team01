@@ -5,11 +5,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.sunday.projectpop.model.dto.MessageDto;
+import org.sunday.projectpop.model.dto.SuggestionDto;
 import org.sunday.projectpop.model.entity.UserAccount;
 import org.sunday.projectpop.model.repository.UserAccountRepository;
 import org.sunday.projectpop.model.entity.Message;
 import org.sunday.projectpop.service.message.MessageService;
-import org.sunday.projectpop.model.dto.MessageDto;
+import org.sunday.projectpop.model.dto.GetMessageDto;
 
 import java.util.List;
 
@@ -26,7 +28,7 @@ public class MessageController {
         UserAccount user = userAccountRepository.findById(userId)
                 .orElseThrow(() -> new IllegalArgumentException("유저를 찾을 수 없습니다."));
         model.addAttribute("user", user);
-        model.addAttribute("userId", user.getUserId());
+        model.addAttribute("userId", userId);
         return "message/index";  // templates/message/index.html
     }
     /*
@@ -41,7 +43,7 @@ public String showMessagePage(@AuthenticationPrincipal CustomUserDetails userDet
 
     @PostMapping
     public ResponseEntity<Void> send(
-            @RequestBody MessageDto dto
+            @RequestBody GetMessageDto dto
     ) {
         UserAccount sender = userAccountRepository.findById(dto.senderId())
                 .orElseThrow(() -> new IllegalArgumentException("보내는 유저 없음"));
@@ -53,16 +55,36 @@ public String showMessagePage(@AuthenticationPrincipal CustomUserDetails userDet
     }
 
     @GetMapping("/sent")
-    public ResponseEntity<List<Message>> sent(@RequestParam String senderId) {
+    public ResponseEntity<List<MessageDto>> sent(@RequestParam String senderId) {
         UserAccount sender = userAccountRepository.findById(senderId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-        return ResponseEntity.ok(messageService.getSentMessages(sender));
+        List<MessageDto> dtoList = messageService.getSentMessages(sender).stream()
+                .map(m -> new MessageDto(
+                        m.getId(),
+                        m.getSender().getUserId(),
+                        m.getReceiver().getUserId(),
+                        m.getContent(),
+                        m.isChecking(),
+                        m.getSentAt()
+                ))
+                .toList();
+        return ResponseEntity.ok(dtoList);
     }
 
     @GetMapping("/received")
-    public ResponseEntity<List<Message>> received(@RequestParam String receiverId) {
+    public ResponseEntity<List<MessageDto>> received(@RequestParam String receiverId) {
         UserAccount receiver = userAccountRepository.findById(receiverId)
                 .orElseThrow(() -> new IllegalArgumentException("유저 없음"));
-        return ResponseEntity.ok(messageService.getReceivedMessages(receiver));
+        List<MessageDto> dtoList = messageService.getReceivedMessages(receiver).stream()
+                .map(m -> new MessageDto(
+                        m.getId(),
+                        m.getSender().getUserId(),
+                        m.getReceiver().getUserId(),
+                        m.getContent(),
+                        m.isChecking(),
+                        m.getSentAt()
+                ))
+                .toList();
+        return ResponseEntity.ok(dtoList);
     }
 }

@@ -48,7 +48,7 @@
 <footer th:replace="fragments/footer :: footer"></footer>
 
 <script th:inline="javascript">
-    const userId = /*[['${userId}']]*/ 'guest';
+    const userId = [[${userId}]];
 
     async function loadMessagesAndSuggestions() {
         const endpoints = [

@@ -2,11 +2,11 @@ package org.sunday.projectpop.model.dto;
 
 import java.time.LocalDateTime;
 
-public record MessageDto(
+public record SuggestionDto(
         Long id,
+        String message,
+        String projectId,
         String senderId,
         String receiverId,
-        String content,
-        boolean checking,
-        LocalDateTime sentAt
+        LocalDateTime createdAt
 ) {}
