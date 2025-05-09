@@ -288,7 +288,7 @@
                 // 최신 피드백 조회 API 호출
                 async function fetchLatestFeedback(noteId) {
                     const response = await fetch(`/api/feedback/${portfolioId}/${noteId}/latest`);
-                    console.log("response = ", response)
+                    // console.log("response = ", response)
                     if (response.ok) return await response.json();
                     return null;
                 }

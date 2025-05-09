@@ -49,6 +49,7 @@ public class FeedbackServiceImpl implements FeedbackService {
             return null;
         }
         String finalSummary = summary.getFinalSummary();
+        PortfolioFeedback prevFeedback = portfolioFeedbackRepository.findTopByPortfolioOrderByCreatedAtDesc(portfolio);
 
         PortfolioFeedback feedback = new PortfolioFeedback();
         feedback.setPortfolio(portfolio);
@@ -59,15 +60,29 @@ public class FeedbackServiceImpl implements FeedbackService {
         // 추가 데이터 (포트폴리오설명 + 노트내용)
         String description = portfolio.getDescription();
         String noteContent = note.getContent();
+        String data = "";
+        boolean isFirst = true;
 
-        String data = """
-                [포트폴리오 설명] %s
-                [회고 및 노트 내용] %s
-                [포트폴리오 요약] %s
-                """.formatted(description, noteContent, finalSummary);
+        // TODO: 이전 피드백 유무에 따라 분기
+        if (prevFeedback != null) {
+            String prev = prevFeedback.getLlmFeedback();
+            log.info("prev = " + prev);
+            data = """
+                    [포트폴리오 설명] %s
+                    [회고 및 노트 내용] %s
+                    [포트폴리오 요약] %s
+                    [이전 피드백] %s
+                    """.formatted(description, noteContent, finalSummary, prev);
+            isFirst = false;
+        } else {
+            data = """
+                    [포트폴리오 설명] %s
+                    [회고 및 노트 내용] %s
+                    [포트폴리오 요약] %s
+                    """.formatted(description, noteContent, finalSummary);
+        }
 
-
-        llmClient.feedback(data)
+        llmClient.feedback(data, isFirst)
                 .doOnNext(result -> {
                     log.info("feedback = " + result);
                     feedback.setLlmFeedback(result);

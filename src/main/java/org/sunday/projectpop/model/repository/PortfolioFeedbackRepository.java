@@ -27,5 +27,11 @@ public interface PortfolioFeedbackRepository extends JpaRepository<PortfolioFeed
     @Query("SELECT new org.sunday.projectpop.model.dto.FeedbackResponse(p.id, p.status, p.llmFeedback) " +
             "FROM PortfolioFeedback p WHERE p.portfolio = :portfolio AND p.note = :note")
     FeedbackResponse findLatestFeedback(@Param("portfolio") Portfolio portfolio, @Param("note") PortfolioNote note);
+
+    PortfolioFeedback findTopByPortfolioOrderByCreatedAtDesc(Portfolio portfolio);
+
+    @Query(value = "SELECT pf.id, pf.created_at, pf.llm_feedback, pf.note_id, pf.portfolio_id, pf.status FROM portfolio_feedback pf WHERE pf.portfolio_id = :portfolioId ORDER BY pf.created_at DESC LIMIT 1 OFFSET 1", nativeQuery = true)
+    PortfolioFeedback findSecondLatestByPortfolioId(@Param("portfolioId") String portfolioId);
+
 }
 
