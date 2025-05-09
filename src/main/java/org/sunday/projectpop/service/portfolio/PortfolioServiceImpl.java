@@ -53,8 +53,11 @@ public class PortfolioServiceImpl implements PortfolioService {
         portfolio.setTitle(request.title());
         portfolio.setDescription(request.description());
 
+//        log.info("url " + request.urls().toString());
+        log.info("new " + request.newUrls().toString());
+
         // URL 저장
-        List<PortfolioUrl> urls = Optional.ofNullable(request.urls())
+        List<PortfolioUrl> urls = Optional.ofNullable(request.newUrls())
                 .orElse(Collections.emptyList())
                 .stream()
                 .map(url -> new PortfolioUrl(url, portfolio))
