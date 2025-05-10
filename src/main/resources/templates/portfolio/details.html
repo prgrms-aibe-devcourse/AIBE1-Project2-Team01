@@ -106,7 +106,7 @@
     <!-- 회고 노트 목록 & 피드백 섹션 -->
     <div class="mb-8">
         <h2 class="text-xl font-semibold text-gray-800 mb-6 flex items-center">
-            <i class="ri-list-check-2 mr-2"></i> 작업/회고 노트 및 AI 피드백
+            <i class="ri-list-check-2 mr-2"></i> 노트 및 AI 피드백
         </h2>
 
         <div class="space-y-6" id="note-list">
@@ -136,7 +136,7 @@
                             <span class="status-text">처리 중...</span>
                         </div>
                         <div class="feedback-content mt-3 p-3 bg-gray-50 rounded-lg hidden">
-                            <h4 class="font-medium mb-2">AI 피드백:</h4>
+                            <h4 class="font-medium mb-2"> 🤖AI 피드백:</h4>
                             <p class="feedback-text text-gray-700"></p>
                         </div>
                     </div>
@@ -311,6 +311,7 @@
 
                             updateFeedbackUI(noteId, feedback);
 
+                            // 피드백이 완료되거나 실패한 경우 폴링 중지
                             if (feedback.feedbackStatus !== FEEDBACK_STATUS.PROCESSING) {
                                 clearInterval(pollingInterval);
                             }
@@ -318,21 +319,47 @@
                             console.error('Error polling feedback:', error);
                             clearInterval(pollingInterval);
 
-                            // 오류 발생 시 UI 업데이트
-                            updateFeedbackUI(noteId, {
-                                feedbackStatus: FEEDBACK_STATUS.FAILED,
-                                llmFeedback: "피드백 요청 중 오류가 발생했습니다"
-                            });
+                            // 오류 발생 시 UI 업데이트 (기존 피드백 유지)
+                            const currentFeedback = getCurrentFeedbackState(noteId);
+                            if (currentFeedback && currentFeedback.feedbackStatus === FEEDBACK_STATUS.COMPLETED) {
+                                // 이미 완료된 피드백이 있으면 그대로 유지
+                                updateFeedbackUI(noteId, currentFeedback);
+                            } else {
+                                updateFeedbackUI(noteId, {
+                                    feedbackStatus: FEEDBACK_STATUS.FAILED,
+                                    llmFeedback: "피드백 요청 중 오류가 발생했습니다"
+                                });
+                            }
                         }
                     }, 3000);
 
+                    // 안전장치로 5분 타임아웃 설정 (기존과 동일)
                     setTimeout(() => {
                         clearInterval(pollingInterval);
-                        updateFeedbackUI(noteId, {
-                            feedbackStatus: FEEDBACK_STATUS.FAILED,
-                            llmFeedback: "피드백 요청 시간이 초과되었습니다"
-                        });
+                        const currentFeedback = getCurrentFeedbackState(noteId);
+                        if (!currentFeedback || currentFeedback.feedbackStatus !== FEEDBACK_STATUS.COMPLETED) {
+                            updateFeedbackUI(noteId, {
+                                feedbackStatus: FEEDBACK_STATUS.FAILED,
+                                llmFeedback: "피드백 요청 시간이 초과되었습니다"
+                            });
+                        }
                     }, 300000); // 5분 타임아웃
+                }
+
+                // 현재 피드백 상태 가져오기
+                function getCurrentFeedbackState(noteId) {
+                    const noteElement = document.querySelector(`[data-note-id="${noteId}"]`);
+                    if (!noteElement) return null;
+
+                    const feedbackContent = noteElement.querySelector('.feedback-content');
+                    if (!feedbackContent || feedbackContent.classList.contains('hidden')) {
+                        return null;
+                    }
+
+                    return {
+                        feedbackStatus: FEEDBACK_STATUS.COMPLETED,
+                        llmFeedback: noteElement.querySelector('.feedback-text').innerHTML
+                    };
                 }
 
                 // 피드백 조회 API 호출
