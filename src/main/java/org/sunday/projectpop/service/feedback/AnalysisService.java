@@ -32,7 +32,6 @@ public class AnalysisService {
     private final PortfolioFileRepository portfolioFileRepository;
     private final LLMSummaryService llmSummaryService;
 
-
     /**
      * 포트폴리오 분석 처리 (쓰기 작업)
      * - 트랜잭션 범위: DB 상태 변경까지 포함
@@ -61,14 +60,14 @@ public class AnalysisService {
     public void handleNoteSubmit(Portfolio portfolio) {
         // 깃허브 링크 유무 확인
         List<PortfolioUrl> urls = portfolio.getUrls();
+        PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
 
         urls.stream()
                 .filter(url -> url.getUrl() != null && url.getUrl().contains("github.com"))
                 .findFirst()
-                .map(url -> gitHubService.fetchUpdatedAtFromGithub(url.getUrl()))
-                .ifPresent(updatedAt -> {
-                    PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
-                    if (shouldRestartAnalysis(summary, updatedAt)) {
+                .map(url -> gitHubService.isAfterLastCommit(url.getUrl(), summary.getCreatedAt().toInstant()))
+                .ifPresent(isAfterLastCommit -> {
+                    if (isAfterLastCommit) {
                         handleAnalysis(portfolio);
                     }
                 });
@@ -79,10 +78,26 @@ public class AnalysisService {
      * - 트랜잭션 외부에서 실행 (Reactor 스케줄러와의 충돌 방지)
      * - 각 단계별 상태 업데이트는 별도 트랜잭션으로 처리
      */
-    private void startAsyncAnalysis(PortfolioSummary summary, AnalysisData data) {
+    /*
+        private void startAsyncAnalysis(PortfolioSummary summary, AnalysisData data) {
         Mono.zip(
                         processGithubData(summary, data.githubTexts),
                         processFileData(summary, data.fileTexts)
+                )
+                .flatMap(tuple -> generateFinalSummary(tuple.getT1(), tuple.getT2()))
+                .doOnSuccess(finalSummary -> completeAnalysis(summary, finalSummary))
+                .doOnError(error -> failAnalysis(summary, error))
+                .subscribeOn(Schedulers.boundedElastic())
+                .subscribe();
+    }
+     */
+    private void startAsyncAnalysis(PortfolioSummary summary, AnalysisData data) {
+        extractGithubTexts(data.githubUrls)
+                .flatMap(githubTexts ->
+                        Mono.zip(
+                                processGithubData(summary, githubTexts),
+                                processFileData(summary, data.fileTexts)
+                        )
                 )
                 .flatMap(tuple -> generateFinalSummary(tuple.getT1(), tuple.getT2()))
                 .doOnSuccess(finalSummary -> completeAnalysis(summary, finalSummary))
@@ -179,7 +194,7 @@ public class AnalysisService {
      */
     private AnalysisData extractAnalysisData(Portfolio portfolio) {
         return new AnalysisData(
-                extractGithubTexts(portfolio.getUrls()),
+                portfolio.getUrls(),
                 extractFileTexts(portfolio)
         );
     }
@@ -225,20 +240,31 @@ public class AnalysisService {
      * GitHub 텍스트 추출 (읽기 전용)
      */
     @Transactional(readOnly = true)
-    protected List<String> extractGithubTexts(List<PortfolioUrl> urls) {
+    protected Mono<List<String>> extractGithubTexts(List<PortfolioUrl> urls) {
         if (urls == null || urls.isEmpty()) {
-            return Collections.emptyList();
+            return Mono.just(Collections.emptyList());
         }
         return urls.stream()
                 .filter(url -> url.getUrl() != null && url.getUrl().contains("github.com"))
                 .findFirst()
-                .map(url -> gitHubService.fetchAndConvertFiles(url.getUrl()))
-                .orElse(Collections.emptyList());
+                .map(url -> gitHubService.summarizeProject(url.getUrl())
+                        .map(dto -> {
+                            List<String> result = new ArrayList<>();
+                            result.add("[디렉터리 구조] %s".formatted(dto.getDirectoryTree()));
+                            result.add("[언어 구조] %s".formatted(dto.getLanguages()));
+                            result.add("[코드 구조] %s".formatted(dto.getCodeStructure()));
+                            result.add("[README 요약] %s".formatted(dto.getReadmeSummary()));
+                            result.add("[최근 커밋] %s".formatted(dto.getCommitSummary()));
+                            result.add("[CI/CD] %s".formatted(dto.getCiCd()));
+                            log.info("result = " + result);
+                            return result;
+                        }))
+                .orElse(Mono.just(Collections.emptyList()));
     }
 
-    private record AnalysisData(List<String> githubTexts, List<String> fileTexts) {
+    private record AnalysisData(List<PortfolioUrl> githubUrls, List<String> fileTexts) {
         boolean isEmpty() {
-            return githubTexts.isEmpty() && fileTexts.isEmpty();
+            return (githubUrls == null || githubUrls.isEmpty()) && fileTexts.isEmpty();
         }
     }
 }

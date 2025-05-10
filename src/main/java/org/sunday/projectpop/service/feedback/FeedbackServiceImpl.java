@@ -57,7 +57,7 @@ public class FeedbackServiceImpl implements FeedbackService {
         String noteContent = note.getContent();
         String data = """
                     [포트폴리오 설명] %s
-                    [회고 및 노트 내용] %s
+                    [노트 내용] %s
                     [포트폴리오 요약] %s
                     """.formatted(description, noteContent, finalSummary);
         boolean isFirst = true;
@@ -110,8 +110,8 @@ public class FeedbackServiceImpl implements FeedbackService {
         feedback.setNote(note);
         feedback.setStatus(AnalysisStatus.FEEDBACK_IN_PROCESSING);
         portfolioFeedbackRepository.save(feedback); // 상태 업데이트
-
-        llmClient.feedback(data, isFirst)
+        String type = isFirst ? "first_develop" : "develop";
+        llmClient.feedback(data, type)
                 .doOnNext(result -> {
                     log.info("feedback = " + result);
                     feedback.setLlmFeedback(result);

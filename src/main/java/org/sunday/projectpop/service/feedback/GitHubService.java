@@ -1,10 +1,12 @@
 package org.sunday.projectpop.service.feedback;
 
+import org.sunday.projectpop.model.dto.GitHubSummaryDTO;
+import reactor.core.publisher.Mono;
+
 import java.time.Instant;
-import java.util.List;
 
 public interface GitHubService {
-    List<String> fetchAndConvertFiles(String url);
+    Mono<GitHubSummaryDTO> summarizeProject(String url);
 
-    Instant fetchUpdatedAtFromGithub(String githubUrl);
+    boolean isAfterLastCommit(String url, Instant time);
 }
