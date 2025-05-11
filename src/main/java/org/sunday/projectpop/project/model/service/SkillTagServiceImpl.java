@@ -7,6 +7,7 @@ import org.sunday.projectpop.project.model.repository.SkillTagRepository;
 
 import java.util.List;
 
+//공고 생성을 위해 임시 구현
 @Service
 @RequiredArgsConstructor
 public class SkillTagServiceImpl implements SkillTagService {

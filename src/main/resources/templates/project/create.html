@@ -536,6 +536,40 @@
     const tagMap = {};
     skillTags.forEach(tag => tagMap[tag.name] = tag.tagId);
 
+    // function setupTagInput(inputId, containerId, hiddenId) {
+    //     const input = document.getElementById(inputId);
+    //     const container = document.getElementById(containerId);
+    //     const hidden = document.getElementById(hiddenId);
+    //     const selected = new Set();
+    //
+    //     new Awesomplete(input, {
+    //         list: skillTags.map(t => t.name),
+    //         minChars: 1,
+    //         autoFirst: true
+    //     });
+    //
+    //     input.addEventListener("keydown", function (e) {
+    //         if (e.key === "Enter" && input.value.trim() !== "") {
+    //             e.preventDefault();
+    //             const tagName = input.value.trim();
+    //             const tagId = tagMap[tagName];
+    //             if (!tagId || selected.has(tagId)) return;
+    //             selected.add(tagId);
+    //
+    //             const tagElement = document.createElement("div");
+    //             tagElement.className = "tag";
+    //             tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+    //             tagElement.querySelector(".tag-close").addEventListener("click", () => {
+    //                 selected.delete(tagId);
+    //                 container.removeChild(tagElement);
+    //                 hidden.value = Array.from(selected).join(",");
+    //             });
+    //             container.insertBefore(tagElement, input);
+    //             hidden.value = Array.from(selected).join(",");
+    //             input.value = "";
+    //         }
+    //     });
+    // }
     function setupTagInput(inputId, containerId, hiddenId) {
         const input = document.getElementById(inputId);
         const container = document.getElementById(containerId);
@@ -548,29 +582,36 @@
             autoFirst: true
         });
 
+        function updateHiddenInput() {
+            hidden.value = Array.from(selected).join(","); // 필수!
+        }
+
         input.addEventListener("keydown", function (e) {
             if (e.key === "Enter" && input.value.trim() !== "") {
                 e.preventDefault();
                 const tagName = input.value.trim();
                 const tagId = tagMap[tagName];
+
                 if (!tagId || selected.has(tagId)) return;
+
                 selected.add(tagId);
 
                 const tagElement = document.createElement("div");
                 tagElement.className = "tag";
                 tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+
                 tagElement.querySelector(".tag-close").addEventListener("click", () => {
                     selected.delete(tagId);
                     container.removeChild(tagElement);
-                    hidden.value = Array.from(selected).join(",");
+                    updateHiddenInput();
                 });
+
                 container.insertBefore(tagElement, input);
-                hidden.value = Array.from(selected).join(",");
                 input.value = "";
+                updateHiddenInput();
             }
         });
     }
-
     setupTagInput("required-skills-input", "required-skills-container", "required-tags-hidden");
     setupTagInput("optional-skills-input", "optional-skills-container", "optional-tags-hidden");
 </script>
