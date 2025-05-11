@@ -2,6 +2,7 @@ package org.sunday.projectpop.service.feedback;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.java.Log;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 import org.sunday.projectpop.model.entity.*;
@@ -146,11 +147,31 @@ public class AnalysisService {
      */
     @Transactional
     protected void updateAnalysisStatus(Long summaryId, AnalysisStatus status, java.util.function.Consumer<PortfolioSummary> updater) {
-        summaryRepository.findById(summaryId).ifPresent(summary -> {
-            summary.setStatus(status);
-            updater.accept(summary);
-            summaryRepository.save(summary);
-        });
+        int maxAttempts = 3;
+        int attempt = 0;
+        boolean success = false;
+
+        while (attempt < maxAttempts && !success) {
+            try {
+                summaryRepository.findById(summaryId).ifPresent(summary -> {
+                    summary.setStatus(status);
+                    updater.accept(summary);
+                    summaryRepository.save(summary);
+                });
+                success = true;
+            } catch (ObjectOptimisticLockingFailureException e) {
+                attempt++;
+                if (attempt >= maxAttempts) {
+                    throw e; // 최대 시도 횟수 초과 시 예외 전파
+                }
+                try {
+                    Thread.sleep(100L * attempt); // 점진적 대기
+                } catch (InterruptedException ie) {
+                    Thread.currentThread().interrupt();
+                    throw new RuntimeException("재시도 중단", ie);
+                }
+            }
+        }
     }
 
     /**
