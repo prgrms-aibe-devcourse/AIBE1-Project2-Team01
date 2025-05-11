@@ -1,5 +1,6 @@
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
 <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
@@ -288,17 +289,9 @@
                 >분야</label
                 >
                 <div class="custom-select">
-                    <select th:field="*{field}" id="field" class="form-input form-select">
+                    <select th:field="*{fieldId}" id="field" class="form-input form-select">
                         <option value="" disabled selected>분야를 선택해주세요</option>
-                        <option value="web">웹 개발</option>
-                        <option value="mobile">모바일 앱</option>
-                        <option value="ai">인공지능/머신러닝</option>
-                        <option value="game">게임 개발</option>
-                        <option value="data">데이터 분석</option>
-                        <option value="design">UI/UX 디자인</option>
-                        <option value="blockchain">블록체인</option>
-                        <option value="iot">IoT</option>
-                        <option value="other">기타</option>
+                        <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.name}"></option>
                     </select>
                 </div>
             </div>
@@ -415,49 +408,71 @@
                         <option value="" disabled selected>
                             경력 수준을 선택해주세요
                         </option>
-                        <option value="less-than-6m">6개월 미만</option>
-                        <option value="6m-1y">6개월-1년</option>
-                        <option value="1y-2y">1년-3년</option>
-                        <option value="3y-5y">3년-5년</option>
-                        <option value="more-than-5y">5년 이상</option>
+                        <option value="6개월 미만">6개월 미만</option>
+                        <option value="6개월~1년">6개월-1년</option>
+                        <option value="1년~3년">1년-3년</option>
+                        <option value="3년~5년">3년-5년</option>
+                        <option value="5년 이상">5년 이상</option>
                     </select>
                 </div>
             </div>
             <!-- 필수 기술 태그 -->
             <div class="mb-6">
-                <label
-                        for="requiredTags"
-                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-                >필수 기술 태그</label
-                >
-                <div
-                        class="tag-input-container bg-white"
-                        id="requiredTags"
-                >
-<!--                    <input-->
-<!--                            type="text"-->
-<!--                            class="tag-input"-->
-<!--                            id="required-skills-input"-->
-<!--                            placeholder="기술을 입력하고 Enter를 누르세요"-->
-<!--                    />-->
-                    <select multiple th:field="*{requiredTagIds}" class="form-input">
-                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>
-                    </select>
+                <label for="required-skills-input" class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    필수 기술 태그
+                </label>
+                <div class="tag-input-container bg-white" id="required-skills-container">
+                    <input type="text" id="required-skills-input" class="tag-input" placeholder="기술을 입력하고 Enter를 누르세요" />
                 </div>
+                <input type="hidden" name="requiredTagIds" id="required-tags-hidden" />
             </div>
+
+            <!-- 필수 기술 태그 -->
+<!--            <div class="mb-6">-->
+<!--                <label-->
+<!--                        for="requiredTags"-->
+<!--                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"-->
+<!--                >필수 기술 태그</label-->
+<!--                >-->
+<!--                <div-->
+<!--                        class="tag-input-container bg-white"-->
+<!--                        id="requiredTags"-->
+<!--                >-->
+<!--&lt;!&ndash;                    <input&ndash;&gt;-->
+<!--&lt;!&ndash;                            type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;                            class="tag-input"&ndash;&gt;-->
+<!--&lt;!&ndash;                            id="required-skills-input"&ndash;&gt;-->
+<!--&lt;!&ndash;                            placeholder="기술을 입력하고 Enter를 누르세요"&ndash;&gt;-->
+<!--&lt;!&ndash;                    />&ndash;&gt;-->
+<!--                    <select multiple th:field="*{requiredTagIds}" class="form-input">-->
+<!--                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
             <!-- 선택 기술 태그 -->
-            <div class="mb-8">
-                <label
-                        for="selectiveTags"
-                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
-                >선택 기술 태그</label
-                >
-                <div class="tag-input-container" id="selectiveTags">
-                    <select multiple th:field="*{selectiveTagIds}" class="form-input">
-                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>
-                    </select>
+<!--            <div class="mb-8">-->
+<!--                <label-->
+<!--                        for="selectiveTags"-->
+<!--                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"-->
+<!--                >선택 기술 태그</label-->
+<!--                >-->
+<!--                <div class="tag-input-container" id="selectiveTags">-->
+<!--                    <select multiple th:field="*{selectiveTagIds}" class="form-input">-->
+<!--                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+            <!-- 선택 기술 태그 -->
+            <div class="mb-6">
+                <label for="optional-skills-input" class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    선택 기술 태그
+                </label>
+                <div class="tag-input-container bg-white" id="optional-skills-container">
+                    <input type="text" id="optional-skills-input" class="tag-input" placeholder="기술을 입력하고 Enter를 누르세요" />
                 </div>
+                <input type="hidden" name="selectiveTagIds" id="optional-tags-hidden" />
             </div>
+
             <!-- 버튼 영역 -->
             <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
                 <button
@@ -476,6 +491,7 @@
         </form>
     </div>
 </div>
+
 <script>
     document.addEventListener("DOMContentLoaded", function () {
         function handleRadioClick(radioId) {
@@ -511,42 +527,54 @@
             .nextElementSibling.addEventListener("click", () =>
             handleRadioClick("competition"),
         );
-        // 태그 입력 기능
-        function setupTagInput(inputId, containerId) {
-            const container = document.getElementById(containerId);
-            const input = document.getElementById(inputId);
-            const tags = [];
-            input.addEventListener("keydown", function (e) {
-                if (e.key === "Enter" && input.value.trim() !== "") {
-                    e.preventDefault();
-                    const tagValue = input.value.trim();
-                    if (!tags.includes(tagValue)) {
-                        tags.push(tagValue);
-                        const tagElement = document.createElement("div");
-                        tagElement.className = "tag";
-                        tagElement.innerHTML = `
-      ${tagValue}
-      <span class="tag-close">
-      <i class="ri-close-line"></i>
-      </span>
-      `;
-                        const closeBtn = tagElement.querySelector(".tag-close");
-                        closeBtn.addEventListener("click", function () {
-                            const index = tags.indexOf(tagValue);
-                            if (index !== -1) {
-                                tags.splice(index, 1);
-                            }
-                            container.removeChild(tagElement);
-                        });
-                        container.insertBefore(tagElement, input);
-                        input.value = "";
-                    }
-                }
-            });
-        }
-        setupTagInput("required-skills-input", "required-skills-container");
-        setupTagInput("optional-skills-input", "optional-skills-container");
+
     });
 </script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+<script th:inline="javascript">
+    const skillTags = /*[[${tags}]]*/ [];
+    const tagMap = {};
+    skillTags.forEach(tag => tagMap[tag.name] = tag.tagId);
+
+    function setupTagInput(inputId, containerId, hiddenId) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+        const hidden = document.getElementById(hiddenId);
+        const selected = new Set();
+
+        new Awesomplete(input, {
+            list: skillTags.map(t => t.name),
+            minChars: 1,
+            autoFirst: true
+        });
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && input.value.trim() !== "") {
+                e.preventDefault();
+                const tagName = input.value.trim();
+                const tagId = tagMap[tagName];
+                if (!tagId || selected.has(tagId)) return;
+                selected.add(tagId);
+
+                const tagElement = document.createElement("div");
+                tagElement.className = "tag";
+                tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+                tagElement.querySelector(".tag-close").addEventListener("click", () => {
+                    selected.delete(tagId);
+                    container.removeChild(tagElement);
+                    hidden.value = Array.from(selected).join(",");
+                });
+                container.insertBefore(tagElement, input);
+                hidden.value = Array.from(selected).join(",");
+                input.value = "";
+            }
+        });
+    }
+
+    setupTagInput("required-skills-input", "required-skills-container", "required-tags-hidden");
+    setupTagInput("optional-skills-input", "optional-skills-container", "optional-tags-hidden");
+</script>
+
 </body>
+
 </html>

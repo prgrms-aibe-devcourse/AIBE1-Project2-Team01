@@ -1,23 +1,24 @@
 package org.sunday.projectpop.project.controller;
 
 import org.springframework.data.domain.Pageable;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 import org.sunday.projectpop.project.model.dto.ProjectRequest;
 import org.sunday.projectpop.project.model.dto.ProjectResponse;
 import org.sunday.projectpop.project.model.entity.UserAccount;
-import org.sunday.projectpop.project.model.service.ProjectService;
-import org.sunday.projectpop.project.model.service.SkillTagService;
+import org.sunday.projectpop.project.model.service.*;
 import org.sunday.projectpop.project.model.entity.SkillTag;
 
 import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
 import org.sunday.projectpop.project.model.entity.Project;
 
 
-import org.sunday.projectpop.project.model.service.UserAccountService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -32,12 +33,21 @@ public class ProjectController {
     private final ProjectService projectService;
     private final SkillTagService skillTagService;
     private final UserAccountService userAccountService;
+    private final ProjectApplicationService applicationService;
+    private final ProjectFieldService projectFieldService;
+
+
+
 
     // 🖼️ 공고 작성 폼 (HTML 렌더링)
     @GetMapping("/create")
     public String showCreateForm(Model model) {
         model.addAttribute("projectRequest", new ProjectRequest());
         model.addAttribute("tags", skillTagService.getAllTags());
+        model.addAttribute("fields", projectFieldService.getAllFields()); // 💡 추가
+
+        System.out.println("✅ 등록된 태그: " + skillTagService.getAllTags());
+
         return "project/create"; // Thymeleaf 템플릿
     }
 
@@ -50,7 +60,7 @@ public class ProjectController {
         List<SkillTag> selectiveTags = skillTagService.getTagsByIds(request.getSelectiveTagIds());
 
         projectService.create(request, leader, requiredTags, selectiveTags);
-        return "redirect:/projects/create?success";
+        return "redirect:/projects";
     }
 
     // 🖼️ 공고 목록 화면 보여주기 (선택)
@@ -103,17 +113,43 @@ public String filterProjectsAjax(
     return "project/list :: projectList";
 }
 
-    @GetMapping("/{projectId}")
-    public String viewProjectDetail(@PathVariable String projectId, Model model) {
-        ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
-        List<String> requiredTags = projectService.getRequiredTagNames(projectId);
-        List<String> selectiveTags = projectService.getSelectiveTagNames(projectId);
+//    @GetMapping("/{projectId}")
+//    public String viewProjectDetail(@PathVariable String projectId, Model model) {
+//        ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
+//        List<String> requiredTags = projectService.getRequiredTagNames(projectId);
+//        List<String> selectiveTags = projectService.getSelectiveTagNames(projectId);
+//
+//        model.addAttribute("project", response);
+//        model.addAttribute("requiredTags", requiredTags);
+//        model.addAttribute("selectiveTags", selectiveTags);
+//        return "project/details"; // Thymeleaf 템플릿
+//    }
+@GetMapping("/detail")
+public String viewProjectDetail(@RequestParam("projectId") String projectId, Model model) {
+    ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
+    List<String> requiredTags = projectService.getRequiredTagNames(projectId);
+    List<String> selectiveTags = projectService.getSelectiveTagNames(projectId);
 
-        model.addAttribute("project", response);
-        model.addAttribute("requiredTags", requiredTags);
-        model.addAttribute("selectiveTags", selectiveTags);
-        return "project/details"; // Thymeleaf 템플릿
-    }
+    model.addAttribute("project", response);
+    model.addAttribute("requiredTags", requiredTags);
+    model.addAttribute("selectiveTags", selectiveTags);
+    return "project/details";
+}
+
+   @PostMapping("/apply")
+    public String apply(@RequestParam("projectId") String projectId,
+                        @AuthenticationPrincipal UserDetails userDetails,
+                        RedirectAttributes redirectAttributes) {
+        try {
+            applicationService.applyToProject(projectId, userDetails.getUsername());
+            redirectAttributes.addFlashAttribute("success", "지원이 완료되었습니다!");
+        } catch (Exception e) {
+            redirectAttributes.addFlashAttribute("error", e.getMessage());
+        }
+
+       return "redirect:/projects/detail?projectId=" + projectId;
+
+   }
 
 
 }

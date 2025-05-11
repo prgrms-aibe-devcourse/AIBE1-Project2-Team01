@@ -3,6 +3,7 @@ package org.sunday.projectpop.project.model.dto;
 import lombok.Builder;
 import org.sunday.projectpop.project.model.entity.Project;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -23,10 +24,15 @@ public record ProjectResponse(
         LocalDateTime createdAt,
         String leaderEmail,
         List<String> requiredTags,
-        List<String> selectiveTags
+        List<String> selectiveTags,
+
+        int applicantCount,// 지원자 수
+        LocalDate deadline// 마감일 (createdAt + durationWeeks 계산)
 ) {
     public static ProjectResponse from(Project project, List<String> requiredTags, List<String> selectiveTags) {
+
         String status = calculateStatus(project.getCreatedAt(), project.getDurationWeeks());
+        LocalDate deadline = project.getCreatedAt().toLocalDate().plusWeeks(project.getDurationWeeks());
         return ProjectResponse.builder()
                 .projectId(project.getProjectId())
                 .title(project.getTitle())
@@ -34,7 +40,7 @@ public record ProjectResponse(
                 .type(project.getType())
                 .status(status)
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField())
+                .field(project.getField().getName())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())
@@ -43,6 +49,9 @@ public record ProjectResponse(
                 .leaderEmail(project.getLeader().getEmail())
                 .requiredTags(requiredTags)
                 .selectiveTags(selectiveTags)
+                .deadline(deadline)
+//                .applicantCount(applicantCount)
+
                 .build();
     }
     private static String calculateStatus(LocalDateTime createdAt, int durationWeeks) {

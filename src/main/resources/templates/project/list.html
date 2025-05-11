@@ -288,8 +288,9 @@
                         </div>
                         <div class="card-description" th:text="${project.description}">설명</div>
                         <div class="card-actions">
-                            <a th:href="@{/projects/{id}(id=${project.projectId})}" class="view-btn">보기</a>
-                            <a th:href="@{/projects/apply/{id}(id=${project.projectId})}" class="apply-btn">지원</a>
+                            <a th:href="@{'/projects/detail?projectId=' + ${project.projectId}}" class="view-btn">보기</a>
+                            <a th:href="@{'/projects/apply?projectId=' + ${project.projectId}}" class="apply-btn">지원</a>
+
                         </div>
                     </div>
                 </div>

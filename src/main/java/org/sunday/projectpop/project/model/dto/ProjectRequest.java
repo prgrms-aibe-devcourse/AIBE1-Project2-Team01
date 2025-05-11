@@ -7,7 +7,7 @@ import java.util.List;
 public class ProjectRequest {
     private String title;
     private String description;
-    private String field;
+    private Long fieldId; // 프론트에서 fieldId 선택해서 넘김
     private String locationType;
     private Integer durationWeeks;
     private Integer teamSize;

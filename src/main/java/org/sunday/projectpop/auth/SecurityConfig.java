@@ -15,7 +15,10 @@ public class SecurityConfig {
         return http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> {}) // ✅ CORS 허용 추가
-                .authorizeHttpRequests(auth -> auth.anyRequest().permitAll())
+                .authorizeHttpRequests(auth -> auth
+                        .requestMatchers("/projects/apply").authenticated() // 로그인 필요
+                        .anyRequest().permitAll()
+                )
                 .build();
     }
 

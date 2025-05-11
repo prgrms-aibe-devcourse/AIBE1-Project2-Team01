@@ -37,8 +37,9 @@ public class Project {
     @Column(name = "generated_by_ai")
     private Boolean generatedByAi = false;
 
-    @Column(length = 50)
-    private String field;  // ENUM 제거, 프론트 제한
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id")
+    private ProjectField field;
 
     @Column(length = 255)
     private String title;

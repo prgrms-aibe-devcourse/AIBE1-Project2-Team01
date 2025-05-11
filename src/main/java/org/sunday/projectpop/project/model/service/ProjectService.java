@@ -8,15 +8,12 @@ import org.springframework.data.domain.Sort;
 import org.sunday.projectpop.project.model.dto.ProjectRequest;
 import org.sunday.projectpop.project.model.dto.ProjectResponse;
 import org.sunday.projectpop.project.model.entity.*;
-import org.sunday.projectpop.project.model.repository.ProjectRepository;
-import org.sunday.projectpop.project.model.repository.ProjectRequireTagRepository;
-import org.sunday.projectpop.project.model.repository.ProjectSelectiveTagRepository;
+import org.sunday.projectpop.project.model.repository.*;
 import org.sunday.projectpop.project.model.entity.UserAccount;
 import org.springframework.stereotype.Service;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
-import org.sunday.projectpop.project.model.repository.ProjectSpecification;
 
 
 import java.time.LocalDateTime;
@@ -31,8 +28,12 @@ public class ProjectService {
     private final ProjectRepository projectRepository;
     private final ProjectRequireTagRepository requireTagRepository;
     private final ProjectSelectiveTagRepository selectiveTagRepository;
+    private final ProjectFieldRepository projectFieldRepository;
+
 
     public Project create(ProjectRequest request, UserAccount leader, List<SkillTag> requiredTags, List<SkillTag> selectiveTags) {
+        ProjectField field = projectFieldRepository.findById(request.getFieldId())
+                .orElseThrow(() -> new IllegalArgumentException("❌ 유효하지 않은 분야 ID입니다."));
         Project project = Project.builder()
                 .title(request.getTitle())
                 .description(request.getDescription())
@@ -46,7 +47,7 @@ public class ProjectService {
                 .experienceLevel(request.getExperienceLevel())
                 .leader(leader)
 
-                .field(request.getField())
+                .field(field)
                 .build();
 
         Project saved = projectRepository.save(project);
@@ -55,6 +56,7 @@ public class ProjectService {
         System.out.println("✅ 저장된 프로젝트 ID: " + saved.getProjectId());
         System.out.println("✅ 제목: " + saved.getTitle());
         System.out.println("✅ 팀장 ID: " + saved.getLeader().getUserId());
+
 
 
         requiredTags.forEach(tag -> requireTagRepository.save(
@@ -111,7 +113,7 @@ public class ProjectService {
                 .type(project.getType())
                 .status(project.getStatus())
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField())
+                .field(project.getField().getName())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())
