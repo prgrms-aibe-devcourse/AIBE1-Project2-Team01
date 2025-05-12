@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 기여도 분석</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+        .chart-container {
+            width: 100%;
+            height: 300px; /* 적절한 높이 지정 */
+            margin: 0 auto;
+        }
+        .rounded-button {
+            border-radius: 0.375rem; /* 6px, from Tailwind's rounded-md */
+        }
+    </style>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 p-6">
+<div class="container mx-auto">
+    <h1 class="text-2xl font-semibold text-gray-800 mb-8">프로젝트 기여도 분석</h1>
+
+    <div class="bg-white rounded-lg p-6 shadow-md mb-8">
+        <div class="flex justify-between items-center mb-4">
+            <h2 class="font-medium">팀원별 기여도 분석</h2>
+            <div class="flex gap-2">
+                <button class="text-xs text-gray-600 px-3 py-1 rounded-button border border-gray-200 whitespace-nowrap">주간</button>
+                <button class="text-xs bg-primary text-white px-3 py-1 rounded-button whitespace-nowrap">월간</button>
+            </div>
+        </div>
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div class="chart-container">
+                <canvas id="contribution-chart"></canvas>
+            </div>
+            <div class="md:col-span-2">
+                <canvas id="contribution-bar-chart"></canvas>
+                <div class="mt-4 text-center font-semibold text-gray-700">
+                    최고 기여자: <span id="top-contributor" class="text-blue-600">None</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script th:inline="javascript">
+    document.addEventListener('DOMContentLoaded', function() {
+        const memberContributions = /*[[${memberContributions}]]*/ [];
+        console.log(memberContributions);
+
+        // 데이터 가공
+        const memberNames = memberContributions.map(m => m.memberName);
+        const completedTasks = memberContributions.map(m => m.completedTasks);
+        const contributionRates = memberContributions.map(m => m.contributionRate);
+
+        // 색상 배열 확장 (인원이 많아져도 커버 가능)
+        const backgroundColors = [
+            '#FF6384', '#36A2EB', '#FFCE56', '#4BC0C0', '#9966FF', '#FF8E72',
+            '#1E90FF', '#228B22', '#8B4513', '#A9A9A9', '#DC143C', '#F4A460',
+            '#4682B4', '#008080', '#D2691E', '#808080', '#FF4500', '#FFA500',
+            '#7FFF00', '#ADFF2F'
+        ];
+        const extendedBackgroundColors = [];
+        for (let i = 0; i < memberNames.length; i++) {
+            extendedBackgroundColors.push(backgroundColors[i % backgroundColors.length]); // 색상을 반복 사용
+        }
+
+        // 도넛 차트
+        const donutCtx = document.getElementById('contribution-chart').getContext('2d');
+        const donutChart = new Chart(donutCtx, {
+            type: 'doughnut',
+            data: {
+                labels: memberNames,
+                datasets: [{
+                    label: '기여율',
+                    data: contributionRates,
+                    backgroundColor: extendedBackgroundColors, // 확장된 색상 배열 적용
+                    hoverOffset: 4
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'top'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += Math.round(context.parsed) + ' %'; // 소수점 제거
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                }
+            }
+        });
+
+        // 막대 차트
+        const barCtx = document.getElementById('contribution-bar-chart').getContext('2d');
+        const barChart = new Chart(barCtx, {
+            type: 'bar',
+            data: {
+                labels: memberNames,
+                datasets: [{
+                    label: '완료한 작업 수',
+                    data: completedTasks,
+                    backgroundColor: extendedBackgroundColors, // 확장된 색상 배열 적용
+                    borderColor: extendedBackgroundColors,
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: (context) => {
+                                let label = context.label || '';
+                                if (label) {
+                                    label += ': ';
+                                }
+                                if (context.parsed !== null) {
+                                    label += context.parsed; // " tasks" 제거
+                                }
+                                return label;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // 최고 기여자 찾기
+        let maxTasks = 0;
+        let topContributors = [];
+        for (let i = 0; i < memberContributions.length; i++) {
+            if (memberContributions[i].completedTasks > maxTasks) {
+                maxTasks = memberContributions[i].completedTasks;
+                topContributors = [memberContributions[i].memberName];
+            } else if (memberContributions[i].completedTasks === maxTasks) {
+                topContributors.push(memberContributions[i].memberName);
+            }
+        }
+
+        // 최고 기여자 표시
+        const topContributorElement = document.getElementById('top-contributor');
+        if (topContributors.length > 1) {
+            topContributorElement.textContent = topContributors.join(', '); // 여러 명일 경우 쉼표로 연결
+        } else if (topContributors.length === 1) {
+            topContributorElement.textContent = topContributors[0];
+        } else {
+            topContributorElement.textContent = 'None';
+        }
+    });
+</script>
+</body>
+</html>
