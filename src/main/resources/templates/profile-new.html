@@ -1,0 +1,173 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>프로필 생성</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+</head>
+<body class="bg-gray-100 min-h-screen p-6">
+<div class="max-w-2xl mx-auto bg-white p-8 rounded shadow">
+    <h1 class="text-2xl font-bold mb-6 text-purple-600">프로필 생성</h1>
+
+    <form id="profileForm" class="space-y-6">
+        <div>
+            <label class="block text-sm font-medium mb-1">이메일</label>
+            <input id="email" type="email" class="w-full border rounded p-2" placeholder="example@email.com">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">닉네임</label>
+            <input id="nickname" type="text" class="w-full border rounded p-2" placeholder="홍길동" required minlength="2" maxlength="20" pattern="[a-zA-Z가-힣\s]+">
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">소개</label>
+            <textarea id="bio" class="w-full border rounded p-2" placeholder="간단한 자기소개를 입력하세요."></textarea>
+        </div>
+
+        <div>
+            <label class="block text-sm font-medium mb-1">연락처</label>
+            <input id="phone" type="text" class="w-full border rounded p-2" placeholder="010-1234-5678" required pattern="^01[0-9]-\d{3,4}-\d{4}$">
+        </div>
+
+        <!-- 기술 태그 -->
+        <div>
+            <label class="block text-sm font-medium mb-1">기술 태그</label>
+            <div class="flex space-x-2 mb-2">
+                <input id="techTagInput" type="text" class="flex-1 border rounded p-2" placeholder="예: React, Java">
+                <button type="button" id="addTechTag" class="bg-blue-500 text-white px-4 py-2 rounded">추가</button>
+            </div>
+            <div id="techTagsContainer" class="flex flex-wrap gap-2"></div>
+        </div>
+
+        <!-- 성향 태그 -->
+        <div>
+            <label class="block text-sm font-medium mb-1">성향</label>
+            <div class="flex items-center space-x-4">
+                <input type="range" id="personalityScoreSlider" min="1" max="5" step="1" class="w-full">
+                <span id="personalityText" class="w-24 text-sm text-gray-700">보통</span>
+                <button type="button" id="applyPersonality" class="bg-blue-500 text-white px-4 py-2 rounded">적용</button>
+            </div>
+            <div id="personalityTagContainer" class="mt-2 flex gap-2"></div>
+        </div>
+
+        <button type="submit" class="bg-purple-600 text-white px-6 py-2 rounded w-full">프로필 저장</button>
+    </form>
+</div>
+<script>
+    const personalityMap = {
+        1: "조용함",
+        2: "조금 조용함",
+        3: "보통",
+        4: "조금 활발함",
+        5: "활발함"
+    };
+
+    const techTags = [];
+    let selectedPersonalityText = "";
+
+    document.getElementById('addTechTag').addEventListener('click', () => {
+        const input = document.getElementById('techTagInput');
+        const value = input.value.trim();
+        if (value && !techTags.includes(value)) {
+            techTags.push(value);
+            renderTechTags();
+            input.value = '';
+        }
+    });
+
+    function renderTechTags() {
+        const container = document.getElementById('techTagsContainer');
+        container.innerHTML = '';
+        techTags.forEach((tag, index) => {
+            const el = document.createElement('span');
+            el.className = 'flex items-center bg-blue-100 text-blue-800 text-sm px-3 py-1 rounded-full';
+            el.innerHTML = `
+                ${tag}
+                <button type="button" class="ml-2 text-red-600 font-bold" onclick="removeTechTag(${index})">×</button>
+            `;
+            container.appendChild(el);
+        });
+    }
+
+    function removeTechTag(index) {
+        techTags.splice(index, 1);
+        renderTechTags();
+    }
+
+    document.getElementById('personalityScoreSlider').addEventListener('input', (e) => {
+        const value = parseInt(e.target.value);
+        document.getElementById('personalityText').textContent = personalityMap[value];
+    });
+
+    document.getElementById('applyPersonality').addEventListener('click', () => {
+        const value = parseInt(document.getElementById('personalityScoreSlider').value);
+        selectedPersonalityText = personalityMap[value];
+        const container = document.getElementById('personalityTagContainer');
+        container.innerHTML = '';
+        const tag = document.createElement('span');
+        tag.className = 'bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full';
+        tag.textContent = selectedPersonalityText;
+        container.appendChild(tag);
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const profile = {
+            email: document.getElementById('email').value,
+            nickname: document.getElementById('nickname').value,
+            bio: document.getElementById('bio').value,
+            phone: document.getElementById('phone').value,
+            profileImageUrl: ''
+        };
+
+
+        const tags = {
+            techTags: techTags,
+            personalityScore: parseInt(document.getElementById('personalityScoreSlider').value),
+            personalityText: selectedPersonalityText || document.getElementById('personalityText').textContent
+        };
+
+        try {
+            const profileRes = await fetch('/api/profile/me', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(profile)
+            });
+
+            if (!profileRes.ok) throw new Error('프로필 저장 실패');
+
+            const tagRes = await fetch('/api/profile/me/tags', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(tags)
+            });
+
+            if (!tagRes.ok) throw new Error('태그 저장 실패');
+
+            alert('프로필이 저장되었습니다!');
+            window.location.href = '/profile/view';
+
+        } catch (err) {
+            console.error('❌ 저장 중 오류:', err);
+            alert('프로필 저장 중 문제가 발생했습니다.');
+        }
+    });
+
+    // 전화번호 입력 시 자동 하이픈 삽입
+    document.getElementById('phone').addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, ''); // 숫자만 남기기
+
+        if (value.length < 4) {
+            e.target.value = value;
+        } else if (value.length < 8) {
+            e.target.value = `${value.slice(0, 3)}-${value.slice(3)}`;
+        } else {
+            e.target.value = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`;
+        }
+    });
+
+</script>
+</body>
+</html>
