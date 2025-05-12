@@ -1,0 +1,64 @@
+<div th:fragment="content">
+
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-semibold text-primary">포트폴리오 목록</h1>
+        <a href="/portfolios/new" class="bg-primary text-white px-4 py-2 rounded-button flex items-center">
+            <i class="ri-add-line mr-1"></i> 새 포트폴리오
+        </a>
+    </div>
+
+    <!-- TODO: 검색 및 필터 -->
+
+    <!--        <div class="bg-gray-50 p-4 rounded-lg mb-6">-->
+    <!--            <div class="flex items-center space-x-4">-->
+    <!--                <div class="flex-1">-->
+    <!--                    <input type="text" placeholder="포트폴리오 검색" class="w-full border border-gray-300 rounded px-3 py-2">-->
+    <!--                </div>-->
+    <!--                &lt;!&ndash;            <select class="border border-gray-300 rounded px-3 py-2">&ndash;&gt;-->
+    <!--                &lt;!&ndash;                <option>전체</option>&ndash;&gt;-->
+    <!--                &lt;!&ndash;                <option th:each="type : ${T(com.example.demo.domain.PortfoliosType).values()}"&ndash;&gt;-->
+    <!--                &lt;!&ndash;                        th:value="${type}"&ndash;&gt;-->
+    <!--                &lt;!&ndash;                        th:text="${type}"></option>&ndash;&gt;-->
+    <!--                &lt;!&ndash;            </select>&ndash;&gt;-->
+    <!--                <button class="bg-primary text-white px-4 py-2 rounded-button">검색</button>-->
+    <!--            </div>-->
+    <!--        </div>-->
+
+    <!-- 포트폴리오 목록 -->
+    <div th:if="${#lists.isEmpty(portfolios)}">
+        <p>등록된 포트폴리오가 없습니다.</p>
+    </div>
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" th:if="${not #lists.isEmpty(portfolios)}">
+        <a th:each="portfolio : ${portfolios}"
+           th:href="@{/portfolios/{id}(id=${portfolio.portfolioId})}"
+           class="border border-gray-200 rounded-lg overflow-hidden shadow-sm hover:shadow-md transition-shadow block">
+            <div class="p-4">
+                <div class="flex justify-between items-start mb-2">
+                    <h3 class="text-lg font-bold text-primary" th:text="${portfolio.title()}">포트폴리오 제목</h3>
+                    <span class="bg-purple-100 text-primary text-xs px-2 py-1 rounded-full"
+                          th:text="${portfolio.portfolioType}">타입</span>
+                </div>
+                <div class="flex justify-between items-center text-xs text-gray-500">
+                    <span th:text="${portfolio.createdAt}">2025-05-08</span>
+                    <span class="text-primary hover:underline">자세히 보기</span>
+                </div>
+            </div>
+        </a>
+    </div>
+
+    <!-- TODO: 페이지네이션 -->
+
+    <!--    <div class="mt-8 flex justify-center">-->
+    <!--        <nav class="inline-flex rounded-md shadow">-->
+    <!--            <a href="#" class="px-3 py-2 rounded-l-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">-->
+    <!--                <i class="ri-arrow-left-s-line"></i>-->
+    <!--            </a>-->
+    <!--            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-primary font-medium">1</a>-->
+    <!--            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">2</a>-->
+    <!--            <a href="#" class="px-3 py-2 border-t border-b border-gray-300 bg-white text-gray-500 hover:bg-gray-50">3</a>-->
+    <!--            <a href="#" class="px-3 py-2 rounded-r-md border border-gray-300 bg-white text-gray-500 hover:bg-gray-50">-->
+    <!--                <i class="ri-arrow-right-s-line"></i>-->
+    <!--            </a>-->
+    <!--        </nav>-->
+    <!--    </div>-->
+</div>

@@ -3,4 +3,14 @@ spring:
     name: project-pop
   profiles:
     active: dev
-#    a
+
+  # 업로드 파일 크기 제한
+  servlet:
+    multipart:
+      max-file-size: 50MB
+      max-request-size: 50MB
+  mvc:
+    hiddenmethod:
+      filter:
+        enabled: true
+
