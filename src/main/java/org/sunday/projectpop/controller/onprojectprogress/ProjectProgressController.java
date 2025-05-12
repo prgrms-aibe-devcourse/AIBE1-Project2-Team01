@@ -22,10 +22,6 @@ public class ProjectProgressController {
     private final SpecificationService specificationService;
     private final HealthCheckService healthCheckService;
 
-    @GetMapping("/")
-    public String index() {
-        return "onproject/index";
-    }
 
     // 프로젝트 기본 페이지
     @GetMapping("/{onGoingProjectId}")
