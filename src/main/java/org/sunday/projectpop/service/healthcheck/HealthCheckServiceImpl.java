@@ -1,8 +1,7 @@
-package org.sunday.projectpop.service.impl;
+package org.sunday.projectpop.service.healthcheck;
 
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.model.dto.SpecificationDto;
-import org.sunday.projectpop.service.HealthCheckService;
 
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;

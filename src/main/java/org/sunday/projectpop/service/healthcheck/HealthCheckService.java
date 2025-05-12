@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.healthcheck;
 
 import org.sunday.projectpop.model.dto.SpecificationDto;
 

@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.specification;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
@@ -98,7 +98,6 @@ public class SpecificationServiceImpl implements SpecificationService {
         dto.setStatus(specification.getStatus());
         // 날짜를 yyyy-MM-dd 형식의 문자열로 변환하여 설정한다.
         dto.setDueDate(specification.getDueDate() != null ? dateFormatter.format(specification.getDueDate()) : null);
-        dto.setProgressRate(specification.getProgressRate());
         // 날짜/시간을 yyyy-MM-dd HH:mm:ss 형식의 문자열로 변환하여 설정한다.
         dto.setCreatedAt(specification.getCreatedAt() != null ? dateTimeFormatter.format(specification.getCreatedAt()) : null);
         dto.setUpdatedAt(specification.getUpdatedAt() != null ? dateTimeFormatter.format(specification.getUpdatedAt()) : null);
@@ -117,7 +116,6 @@ public class SpecificationServiceImpl implements SpecificationService {
         if (dto.getDueDate() != null && !dto.getDueDate().isEmpty()) {
             specification.setDueDate(java.time.LocalDate.parse(dto.getDueDate(), dateFormatter));
         }
-        specification.setProgressRate(dto.getProgressRate());
         return specification;
     }
 
@@ -166,7 +164,6 @@ public class SpecificationServiceImpl implements SpecificationService {
             if (specificationDto.getDueDate() != null && !specificationDto.getDueDate().isEmpty()) {
                 specification.setDueDate(java.time.LocalDate.parse(specificationDto.getDueDate(), dateFormatter));
             }
-            specification.setProgressRate(specificationDto.getProgressRate());
             specificationRepository.save(specification);
         } else {
             throw new RuntimeException("수정할 명세서를 찾을 수 없습니다.");

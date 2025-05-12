@@ -53,10 +53,10 @@
                 <input type="date" id="dueDate" th:field="*{dueDate}"
                        class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
             </div>
-            <div>
-                <label for="progressRate" class="block text-gray-700 text-sm font-bold mb-1">진행률 (%)</label>
-                <input type="number" id="progressRate" th:field="*{progressRate}" min="0" max="100"
-                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>
+<!--            <div>-->
+<!--                <label for="progressRate" class="block text-gray-700 text-sm font-bold mb-1">진행률 (%)</label>-->
+<!--                <input type="number" id="progressRate" th:field="*{progressRate}" min="0" max="100"-->
+<!--                       class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"/>-->
             </div>
             <div class="flex justify-end gap-4 mt-4">
                 <a th:href="@{/projects/onprojects/{projectId}(projectId=${onGoingProjectId})}"

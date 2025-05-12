@@ -115,7 +115,7 @@
                     <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">담당자</th>
                     <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">상태</th>
                     <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">마감일</th>
-                    <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">진행률</th>
+<!--                    <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">진행률</th>-->
                     <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">생성일</th>
                     <th class="px-4 py-2 border text-left text-xs font-medium text-gray-500 uppercase">수정일</th>
                     <th class="px-4 py-2 border text-right text-xs font-medium text-gray-500 uppercase">액션</th>
@@ -128,7 +128,7 @@
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.assignee}">담당자</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.status}">상태</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.dueDate}">날짜</td>
-                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.progressRate + '%'}">0%</td>
+<!--                    <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-900" th:text="${spec.progressRate + '%'}">0%</td>-->
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.createdAt}">-</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-sm text-gray-500" th:text="${spec.updatedAt}">-</td>
                     <td class="px-4 py-2 border whitespace-nowrap text-right text-sm font-medium">
@@ -144,7 +144,16 @@
                 </tbody>
             </table>
         </div>
+
+        <!-- "명세서 작성" 버튼 추가 -->
+        <div class="mt-6 flex justify-end">
+            <a th:href="@{/projects/onprojects/{projectId}/specs/new(projectId=${onGoingProjectId})}"
+               class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">
+                명세서 작성
+            </a>
+        </div>
     </section>
+
 </main>
 
 <script th:inline="javascript">

@@ -7,10 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.MemberContributionDto;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.OnGoingProject;
-import org.sunday.projectpop.model.entity.Specification;
-import org.sunday.projectpop.service.HealthCheckService;
-import org.sunday.projectpop.service.OnGoingProjectService;
-import org.sunday.projectpop.service.SpecificationService;
+import org.sunday.projectpop.service.healthcheck.HealthCheckService;
+import org.sunday.projectpop.service.ongoingproject.OnGoingProjectService;
+import org.sunday.projectpop.service.specification.SpecificationService;
 
 import java.util.List;
 import java.util.Optional;

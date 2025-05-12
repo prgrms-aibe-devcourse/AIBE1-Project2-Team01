@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.ongoingproject;
 
 import org.sunday.projectpop.model.entity.OnGoingProject;
 

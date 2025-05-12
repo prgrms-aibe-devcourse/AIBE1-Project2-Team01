@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.specification;
 
 import org.sunday.projectpop.model.dto.MemberContributionDto;
 import org.sunday.projectpop.model.dto.SpecificationDto;

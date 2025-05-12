@@ -7,8 +7,8 @@ import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.SpecificationDto;
 import org.sunday.projectpop.model.entity.OnGoingProject;
 import org.sunday.projectpop.model.entity.Specification;
-import org.sunday.projectpop.service.OnGoingProjectService;
-import org.sunday.projectpop.service.SpecificationService;
+import org.sunday.projectpop.service.ongoingproject.OnGoingProjectService;
+import org.sunday.projectpop.service.specification.SpecificationService;
 
 import java.time.LocalDate;
 import java.util.Optional;
@@ -33,7 +33,7 @@ public class SpecificationController {
 
         model.addAttribute("onGoingProjectId", onGoingProjectId);
         model.addAttribute("specification", specificationService.convertToDto(specificationOpt.get()));
-        return "onproject/editspecification"; // 수정 폼 템플릿
+        return "onproject/specification/editspecification"; // 수정 폼 템플릿
     }
 
     @PostMapping("/{onGoingProjectId}/specs/edit/{specId}")
@@ -49,6 +49,21 @@ public class SpecificationController {
         return "redirect:/projects/onprojects/" + onGoingProjectId;
     }
 
+    // 명세서 추가 폼 요청 처리
+    @GetMapping("/{onGoingProjectId}/specs/new")
+    public String addSpecificationForm(@PathVariable String onGoingProjectId, Model model) {
+        Optional<OnGoingProject> projectOpt = onGoingProjectService.findById(onGoingProjectId);
+
+        if (projectOpt.isEmpty()) {
+            model.addAttribute("error", "존재하지 않는 프로젝트입니다.");
+            return "error";
+        }
+
+        model.addAttribute("onGoingProjectId", onGoingProjectId);
+        model.addAttribute("specificationDto", new SpecificationDto()); // 빈 DTO 추가
+        return "onproject/specification/newspecification"; // 명세서 추가 폼 템플릿
+    }
+
     @PostMapping("/{onGoingProjectId}/specs/add")
     public String addSpecification(@PathVariable String onGoingProjectId, @ModelAttribute SpecificationDto specificationDto, Model model) {
         Specification specification = new Specification();
@@ -60,7 +75,7 @@ public class SpecificationController {
             return "error";
         }
         OnGoingProject onGoingProject = projectOpt.get();
-        specification.setOnGoingProject(onGoingProject); // OnGoingProject 객체 설정
+        specification.setOnGoingProject(onGoingProject);
 
         specification.setRequirement(specificationDto.getRequirement());
         specification.setAssignee(specificationDto.getAssignee());
@@ -70,16 +85,13 @@ public class SpecificationController {
         try {
             specification.setDueDate(LocalDate.parse(specificationDto.getDueDate()));
         } catch (Exception e) {
-            e.printStackTrace();
             model.addAttribute("error", "잘못된 날짜 형식입니다.");
             return "onproject/specifications";
         }
 
-        specification.setProgressRate(specificationDto.getProgressRate());
 
         specificationService.save(specification);
 
-        // 명세서 목록 페이지로 리다이렉트
         return "redirect:/projects/onprojects/" + onGoingProjectId;
     }
 

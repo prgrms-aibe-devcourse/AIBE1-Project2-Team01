@@ -1,8 +1,7 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.ongoingproject;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.model.dto.OnGoingProjectDto;
 import org.sunday.projectpop.model.entity.OnGoingProject;
 import org.sunday.projectpop.model.repository.OnGoingProjectRepository;
 

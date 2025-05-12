@@ -36,9 +36,6 @@ public class Specification {
     @Column(name = "due_date")
     private LocalDate dueDate;
 
-    @Column(name = "progress_rate", nullable = false)
-    private Integer progressRate;
-
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
