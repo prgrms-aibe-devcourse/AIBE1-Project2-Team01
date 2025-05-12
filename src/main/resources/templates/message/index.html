@@ -21,7 +21,7 @@
 <div th:replace="fragments/message-modal :: message-modal"></div>
 <!-- 메시지 상세 모달 -->
 <div id="message-detail-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
-    <div class="bg-white rounded-lg p-6 w-full max-w-md relative">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
         <button id="close-detail-modal" class="absolute top-2 right-2 text-gray-400 text-xl">&times;</button>
         <h2 class="text-xl font-semibold mb-4">쪽지 상세</h2>
         <div id="message-detail-content" class="text-sm text-gray-800 whitespace-pre-line"></div>
@@ -51,7 +51,21 @@
         ];
 
         const combined = [...messages, ...suggestions].sort((a, b) => {
-            if (a.checking !== b.checking) return a.checking ? 1 : -1;
+            // 우선순위 점수 부여 (낮을수록 위로)
+            const getPriority = msg => {
+                if (msg.type === '받음' && !msg.checking) {
+                    if (msg.isSuggestion) return 0; // 가장 우선
+                    return 1; // 그다음
+                }
+                return 2; // 나머지
+            };
+
+            const pA = getPriority(a);
+            const pB = getPriority(b);
+
+            if (pA !== pB) return pA - pB;
+
+            // 같은 우선순위면 최신순
             return new Date(b.sentAt) - new Date(a.sentAt);
         });
 
@@ -60,8 +74,12 @@
         combined.forEach(msg => {
             const date = msg.sentAt ? msg.sentAt.replace('T', ' ').slice(0, 16).replace(/-/g, '.') : '(시간 없음)';
             const target = msg.type === '보냄' ? msg.receiverId : msg.senderId;
-            const unread = (msg.type === '받음' && msg.checking === false) ? 'border-blue-500 border-2' : 'border';
+            const unread = (msg.type === '받음' && msg.checking === false)
+                ? 'ring-2 ring-blue-500 rounded-md shadow-md'
+                : 'border border-gray-200 rounded-md';
+
             const card = document.createElement('div');
+            card.className = `${unread} p-3 cursor-pointer hover:bg-gray-50`;
             card.className = `${unread} p-3 rounded shadow cursor-pointer hover:bg-gray-50`;
             card.innerHTML = `
                 <div class="text-sm text-gray-500">${msg.isSuggestion ? '제안' : '메시지'} ${msg.type} • ${date}</div>
@@ -104,8 +122,9 @@
                 ${msg.checking ? '읽음 취소' : '읽음 처리'}
             </button>`);
             if (msg.isSuggestion) {
-                actions.push(`<button class="px-4 py-1 bg-green-600 text-white rounded" onclick="acceptSuggestion(${msg.id})">수락</button>`);
-                actions.push(`<button class="px-4 py-1 bg-red-600 text-white rounded" onclick="rejectSuggestion(${msg.id})">거절</button>`);
+                actions.push(`<button class="px-4 py-1 bg-green-200 text-green-900 rounded" onclick="acceptSuggestion(${msg.id})">수락</button>`);
+                actions.push(`<button class="px-4 py-1 bg-red-200 text-red-900 rounded" onclick="rejectSuggestion(${msg.id})">거절</button>`);
+
             }
         }
 

@@ -120,5 +120,5 @@ INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
 
 
 
-select * from message
+select * from member
 select * from suggest_from_leader
