@@ -3,6 +3,7 @@ spring:
     name: project-pop
   profiles:
     active: dev
+
   # 업로드 파일 크기 제한
   servlet:
     multipart:
@@ -12,3 +13,4 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+

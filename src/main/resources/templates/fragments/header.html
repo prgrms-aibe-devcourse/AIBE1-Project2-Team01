@@ -37,16 +37,17 @@
 
     </div>
     <div class="flex items-center space-x-3">
-<!--        <div sec:authorize="isAnonymous()" class="flex items-center space-x-2">-->
-<!--            <a href="/signup" class="text-primary text-sm">회원가입</a>-->
-<!--            <a href="/login" class="bg-primary text-white px-4 py-1.5 text-sm rounded-button">로그인</a>-->
-<!--        </div>-->
-<!--        <div sec:authorize="isAuthenticated()" class="flex items-center space-x-2">-->
-<!--            <span class="text-gray-700 text-sm" th:text="${#authentication.name}">유저이름</span>-->
-<!--            <a href="/profile" class="text-gray-600 text-sm">마이페이지</a>-->
-<!--            <form th:action="@{/logout}" method="post" class="inline">-->
-<!--                <button type="submit" class="bg-secondary text-white px-4 py-1.5 text-sm rounded-button">로그아웃</button>-->
-<!--            </form>-->
+        <div sec:authorize="isAnonymous()" class="flex items-center space-x-2">
+            <a href="/signup" class="text-primary text-sm">회원가입</a>
+            <a href="/login" class="bg-primary text-white px-4 py-1.5 text-sm rounded-button">로그인</a>
+        </div>
+        <div sec:authorize="isAuthenticated()" class="flex items-center space-x-2">
+            <span class="text-gray-700 text-sm" th:text="${#authentication.name}">유저이름</span>
+            <a href="/profile" class="text-gray-600 text-sm">마이페이지</a>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" class="bg-secondary text-white px-4 py-1.5 text-sm rounded-button">로그아웃</button>
+            </form>
+
         </div>
 
         <!-- 알림 아이콘 -->

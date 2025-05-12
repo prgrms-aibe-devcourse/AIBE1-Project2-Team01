@@ -36,4 +36,9 @@ out/
 ### VS Code ###
 .vscode/
 
+
 *-dev.yml
+
+### Spring Boot ###
+application-dev.yml
+
