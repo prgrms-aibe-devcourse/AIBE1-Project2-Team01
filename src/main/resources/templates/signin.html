@@ -2,48 +2,118 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
 <head>
     <meta charset="UTF-8">
-    <title>로그인</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>로그인 - PoP</title>
     <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a855f7',
+                        secondary: '#c084fc'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+        }
+    </style>
 </head>
-<body class="bg-gray-100 min-h-screen flex items-center justify-center">
-<div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md space-y-6">
-    <h1 class="text-2xl font-bold text-center text-purple-600">로그인</h1>
+<body class="min-h-screen bg-gray-50 flex flex-col">
 
-    <form id="login-form" class="space-y-4">
-        <div>
-            <label class="block text-sm font-medium mb-1">이메일</label>
-            <input type="email" id="email" class="w-full border rounded p-2" required>
-        </div>
-        <div>
-            <label class="block text-sm font-medium mb-1">비밀번호</label>
-            <input type="password" id="password" class="w-full border rounded p-2" required>
-        </div>
-        <button type="submit" class="w-full bg-purple-600 hover:bg-purple-700 text-white py-2 rounded font-semibold">
-            로그인
-        </button>
-    </form>
-
-    <div class="border-t pt-4 space-y-2">
-        <a th:href="@{/oauth2/authorization/kakao}" class="block w-full text-center bg-yellow-300 text-black py-2 rounded hover:bg-yellow-400">
-            카카오로 로그인
+<!-- 상단 네비게이션 -->
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100">
+    <div class="flex items-center space-x-4">
+        <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-information-line mr-1"></i> 소개
         </a>
-        <a th:href="@{/oauth2/authorization/google}" class="block w-full text-center bg-red-500 text-white py-2 rounded hover:bg-red-600">
-            구글로 로그인
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-dashboard-line mr-1"></i> 대시보드
         </a>
-        <!-- 깃허브는 일단 비활성화 -->
-        <!--
-        <a th:href="@{/oauth2/authorization/github}" class="block w-full text-center bg-gray-800 text-white py-2 rounded hover:bg-gray-700">
-            깃허브로 로그인
-        </a>
-        -->
     </div>
-    <div class="text-center pt-4">
-        <p class="text-sm text-gray-600">아직 회원이 아니신가요?</p>
-        <a th:href="@{/auth/signup}" class="inline-block mt-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded font-medium">
-            회원가입
-        </a>
+    <div class="flex items-center space-x-3">
+        <a th:href="@{/auth/signup}" class="text-primary text-sm">회원가입</a>
+    </div>
+</header>
+
+<!-- 로그인 컨텐츠 -->
+<div class="flex-grow flex items-center justify-center py-10">
+    <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-md space-y-6">
+        <h1 class="text-2xl font-bold text-center text-primary">로그인</h1>
+
+        <form id="login-form" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">이메일</label>
+                <input type="email" id="email" class="w-full border rounded-button p-2" required placeholder="이메일 주소 입력">
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">비밀번호</label>
+                <input type="password" id="password" class="w-full border rounded-button p-2" required placeholder="비밀번호 입력">
+            </div>
+            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-2 rounded-button font-semibold transition">
+                로그인
+            </button>
+        </form>
+
+        <div class="border-t pt-4 space-y-2">
+            <a th:href="@{/oauth2/authorization/kakao}" class="flex items-center justify-center gap-2 border border-gray-300 px-4 py-2 rounded-button">
+                <i class="ri-kakao-talk-fill text-black"></i>
+                <span class="text-sm">카카오로 계속하기</span>
+            </a>
+            <a th:href="@{/oauth2/authorization/google}" class="flex items-center justify-center gap-2 border border-gray-300 px-4 py-2 rounded-button">
+                <i class="ri-google-fill text-black"></i>
+                <span class="text-sm">구글로 계속하기</span>
+            </a>
+            <!-- 깃허브 소셜 로그인 (추후 활성화 시 사용) -->
+            <!--
+            <a th:href="@{/oauth2/authorization/github}" class="flex items-center justify-center gap-2 border border-gray-300 px-4 py-2 rounded-button">
+                <i class="ri-github-fill text-black"></i>
+                <span class="text-sm">깃허브로 계속하기</span>
+            </a>
+            -->
+        </div>
+
+        <div class="text-center pt-4">
+            <p class="text-sm text-gray-600">아직 회원이 아니신가요?</p>
+            <a th:href="@{/auth/signup}" class="inline-block mt-2 bg-gray-200 hover:bg-gray-300 text-gray-800 px-4 py-2 rounded-button font-medium">
+                회원가입
+            </a>
+        </div>
     </div>
 </div>
+
+<!-- 푸터 -->
+<footer class="w-full bg-white py-6 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+        <div>
+            <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+            <p class="text-sm text-gray-600 mt-1">© 2025 PoP. 모든 권리 보유.</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="#" class="text-gray-600">
+                <i class="ri-instagram-line text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-600">
+                <i class="ri-twitter-x-line text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-600">
+                <i class="ri-linkedin-line text-lg"></i>
+            </a>
+        </div>
+    </div>
+</footer>
 
 <script>
     document.getElementById("login-form").addEventListener("submit", async (e) => {
@@ -63,9 +133,11 @@
         if (response.ok) {
             window.location.href = "/profile/new";
         } else {
-            alert("로그인 실패. 이메일 또는 비밀번호를 확인해주세요.");
+            const msg = await response.text(); // 👈 백엔드 메시지 받기
+            alert("❌ " + msg);
         }
     });
+
 </script>
 
 </body>
