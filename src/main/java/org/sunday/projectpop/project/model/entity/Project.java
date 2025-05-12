@@ -69,4 +69,11 @@ public class Project {
     @OneToMany(mappedBy = "project")
     private List<ProjectSelectiveTag> selectiveTagList;
 
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+
 }

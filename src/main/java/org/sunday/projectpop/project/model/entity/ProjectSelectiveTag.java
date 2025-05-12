@@ -22,4 +22,9 @@ public class ProjectSelectiveTag {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "tag_id", nullable = false)
     private SkillTag tag;
+
+    public ProjectSelectiveTag(Project project, SkillTag tag) {
+        this.project = project;
+        this.tag = tag;
+    }
 }

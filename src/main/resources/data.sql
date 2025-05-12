@@ -11,13 +11,57 @@ INSERT INTO user_account (user_id, email, password, provider, admin, banned)
 VALUES ('u01', 'leader@example.com', 'encoded_pw1', 'LOCAL', false, false);
 
 -- 🏷️ 기술 태그
-INSERT INTO skill_tag (tag_id, name)
-VALUES
-    (1, 'Spring'),
-    (2, 'React'),
-    (3, 'Docker'),
-    (4, 'MySQL'),
-    (5, 'Figma');
+-- INSERT INTO skill_tag (tag_id, name)
+-- VALUES
+--     (1, 'Spring'),
+--     (2, 'React'),
+--     (3, 'Docker'),
+--     (4, 'MySQL'),
+--     (5, 'Figma');
+INSERT INTO skill_tag (tag_id, name) VALUES
+                                         (1, 'Spring'),
+                                         (2, 'React'),
+                                         (3, 'Docker'),
+                                         (4, 'Spring Boot'),
+                                         (5, 'Vue.js'),
+                                         (6, 'Node.js'),
+                                         (7, 'Express'),
+                                         (8, 'Java'),
+                                         (9, 'Python'),
+                                         (10, 'C++'),
+                                         (11, 'JavaScript'),
+                                         (12, 'TypeScript'),
+                                         (13, 'MySQL'),
+                                         (14, 'PostgreSQL'),
+                                         (15, 'MongoDB'),
+                                         (16, 'Redis'),
+                                         (17, 'Kubernetes'),
+                                         (18, 'AWS'),
+                                         (19, 'GCP'),
+                                         (20, 'Nginx'),
+                                         (21, 'Linux'),
+                                         (22, 'Git'),
+                                         (23, 'GitHub Actions'),
+                                         (24, 'CI/CD'),
+                                         (25, 'Jenkins'),
+                                         (26, 'REST API'),
+                                         (27, 'GraphQL'),
+                                         (28, 'JUnit'),
+                                         (29, 'pytest'),
+                                         (30, 'TensorFlow'),
+                                         (31, 'PyTorch'),
+                                         (32, 'OpenAI'),
+                                         (33, 'LangChain'),
+                                         (34, 'FastAPI'),
+                                         (35, 'Flask'),
+                                         (36, 'Thymeleaf'),
+                                         (37, 'JSP'),
+                                         (38, 'Kafka'),
+                                         (39, 'RabbitMQ'),
+                                         (40, 'OAuth2'),
+                                         (41, 'JWT'),
+                                         (42, 'Swagger'),
+                                         (43, 'Postman');
 
 -- 📂 분야 (ProjectField)
 INSERT INTO project_field (id, name, description) VALUES
