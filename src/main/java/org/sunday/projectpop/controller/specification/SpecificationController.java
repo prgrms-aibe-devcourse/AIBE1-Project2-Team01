@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller;
+package org.sunday.projectpop.controller.specification;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;

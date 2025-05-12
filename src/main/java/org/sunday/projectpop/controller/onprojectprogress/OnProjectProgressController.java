@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller;
+package org.sunday.projectpop.controller.onprojectprogress;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -17,7 +17,7 @@ import java.util.Optional;
 @Controller
 @RequestMapping("/projects/onprojects")
 @RequiredArgsConstructor
-public class ProjectProgressController {
+public class OnProjectProgressController {
     private final OnGoingProjectService onGoingProjectService;
     private final SpecificationService specificationService;
     private final HealthCheckService healthCheckService;
