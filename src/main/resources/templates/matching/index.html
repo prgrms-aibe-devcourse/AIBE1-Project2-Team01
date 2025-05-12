@@ -63,7 +63,9 @@
 
         </div>
         <div class="flex justify-end space-x-2">
-            <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm">쪽지 보내기</button>
+            <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm"
+                    onclick="openMessageModalWithUser()">쪽지 보내기</button>
+
             <button class="bg-primary text-white px-4 py-2 rounded-button text-sm">참여 제안</button>
         </div>
     </div>
@@ -96,6 +98,9 @@
     const tagContainer = document.getElementById('tag-container');
     const hiddenInput = document.getElementById('selected-tags');
     const leaderKey = /*[[${leaderKey}]]*/ "";
+    const projectId = /*[[${projectId}]]*/ "";
+    const userId = /*[[${userId}]]*/ "";
+    let selectedUserIdForMessage = null;
 
     new Awesomplete(tagInput, {
         list: validTags,
@@ -103,6 +108,10 @@
         maxItems: 20,
         autoFirst: true
     });
+
+    const tagSet = new Set(initialTags || []);
+    tagSet.forEach(tag => createTagBadge(tag));
+    updateHiddenInput();
 
     function createTagBadge(tag) {
         const span = document.createElement('span');
@@ -116,9 +125,6 @@
         });
         tagContainer.appendChild(span);
     }
-
-    const tagSet = new Set(initialTags || []);
-    tagSet.forEach(tag => createTagBadge(tag));
 
     function updateHiddenInput() {
         hiddenInput.value = Array.from(tagSet).join(',');
@@ -147,16 +153,16 @@
         openModal(userId, email, compatibility);
     }
 
-    function openModal(userId, email, compatibility) {
-        document.getElementById('modalUserId').textContent = '유저 ID: ' + userId;
+    function openModal(userIdToOpen, email, compatibility) {
+        selectedUserIdForMessage = userIdToOpen;
+        document.getElementById('modalUserId').textContent = '유저 ID: ' + userIdToOpen;
         document.getElementById('modalUserEmail').textContent = '이메일: ' + email;
         document.getElementById('compatibilityScore').textContent = compatibility;
 
         const skillContainer = document.getElementById('modalUserSkills');
         skillContainer.innerHTML = '';
 
-        // 1. 기술 태그 표시
-        fetch(`/match/user-tags?userId=${userId}`)
+        fetch(`/match/user-tags?userId=${userIdToOpen}`)
             .then(res => res.json())
             .then(skills => {
                 skills.forEach(skill => {
@@ -167,8 +173,7 @@
                 });
             });
 
-        // 2. 성향 점수 + 궁합 점수 불러오기 및 차트 렌더링
-        fetch(`/match/user-personality?userId=${userId}&leaderKey=${leaderKey}`)
+        fetch(`/match/user-personality?userId=${userIdToOpen}&leaderKey=${leaderKey}`)
             .then(res => res.json())
             .then(data => {
                 const scaledScores = data.scores.map(score => score * 20);
@@ -210,7 +215,6 @@
                 });
             });
 
-
         document.getElementById('userModal').classList.remove('hidden');
     }
 
@@ -218,15 +222,60 @@
         document.getElementById('userModal').classList.add('hidden');
     }
 
-    function openMessageModal() {
+    function openMessageModalWithUser() {
+        if (!selectedUserIdForMessage) return;
         document.getElementById('messageModal').classList.remove('hidden');
+        document.getElementById('messageForm').setAttribute('data-user', selectedUserIdForMessage);
     }
 
     function closeMessageModal() {
         document.getElementById('messageModal').classList.add('hidden');
     }
 
-    updateHiddenInput();
+    document.getElementById('messageForm').onsubmit = async function (e) {
+        e.preventDefault();
+        const receiverId = e.target.getAttribute('data-user');
+        const message = document.getElementById('messageContent').value.trim();
+        if (!message) {
+            alert("메시지를 입력하세요.");
+            return;
+        }
+
+        const res = await fetch('/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: userId, receiverId, message })
+        });
+        console.log("userId:", userId);
+        if (res.ok) {
+            alert('쪽지를 보냈습니다.');
+            closeMessageModal();
+            e.target.reset();
+        } else {
+            alert('전송 실패');
+        }
+    };
+
+    async function sendSuggestion() {
+        if (!selectedUserIdForMessage) return;
+
+        const res = await fetch('/suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                senderId: userId,
+                receiverId: selectedUserIdForMessage,
+                projectId: projectId
+            })
+        });
+
+        if (res.ok) {
+            alert("참여 제안을 보냈습니다.");
+            closeModal();
+        } else {
+            alert("참여 제안 실패");
+        }
+    }
 </script>
 </body>
 </html>

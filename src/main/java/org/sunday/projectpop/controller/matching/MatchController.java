@@ -1,5 +1,6 @@
 package org.sunday.projectpop.controller.matching;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -31,8 +32,10 @@ public class MatchController {
 
     // GET /match or /match?projectId=...
     @GetMapping
-    public String getMatchPage(@RequestParam(required = false) String projectId,
+    public String getMatchPage(@RequestParam(required = false) String projectId, HttpSession session,
                                Model model) {
+
+
         // 프로젝트 기본 태그
         List<String> initialTags = projectId != null
                 ? projectRequireTagRepository.findTagsByProjectId(projectId)
@@ -50,6 +53,11 @@ public class MatchController {
             Project project = projectRepository.findById(projectId).orElseThrow();
             String leaderId = project.getLeader().getUserId();
             UserTrait trait = userTraitRepository.findById(leaderId).orElseThrow();
+
+            // 임시 로그인 유저 ID 저장
+            String mockUserId = leaderId;  // 테스트용 senderId
+            session.setAttribute("userId", mockUserId);
+            model.addAttribute("userId", mockUserId);
 
             String leaderKey = "" +
                     trait.getOpenness() +
@@ -74,7 +82,12 @@ public class MatchController {
     @PostMapping("/result")
     public String postMatch(@RequestParam("tags") String tagCsv,
                             @RequestParam("projectId") String projectId,
+                            HttpSession session,
                             Model model) {
+
+        // 세션에서 다시 꺼내서 model에 넣어줘야 JS에서 쓸 수 있음
+        String userId = (String) session.getAttribute("userId");
+        model.addAttribute("userId", userId != null ? userId : "");
         // 1) 선택된 태그를 List<String>으로
         List<String> tagNames = List.of(tagCsv.split(","));
         model.addAttribute("tags", tagNames);
