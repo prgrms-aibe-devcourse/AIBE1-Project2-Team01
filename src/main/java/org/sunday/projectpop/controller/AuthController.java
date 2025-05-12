@@ -29,13 +29,12 @@ public class AuthController {
     private final UserService userService;
 
     @PostMapping("/login")
-    public void login(@RequestBody LoginDTO dto, HttpServletResponse response) throws IOException {
+    public ResponseEntity<?> login(@RequestBody LoginDTO dto, HttpServletResponse response) {
         try {
             Authentication authentication = authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(dto.email(), dto.password())
             );
 
-            // 토큰 발급
             String token = jwtTokenProvider.generateToken(authentication, List.of("USER"));
             Cookie cookie = new Cookie("token", token);
             cookie.setHttpOnly(true);
@@ -43,14 +42,13 @@ public class AuthController {
             cookie.setMaxAge((int) Duration.ofHours(1).getSeconds());
             response.addCookie(cookie);
 
-            // ✅ 로그인 성공 후 자동 리다이렉트
-            response.sendRedirect("/profile/new"); // ← 여기 추가
-
+            return ResponseEntity.ok().build();
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(401).body(e.getMessage());
         } catch (AuthenticationException e) {
-            response.sendError(HttpServletResponse.SC_UNAUTHORIZED, "로그인 실패");
+            return ResponseEntity.status(401).body("로그인 실패. 이메일 또는 비밀번호를 확인해주세요.");
         }
     }
-
 
     @PostMapping("/signup")
     public ResponseEntity<?> signup(@RequestBody JoinDTO dto) {
