@@ -19,6 +19,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${RDS_HOST}
+      port: ${RDS_PORT}
+      password: ${RDS_PASSWORD}
   # Security
   security:
     oauth2:
@@ -65,3 +70,19 @@ jwt:
 # 화면단 url
 front-end:
   redirect: ${FRONT_END_REDIRECT}
+
+# 객체 스토리지
+supabase:
+  url: ${SUPABASE_URL}
+  access-key: ${SUPABASE_ACCESS_KEY}
+  bucket-name: ${SUPABASE_BUCKET_NAME}
+
+# GitHub token (Fine-grained token)
+github:
+  token: ${GITHUB_TOKEN}
+
+# LLM API
+llm:
+  api:
+    key: ${LLM_API_KEY}
+    url: ${LLM_API_URL}
