@@ -19,6 +19,11 @@ spring:
     url: ${DB_URL}
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
+  data:
+    redis:
+      host: ${RDS_HOST}
+      port: ${RDS_PORT}
+      password: ${RDS_PASSWORD}
   # Security
   security:
     oauth2:
