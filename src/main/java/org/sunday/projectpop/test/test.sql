@@ -1,16 +1,20 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-TRUNCATE TABLE user_skill_tag;
-TRUNCATE TABLE user_trait;
-TRUNCATE TABLE trait_match;
-TRUNCATE TABLE member;
-TRUNCATE TABLE project;
-TRUNCATE TABLE user_account;
-TRUNCATE TABLE skill_tag;
-TRUNCATE TABLE project_require_tag;
+# DROP TABLE IF EXISTS user_skill_tag;
+# DROP TABLE IF EXISTS user_trait;
+# DROP TABLE IF EXISTS trait_match;
+# DROP TABLE IF EXISTS member;
+# DROP TABLE IF EXISTS project;
+# DROP TABLE IF EXISTS user_account;
+# DROP TABLE IF EXISTS skill_tag;
+# DROP TABLE IF EXISTS project_require_tag;
+# DROP TABLE IF EXISTS message;
+# DROP TABLE IF EXISTS suggest_from_leader;
+
 
 SET FOREIGN_KEY_CHECKS = 1;
+
 
 INSERT INTO user_account (user_id, email, password, provider, admin, banned)
 VALUES
@@ -78,7 +82,7 @@ INSERT INTO project_require_tag (project_id, tag_id) VALUES
 TRUNCATE TABLE message;
 
 # 메시지 데이터 (u01이 보낸 쪽지들, u02가 받은 쪽지들)
-INSERT INTO message (sender_id, receiver_id, message, is_read, created_at) VALUES
+INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
                                                                                ('u01', 'u02', '안녕하세요! 제안드릴게 있어요.', false, NOW()),
                                                                                ('u01', 'u02', '혹시 관심 있으시면 알려주세요.', true, NOW() - INTERVAL 1 DAY),
                                                                                ('u02', 'u01', '확인했습니다. 검토해볼게요.', true, NOW());
@@ -87,9 +91,11 @@ INSERT INTO message (sender_id, receiver_id, message, is_read, created_at) VALUE
 TRUNCATE TABLE suggest_from_leader;
 
 # 리더 u01이 제안 보낸 것 (p001)
-INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, created_at) VALUES
-                                                                                              ('p001', 'u01', 'u03', '저희 팀에 함께 하시면 좋겠습니다!', NOW()),
-                                                                                              ('p001', 'u01', 'u04', '프론트 경험 있으시다 들었어요. 관심 있으신가요?', NOW() - INTERVAL 1 DAY);
+INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, checking, created_at) VALUES
+                                                                                                        ('p001', 'u01', 'u03', '저희 팀에 함께 하시면 좋겠습니다!', false, NOW()),
+                                                                                                        ('p001', 'u01', 'u04', '프론트 경험 있으시다 들었어요. 관심 있으신가요?', false, NOW() - INTERVAL 1 DAY),
+                                                                                                        ('p001', 'u05', 'u01', '백엔드 경험자 찾고 있습니다. 관심 있으신가요?', false, NOW());
+
 
 # 반대로 다른 리더가 u01에게 보낸 것처럼 예시
 INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, created_at) VALUES
@@ -100,10 +106,10 @@ INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, cr
 
 
 INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
-                                                                         ('u01', 'u02', '안녕하세요. 혹시 프로젝트 관심 있으신가요?', false, NOW() - INTERVAL 3 DAY),
-                                                                         ('u01', 'u03', '이번 주 중으로 회의 한번 가능하신가요?', true, NOW() - INTERVAL 2 DAY),
-                                                                         ('u04', 'u01', '네. 프로젝트 제안 확인했습니다.', false, NOW() - INTERVAL 1 DAY),
-                                                                         ('u05', 'u01', '초대 감사드려요. 자세한 내용 공유 부탁드려요.', true, NOW());
+                                                                             ('u01', 'u02', '안녕하세요! 제안드릴게 있어요.', false, NOW()),
+                                                                             ('u01', 'u02', '혹시 관심 있으시면 알려주세요.', true, NOW() - INTERVAL 1 DAY),
+                                                                             ('u02', 'u01', '확인했습니다. 검토해볼게요.', true, NOW());
+
 
 
 select * from message

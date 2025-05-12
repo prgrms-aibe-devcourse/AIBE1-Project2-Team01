@@ -11,6 +11,7 @@
     <h1 class="text-2xl font-semibold text-primary mb-6">태그 기반 매칭</h1>
 
     <form method="post" th:action="@{/match/result}" class="space-y-6">
+        <input type="hidden" name="projectId" th:value="${projectId}" />
         <!-- 태그 선택 -->
         <div class="relative w-full">
             <label for="tag-input" class="block text-sm font-medium text-gray-700 mb-1">사용할 태그 선택</label>
@@ -29,7 +30,12 @@
     <div th:if="${matchedUsers != null}" class="mt-10">
         <h2 class="text-xl font-semibold text-primary mb-4">매칭된 유저</h2>
         <div class="grid grid-cols-3 gap-6">
-            <div th:each="user : ${matchedUsers}" class="border border-gray-200 rounded p-4 shadow-sm cursor-pointer" th:attr="data-userid=${user.userId}, data-email=${user.email}" onclick="openModalFromDiv(this)">
+            <div th:each="user : ${matchedUsers}"
+                 class="border border-gray-200 rounded p-4 shadow-sm cursor-pointer"
+                 th:attr="data-userid=${user.userId},
+              data-email=${user.email},
+              data-compatibility=${user.compatibilityScore}"
+                 onclick="openModalFromDiv(this)">
                 <h3 class="text-lg font-bold text-primary" th:text="${user.userId}">유저 ID</h3>
                 <p class="text-sm text-gray-600" th:text="${user.email}">이메일</p>
             </div>
@@ -52,6 +58,9 @@
             <div class="mt-4">
                 <canvas id="personalityChart" width="300" height="300"></canvas>
             </div>
+            <p class="text-sm text-center mt-2">
+                나와의 궁합 점수: <span id="compatibilityScore" class="font-bold text-primary">--</span>점
+            </p>
 
         </div>
         <div class="flex justify-end space-x-2">
@@ -87,6 +96,7 @@
     const tagInput = document.getElementById('tag-input');
     const tagContainer = document.getElementById('tag-container');
     const hiddenInput = document.getElementById('selected-tags');
+    const leaderKey = /*[[${leaderKey}]]*/ "";
 
     new Awesomplete(tagInput, {
         list: validTags,
@@ -134,12 +144,15 @@
     function openModalFromDiv(div) {
         const userId = div.getAttribute('data-userid');
         const email = div.getAttribute('data-email');
-        openModal(userId, email);
+        const compatibility = div.getAttribute('data-compatibility');
+        openModal(userId, email, compatibility);
     }
 
-    function openModal(userId, email) {
+    function openModal(userId, email, compatibility) {
         document.getElementById('modalUserId').textContent = '유저 ID: ' + userId;
         document.getElementById('modalUserEmail').textContent = '이메일: ' + email;
+        document.getElementById('compatibilityScore').textContent = compatibility;
+
         const skillContainer = document.getElementById('modalUserSkills');
         skillContainer.innerHTML = '';
 
@@ -155,16 +168,14 @@
                 });
             });
 
-        // ✅ 2. 성향 점수 + 궁합 점수 불러오기 및 차트 렌더링
-        const leaderKey = "12345"; // 또는 백엔드에서 전달한 값 활용
+        // 2. 성향 점수 + 궁합 점수 불러오기 및 차트 렌더링
         fetch(`/match/user-personality?userId=${userId}&leaderKey=${leaderKey}`)
             .then(res => res.json())
             .then(data => {
                 const scaledScores = data.scores.map(score => score * 20);
-                document.getElementById("compatibilityScore").textContent = data.compatibility;
-
                 const ctx = document.getElementById('personalityChart').getContext('2d');
                 if (window.personalityRadar) window.personalityRadar.destroy();
+
                 window.personalityRadar = new Chart(ctx, {
                     type: 'radar',
                     data: {
@@ -199,6 +210,7 @@
                     }
                 });
             });
+
 
         document.getElementById('userModal').classList.remove('hidden');
     }
