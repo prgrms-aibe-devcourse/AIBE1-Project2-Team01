@@ -23,7 +23,7 @@ public class ProjectSpecification {
                 predicates.add(cb.or(
                         cb.like(cb.lower(root.get("title")), keyword),
                         cb.like(cb.lower(root.get("description")), keyword),
-                        cb.like(cb.lower(root.get("field")), keyword),
+                        cb.like(cb.lower(root.get("field").get("name")), keyword),
                         cb.like(cb.lower(root.get("type")), keyword),
                         cb.like(cb.lower(root.get("status")), keyword),
                         cb.like(cb.lower(root.get("locationType")), keyword)
@@ -37,8 +37,8 @@ public class ProjectSpecification {
                 predicates.add(root.get("type").in(condition.getType()));
             }
 
-            if (!CollectionUtils.isEmpty(condition.getField())) {
-                predicates.add(root.get("field").in(condition.getField()));
+            if (condition.getField() != null) {
+                predicates.add(cb.equal(root.get("field").get("id"), condition.getField()));
             }
 
             if (!CollectionUtils.isEmpty(condition.getLocationType())) {
@@ -53,10 +53,20 @@ public class ProjectSpecification {
 //                predicates.add(root.join("skillTags").get("name").in(condition.getSkillTag()));
 //            }
             if (!CollectionUtils.isEmpty(condition.getSkillTag())) {
-                Join<Project, SkillTag> tagJoin = root.join("skillTags", JoinType.INNER);
-                predicates.add(tagJoin.get("name").in(condition.getSkillTag()));
+                // 필수 태그 조인
+                Join<Project, ?> requireJoin = root.join("requireTagList", JoinType.LEFT);
+                Join<?, SkillTag> requireSkillJoin = requireJoin.join("tag");
 
+                // 선택 태그 조인
+                Join<Project, ?> selectiveJoin = root.join("selectiveTagList", JoinType.LEFT);
+                Join<?, SkillTag> selectiveSkillJoin = selectiveJoin.join("tag");
+
+                Predicate requiredMatch = requireSkillJoin.get("name").in(condition.getSkillTag());
+                Predicate selectiveMatch = selectiveSkillJoin.get("name").in(condition.getSkillTag());
+
+                predicates.add(cb.or(requiredMatch, selectiveMatch));
             }
+
             query.distinct(true); // 중복 제거
 
 

@@ -5,7 +5,6 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
-import org.springframework.data.domain.Pageable;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
@@ -81,12 +80,21 @@ public class ProjectController {
             Model model
     ) {
         Page<Project> projects = projectService.searchProjects(condition, pageable);
-        model.addAttribute("projects", projects.getContent());
-        model.addAttribute("condition", condition);
 
-        // 프론트 셀렉트 박스용 필터 데이터 전달
+        List<ProjectResponse> responseList = projects.getContent().stream()
+                .map(project -> ProjectResponse.from(
+                        project,
+                        projectService.getRequiredTagNames(project.getProjectId()),
+                        projectService.getSelectiveTagNames(project.getProjectId())
+                ))
+                .toList();
+
+        model.addAttribute("projects", responseList);
+        model.addAttribute("condition", condition);
         model.addAttribute("tags", skillTagService.getAllTags());
-        return "project/list";
+        model.addAttribute("fields", projectFieldService.getAllFields());
+
+        return "project/list_new";
     }
 
 //    @GetMapping("/filter")
@@ -109,9 +117,19 @@ public String filterProjectsAjax(
     if (sortBy != null) condition.setSortBy(sortBy);
 
     Page<Project> projects = projectService.searchProjects(condition, pageable);
-    model.addAttribute("projects",projects.getContent());
+
+    List<ProjectResponse> responseList = projects.getContent().stream()
+            .map(project -> ProjectResponse.from(
+                    project,
+                    projectService.getRequiredTagNames(project.getProjectId()),
+                    projectService.getSelectiveTagNames(project.getProjectId())
+            ))
+            .toList();
+
+    model.addAttribute("projects", responseList); // ✅ 필터도 DTO로
     return "project/list :: projectList";
 }
+
 
 //    @GetMapping("/{projectId}")
 //    public String viewProjectDetail(@PathVariable String projectId, Model model) {

@@ -10,7 +10,7 @@ import java.util.List;
 @Setter
 public class ProjectSearchCondition {
     private String keyword;         // 검색어 (예: "AI")
-    private List<String> field;           // 관심 분야
+    private Long field;           // 관심 분야
     private List<String> skillTag;        // 기술 스택
     private List<String> experienceLevel; // 경력 수준
     private List<String> type;            // 종류 (project, competition)

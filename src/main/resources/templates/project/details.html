@@ -53,6 +53,7 @@
     </script>
 </head>
 <body class="bg-white min-h-screen">
+<div th:replace="fragments/header :: header"></div>
 <div class="max-w-4xl mx-auto px-4 py-8">
     <!-- 뒤로가기 버튼 -->
     <div class="flex items-center mb-6">
@@ -325,6 +326,6 @@
         }, 3000);
     });
 </script>
-
+<div th:replace="fragments/footer :: footer"></div>
 </body>
 </html>

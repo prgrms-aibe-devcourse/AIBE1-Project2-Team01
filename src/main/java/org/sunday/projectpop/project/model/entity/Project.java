@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 
 
 import java.time.LocalDateTime;
+import java.util.List;
 
 
 @Entity
@@ -62,5 +63,10 @@ public class Project {
     @Column(name = "created_at")
     private LocalDateTime createdAt;
 
+    @OneToMany(mappedBy = "project")
+    private List<ProjectRequireTag> requireTagList;
+
+    @OneToMany(mappedBy = "project")
+    private List<ProjectSelectiveTag> selectiveTagList;
 
 }
