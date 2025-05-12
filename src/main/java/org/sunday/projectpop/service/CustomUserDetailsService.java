@@ -7,7 +7,7 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.entity.Users;
-import org.sunday.projectpop.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UsersRepository;
 
 @Service
 @RequiredArgsConstructor

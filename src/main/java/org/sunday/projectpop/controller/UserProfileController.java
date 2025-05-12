@@ -10,7 +10,7 @@ import org.sunday.projectpop.dto.ProfileResponse;
 import org.sunday.projectpop.dto.UserProfileRequestDTO;
 import org.sunday.projectpop.dto.UserProfileResponseDTO;
 import org.sunday.projectpop.dto.UserTagCacheDTO;
-import org.sunday.projectpop.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UsersRepository;
 import org.sunday.projectpop.service.UserProfileService;
 import org.sunday.projectpop.service.UserTagCacheService;
 

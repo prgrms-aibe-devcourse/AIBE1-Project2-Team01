@@ -21,9 +21,9 @@ spring:
     password: ${DB_PASSWORD}
   data:
     redis:
-      host: ${RDS_HOST}
-      port: ${RDS_PORT}
-      password: ${RDS_PASSWORD}
+      host: ${REDIS_HOST}
+      port: ${REDIS_PORT}
+      password: ${REDIS_PASSWORD}
   # Security
   security:
     oauth2:
@@ -36,25 +36,15 @@ spring:
             authorization-grant-type: authorization_code
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
             scope:
-              - profile_nickname
-        #              - account_email # 추가적 동의가 필요하다
-
-          github:
-            client-id: ${GITHUB_CLIENT_ID}
-            client-secret: ${GITHUB_CLIENT_SECRET}
-            scope:
-              - read:user
-            #              - user:email
-            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-
+              - profile_nickname # 추가했습니다.
+          #              - account_email # 추가적 동의가 필요하다
           google:
             client-id: ${GOOGLE_CLIENT_ID}
             client-secret: ${GOOGLE_CLIENT_SECRET}
             scope:
-              - email
-              - profile
+              - email # 추가했습니다.
+              - profile # 추가했습니다.
             redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
-
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -66,23 +56,21 @@ jwt:
   # openssl rand -base64 32
   secret: ${JWT_SECRET}
   encrypt-secret: ${JWT_ENCRYPT_SECRET}
-  expiration-ms: ${JWT_EXPIRATION_MS} # 1시간
+  expiration-ms: 3600000 # 1시간
 # 화면단 url
 front-end:
-  redirect: ${FRONT_END_REDIRECT}
-
-# 객체 스토리지
+  redirect: /profile/view
+  # LLM 설정 추가
+llm:
+  api:
+    key: ${LLM_API_KEY}
+    url: https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent
+#수퍼베이스 설정 추가
 supabase:
   url: ${SUPABASE_URL}
-  access-key: ${SUPABASE_ACCESS_KEY}
   bucket-name: ${SUPABASE_BUCKET_NAME}
+  access-key: ${SUPABASE_ACCESS_KEY}
 
 # GitHub token (Fine-grained token)
 github:
   token: ${GITHUB_TOKEN}
-
-# LLM API
-llm:
-  api:
-    key: ${LLM_API_KEY}
-    url: ${LLM_API_URL}

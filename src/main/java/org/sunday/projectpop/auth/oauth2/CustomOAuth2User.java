@@ -1,4 +1,4 @@
-package org.sunday.projectpop.auth;
+package org.sunday.projectpop.auth.oauth2;
 
 import lombok.Getter;
 import org.springframework.security.core.GrantedAuthority;

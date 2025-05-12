@@ -1,4 +1,4 @@
-package org.sunday.projectpop.auth;
+package org.sunday.projectpop.auth.jwt;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;

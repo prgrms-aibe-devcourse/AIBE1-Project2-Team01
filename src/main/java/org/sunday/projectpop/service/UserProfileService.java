@@ -7,8 +7,8 @@ import org.sunday.projectpop.dto.UserProfileRequestDTO;
 import org.sunday.projectpop.dto.UserProfileResponseDTO;
 import org.sunday.projectpop.entity.UserProfile;
 import org.sunday.projectpop.entity.Users;
-import org.sunday.projectpop.repository.UserProfileRepository;
-import org.sunday.projectpop.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UserProfileRepository;
+import org.sunday.projectpop.model.repository.UsersRepository;
 
 import java.util.Optional;
 import java.util.UUID;

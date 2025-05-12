@@ -1,4 +1,4 @@
-package org.sunday.projectpop.auth;
+package org.sunday.projectpop.auth.config;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
@@ -21,6 +21,11 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.converter.FormHttpMessageConverter;
+import org.sunday.projectpop.auth.client.LoggingTokenResponseClient;
+import org.sunday.projectpop.auth.jwt.JwtAuthenticationFilter;
+import org.sunday.projectpop.auth.jwt.JwtTokenProvider;
+import org.sunday.projectpop.auth.oauth2.CustomOAuth2UserService;
+import org.sunday.projectpop.auth.oauth2.OAuth2LoginSuccessHandler;
 
 
 import java.util.Arrays;

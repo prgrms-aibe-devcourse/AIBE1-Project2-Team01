@@ -1,4 +1,4 @@
-package org.sunday.projectpop.auth;
+package org.sunday.projectpop.auth.jwt;
 
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;

@@ -1,4 +1,4 @@
-package org.sunday.projectpop.auth;
+package org.sunday.projectpop.auth.oauth2;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.http.Cookie;
@@ -9,8 +9,9 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Component;
-import org.sunday.projectpop.repository.UsersRepository;
-import org.sunday.projectpop.repository.UserProfileRepository;
+import org.sunday.projectpop.auth.jwt.JwtTokenProvider;
+import org.sunday.projectpop.model.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UserProfileRepository;
 
 import java.io.IOException;
 import java.net.URLEncoder;

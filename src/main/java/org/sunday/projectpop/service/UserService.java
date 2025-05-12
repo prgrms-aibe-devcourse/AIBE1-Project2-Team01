@@ -6,7 +6,7 @@ import org.springframework.stereotype.Service;
 import org.sunday.projectpop.dto.JoinDTO;
 import org.sunday.projectpop.dto.LoginDTO;
 import org.sunday.projectpop.entity.Users;
-import org.sunday.projectpop.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UsersRepository;
 
 import java.util.UUID;
 

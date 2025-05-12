@@ -8,7 +8,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.dto.UserTagCacheDTO;
-import org.sunday.projectpop.repository.UsersRepository;
+import org.sunday.projectpop.model.repository.UsersRepository;
 import org.sunday.projectpop.service.UserTagCacheService;
 
 import java.util.UUID;

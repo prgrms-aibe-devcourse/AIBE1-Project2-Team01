@@ -10,7 +10,7 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.auth.JwtTokenProvider;
+import org.sunday.projectpop.auth.jwt.JwtTokenProvider;
 import org.sunday.projectpop.dto.JoinDTO;
 import org.sunday.projectpop.dto.LoginDTO;
 import org.sunday.projectpop.service.UserService;
