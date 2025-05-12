@@ -86,7 +86,7 @@ INSERT INTO project (
 ) VALUES (
              'p001', 'u01', 'PROJECT', '모집중', false, 2,
              'AI 기반 협업 툴', '자동화된 협업툴을 개발합니다.', '비대면', 8, 5,
-             'BEGINNER', NOW()
+             '실무 1년 이상', NOW()
          );
 
 -- 🔖 필수 태그
@@ -111,3 +111,14 @@ VALUES (
 INSERT INTO user_skill_tag (user_id, tag_id) VALUES
                                                  ('u01', 1), -- Spring
                                                  ('u01', 3); -- Docker
+
+
+ALTER TABLE project
+    MODIFY experience_level ENUM(
+    '비전공/비개발 경험자',
+    '초급 (개인 프로젝트 수준)',
+    '중급 (팀 프로젝트 경험자)',
+    '준실무 (부트캠프/인턴)',
+    '실무 1년 이상',
+    '실무 3년 이상'
+    );

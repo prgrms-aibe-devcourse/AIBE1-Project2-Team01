@@ -77,6 +77,9 @@
             padding-left: 2.5rem;
         }
         .tag-input-container {
+            flex-wrap: wrap;        /* ✅ 태그들이 여러 줄로 자동 줄바꿈 */
+            gap: 0.5rem;            /* ✅ 태그 간 간격 */
+            align-items: center;
             background-color: rgba(139, 92, 246, 0.02);
             transition: all 0.3s ease;
             border: 1px solid #e2e8f0;
@@ -96,6 +99,8 @@
             background-color: white;
         }
         .tag {
+            display: flex;
+            align-items: center;
             background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(167, 139, 250, 0.1));
             border: 1px solid rgba(139, 92, 246, 0.2);
             transition: all 0.3s ease;
@@ -292,7 +297,7 @@
                 <div class="custom-select">
                     <select th:field="*{fieldId}" id="field" class="form-input form-select">
                         <option value="" disabled selected>분야를 선택해주세요</option>
-                        <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.name}"></option>
+                        <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.description}"></option>
                     </select>
                 </div>
             </div>
@@ -406,14 +411,14 @@
                             th:field="*{experienceLevel}"
                             class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
                     >
-                        <option value="" disabled selected>
-                            경력 수준을 선택해주세요
-                        </option>
-                        <option value="6개월 미만">6개월 미만</option>
-                        <option value="6개월~1년">6개월-1년</option>
-                        <option value="1년~3년">1년-3년</option>
-                        <option value="3년~5년">3년-5년</option>
-                        <option value="5년 이상">5년 이상</option>
+
+                        <option value="" disabled selected>경력 수준을 선택해주세요</option>
+                        <option value="비전공/비개발 경험자">비전공/비개발 경험자</option>
+                        <option value="초급 (개인 프로젝트 수준)">초급 (개인 프로젝트 수준)</option>
+                        <option value="중급 (팀 프로젝트 경험자)">중급 (팀 프로젝트 경험자)</option>
+                        <option value="준실무 (부트캠프/인턴)">준실무 (부트캠프/인턴)</option>
+                        <option value="실무 1년 이상">실무 1년 이상</option>
+                        <option value="실무 3년 이상">실무 3년 이상</option>
                     </select>
                 </div>
             </div>
@@ -607,7 +612,7 @@
                     updateHiddenInput();
                 });
 
-                container.insertBefore(tagElement, input);
+                container.appendChild(tagElement);
                 input.value = "";
                 updateHiddenInput();
             }

@@ -102,9 +102,10 @@
             <button class="btn-primary text-white px-6 py-3 rounded-md font-medium !rounded-button shadow-md">
                 시작하기
             </button>
-            <button class="btn-outline border border-gray-300 px-6 py-3 rounded-md font-medium text-gray-700 !rounded-button">
+            <a th:href="@{/projects/create}"
+               class="btn-outline border border-gray-300 px-6 py-3 rounded-md font-medium text-gray-700 !rounded-button">
                 프로젝트 만들기
-            </button>
+            </a>
         </div>
     </div>
     <!-- 소셜 로그인 버튼 -->
@@ -138,7 +139,7 @@
         <div class="flex flex-wrap items-center gap-4">
             <div class="relative">
                 <select th:name="field" th:value="${condition.field}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
-                    <option value="">관심분야 선택</option>
+                    <option value="">관심분야</option>
                     <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.name}"></option>
                 </select>
 
@@ -162,12 +163,13 @@
             </div>
             <div class="relative">
                 <select th:name="experienceLevel" th:value="${condition.experienceLevel}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
-                    <option value="">경력 사항</option>
-                    <option value="6개월 미만">6개월 미만</option>
-                    <option value="6개월~1년">6개월~1년</option>
-                    <option value="1년~3년">1년~3년</option>
-                    <option value="3년~5년">3년~5년</option>
-                    <option value="5년 이상">5년 이상</option>
+                    <option value="" disabled selected>경력 수준</option>
+                    <option value="비전공/비개발 경험자">비전공/비개발 경험자</option>
+                    <option value="초급 (개인 프로젝트 수준)">초급 (개인 프로젝트 수준)</option>
+                    <option value="중급 (팀 프로젝트 경험자)">중급 (팀 프로젝트 경험자)</option>
+                    <option value="준실무 (부트캠프/인턴)">준실무 (부트캠프/인턴)</option>
+                    <option value="실무 1년 이상">실무 1년 이상</option>
+                    <option value="실무 3년 이상">실무 3년 이상</option>
                 </select>
                 <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
 
@@ -234,7 +236,7 @@
 
     <!-- 인기 프로필 섹션 -->
     <div class="mb-12">
-        <h2 class="text-xl font-bold text-gray-800 mb-6">인기 프로필리오</h2>
+        <h2 class="text-xl font-bold text-gray-800 mb-6"></h2>
         <!-- 페이지네이션 -->
         <div class="flex justify-center mt-10">
             <nav class="flex items-center space-x-2">

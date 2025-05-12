@@ -40,7 +40,7 @@ public record ProjectResponse(
                 .type(project.getType())
                 .status(status)
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField().getName())
+                .field(project.getField().getDescription())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())
