@@ -1,6 +1,7 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
+TRUNCATE TABLE suggest_from_leader;
 TRUNCATE TABLE user_skill_tag;
 TRUNCATE TABLE user_trait;
 TRUNCATE TABLE trait_match;
@@ -9,6 +10,8 @@ TRUNCATE TABLE project;
 TRUNCATE TABLE user_account;
 TRUNCATE TABLE skill_tag;
 TRUNCATE TABLE project_require_tag;
+TRUNCATE TABLE ongoing_project;
+TRUNCATE TABLE specification;
 
 SET FOREIGN_KEY_CHECKS = 1;
 
@@ -78,13 +81,50 @@ INSERT INTO project_require_tag (project_id, tag_id) VALUES
 TRUNCATE TABLE message;
 
 # 메시지 데이터 (u01이 보낸 쪽지들, u02가 받은 쪽지들)
-INSERT INTO message (sender_id, receiver_id, message, is_read, created_at) VALUES
+INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
                                                                                ('u01', 'u02', '안녕하세요! 제안드릴게 있어요.', false, NOW()),
                                                                                ('u01', 'u02', '혹시 관심 있으시면 알려주세요.', true, NOW() - INTERVAL 1 DAY),
                                                                                ('u02', 'u01', '확인했습니다. 검토해볼게요.', true, NOW());
 
-# 제안 테이블 초기화
-TRUNCATE TABLE suggest_from_leader;
+
+# select * from suggest_from_leader
+
+
+INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
+                                                                             ('u01', 'u02', '안녕하세요. 혹시 프로젝트 관심 있으신가요?', false, NOW() - INTERVAL 3 DAY),
+                                                                             ('u01', 'u03', '이번 주 중으로 회의 한번 가능하신가요?', true, NOW() - INTERVAL 2 DAY),
+                                                                             ('u04', 'u01', '네. 프로젝트 제안 확인했습니다.', false, NOW() - INTERVAL 1 DAY),
+                                                                             ('u05', 'u01', '초대 감사드려요. 자세한 내용 공유 부탁드려요.', true, NOW());
+-- project 테이블 목 데이터 3개 생성
+INSERT INTO project (project_id, user_id, type, status, generated_by_ai, field, title, description, location_type, duration_weeks, team_size, created_at)
+VALUES
+    ('1', 'u01', 'PROJECT', '모집중', false, '백엔드', 'AI 기반 협업 툴 개발', '자동화된 협업툴을 개발하여 생산성을 향상시킵니다.', 'REMOTE', 8, 5, NOW()),
+    ('2', 'u05', 'PROJECT', '진행중', false, '프론트엔드', '사용자 인터페이스 개선 프로젝트', '기존 서비스의 사용자 경험을 향상시키기 위한 UI/UX 개선 작업을 진행합니다.', 'REMOTE', 6, 3, NOW() - INTERVAL 2 MONTH),
+    ('3', 'u08', 'PROJECT', '모집중', false, '데브옵스', 'CI/CD 파이프라인 구축', '개발 및 배포 프로세스를 자동화하기 위한 CI/CD 파이프라인을 구축합니다.', 'LOCAL', 10, 4, NOW() - INTERVAL 1 MONTH);
+
+
+
+-- OnGoingProject 목 데이터 (id: 1, 2, 3)
+INSERT INTO ongoing_project (id, project_id, team_leader_id, status, start_date, end_date)
+VALUES
+    ('1', '1', 'u01', 'ONGOING', '2025-05-01', '2025-07-31'),
+    ('2', '2', 'u05', 'COMPLETED', '2025-04-01', '2025-04-30'),
+    ('3', '3', 'u08', 'ONGOING', '2025-05-15', '2025-08-15');
+
+-- Specification 목 데이터 (10개, completed 7개, 나머지 3개 랜덤)
+INSERT INTO specification (id, ongoing_project_id, requirement, assignee, status, due_date, created_at, updated_at)
+VALUES
+    ('s01', '1', '로그인 기능 구현', 'u02', 'completed', '2025-05-08', NOW() - INTERVAL 10 DAY, NOW() - INTERVAL 10 DAY),
+    ('s02', '1', '사용자 프로필 페이지 개발', 'u03', 'completed', '2025-05-15', NOW() - INTERVAL 9 DAY, NOW() - INTERVAL 9 DAY),
+    ('s03', '1', '데이터베이스 설계', 'u01', 'onGoing', '2025-05-22', NOW() - INTERVAL 8 DAY, NOW()),
+    ('s04', '1', 'API 연동 테스트', 'u04', 'waiting', '2025-05-29', NOW() - INTERVAL 7 DAY, NOW() - INTERVAL 7 DAY),
+    ('s05', '2', '결제 모듈 통합', 'u06', 'completed', '2025-04-20', NOW() - INTERVAL 6 DAY, NOW() - INTERVAL 6 DAY),
+    ('s06', '2', '상품 목록 페이지 디자인', 'u07', 'completed', '2025-04-25', NOW() - INTERVAL 5 DAY, NOW() - INTERVAL 5 DAY),
+    ('s07', '2', '주문 처리 로직 구현', 'u05', 'completed', '2025-04-30', NOW() - INTERVAL 4 DAY, NOW() - INTERVAL 4 DAY),
+    ('s08', '3', 'UI 컴포넌트 개발', 'u09', 'completed', '2025-06-05', NOW() - INTERVAL 3 DAY, NOW() - INTERVAL 3 DAY),
+    ('s09', '3', '서버 배포 설정', 'u10', 'completed', '2025-06-10', NOW() - INTERVAL 2 DAY, NOW() - INTERVAL 2 DAY),
+    ('s10', '3', '사용자 인증 방식 변경', 'u08', CASE WHEN RAND() < 0.5 THEN 'ONGOING' ELSE 'WAITING' END, '2025-06-15', NOW() - INTERVAL 1 DAY, NOW() - INTERVAL 1 DAY);
+
 
 # 리더 u01이 제안 보낸 것 (p001)
 INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, created_at) VALUES
@@ -96,15 +136,7 @@ INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, cr
     ('p001', 'u05', 'u01', '백엔드 경험자 찾고 있습니다. 관심 있으신가요?', NOW());
 
 
-# select * from suggest_from_leader
 
 
-INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
-                                                                         ('u01', 'u02', '안녕하세요. 혹시 프로젝트 관심 있으신가요?', false, NOW() - INTERVAL 3 DAY),
-                                                                         ('u01', 'u03', '이번 주 중으로 회의 한번 가능하신가요?', true, NOW() - INTERVAL 2 DAY),
-                                                                         ('u04', 'u01', '네. 프로젝트 제안 확인했습니다.', false, NOW() - INTERVAL 1 DAY),
-                                                                         ('u05', 'u01', '초대 감사드려요. 자세한 내용 공유 부탁드려요.', true, NOW());
-
-
-select * from message
+select * from message;
 select * from suggest_from_leader
