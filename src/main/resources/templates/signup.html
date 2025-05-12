@@ -1,0 +1,68 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>회원가입</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-50 h-screen flex items-center justify-center">
+<div class="bg-white p-10 rounded shadow w-full max-w-md">
+    <h1 class="text-2xl font-bold mb-6 text-center text-purple-600">회원가입</h1>
+
+    <form id="signupForm" class="space-y-4">
+        <div>
+            <label class="block text-sm mb-1">이메일</label>
+            <input type="email" id="email" class="w-full border border-gray-300 rounded p-2 text-sm" required />
+        </div>
+        <div>
+            <label class="block text-sm mb-1">비밀번호</label>
+            <input type="password" id="password" class="w-full border border-gray-300 rounded p-2 text-sm" required minlength="6" />
+        </div>
+        <div>
+            <label class="block text-sm mb-1">비밀번호 확인</label>
+            <input type="password" id="confirmPassword" class="w-full border border-gray-300 rounded p-2 text-sm" required minlength="6" />
+        </div>
+        <div>
+            <label class="block text-sm mb-1">닉네임</label>
+            <input type="text" id="nickname" class="w-full border border-gray-300 rounded p-2 text-sm" required minlength="2" />
+        </div>
+        <button type="submit" class="w-full bg-purple-600 text-white py-2 rounded">회원가입</button>
+    </form>
+</div>
+
+<script>
+    document.getElementById('signupForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+
+        const email = document.getElementById('email').value.trim();
+        const password = document.getElementById('password').value;
+        const confirmPassword = document.getElementById('confirmPassword').value;
+        const nickname = document.getElementById('nickname').value.trim();
+
+        if (password !== confirmPassword) {
+            alert('비밀번호가 일치하지 않습니다.');
+            return;
+        }
+
+        try {
+            const res = await fetch('/auth/signup', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ email, password, nickname })
+            });
+
+            if (!res.ok) {
+                const msg = await res.text();
+                throw new Error(msg || '회원가입 실패');
+            }
+
+            alert('회원가입 성공! 로그인 페이지로 이동합니다.');
+            window.location.href = '/auth/signin';
+        } catch (err) {
+            console.error(err);
+            alert('❌ ' + err.message);
+        }
+    });
+</script>
+</body>
+</html>
