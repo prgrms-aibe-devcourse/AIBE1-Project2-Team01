@@ -12,7 +12,16 @@ SET FOREIGN_KEY_CHECKS = 0;
 # DROP TABLE IF EXISTS message;
 # DROP TABLE IF EXISTS suggest_from_leader;
 
-
+TRUNCATE TABLE user_skill_tag;
+TRUNCATE TABLE user_trait;
+TRUNCATE TABLE trait_match;
+TRUNCATE TABLE member;
+TRUNCATE TABLE project;
+TRUNCATE TABLE user_account;
+TRUNCATE TABLE skill_tag;
+TRUNCATE TABLE project_require_tag;
+TRUNCATE TABLE message;
+TRUNCATE TABLE suggest_from_leader;
 SET FOREIGN_KEY_CHECKS = 1;
 
 
@@ -98,11 +107,10 @@ INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, ch
 
 
 # 반대로 다른 리더가 u01에게 보낸 것처럼 예시
-INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message, created_at) VALUES
-    ('p001', 'u05', 'u01', '백엔드 경험자 찾고 있습니다. 관심 있으신가요?', NOW());
+INSERT INTO suggest_from_leader (project_id, sender_id, receiver_id, message,checking, created_at) VALUES
+    ('p001', 'u05', 'u01', '백엔드 경험자 찾고 있습니다. 관심 있으신가요?',false, NOW());
 
 
-# select * from suggest_from_leader
 
 
 INSERT INTO message (sender_id, receiver_id, content, checking, sent_at) VALUES
