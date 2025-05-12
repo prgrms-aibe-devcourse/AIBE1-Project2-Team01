@@ -19,7 +19,9 @@ public class GeminiLLMService {
     @Value("${llm.api.key}")
     private String apiKey;
 
-    private static final String GEMINI_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-pro:generateContent?key=";
+    private static final String LLM_API_URL = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=";
+
+
 
     private final ObjectMapper objectMapper = new ObjectMapper();
 
@@ -36,7 +38,7 @@ public class GeminiLLMService {
                 """.formatted(prompt.replace("\"", "\\\""));
 
             HttpRequest request = HttpRequest.newBuilder()
-                    .uri(URI.create(GEMINI_API_URL + apiKey))
+                    .uri(URI.create(LLM_API_URL + apiKey))
                     .header("Content-Type", "application/json")
                     .POST(HttpRequest.BodyPublishers.ofString(requestBody))
                     .build();
@@ -63,6 +65,10 @@ public class GeminiLLMService {
 
 // ✅ 텍스트 추출
             String jsonText = parts.get(0).path("text").asText();
+            if (jsonText.startsWith("```json") || jsonText.startsWith("```")) {
+                jsonText = jsonText.replaceFirst("(?s)^```(?:json)?\\s*", ""); // 시작 ```json 또는 ```
+                jsonText = jsonText.replaceFirst("\\s*```$", ""); // 끝 ```
+            }
             System.out.println("Gemini 응답 JSON 텍스트: " + jsonText);
 
 // ✅ JSON → DTO 변환

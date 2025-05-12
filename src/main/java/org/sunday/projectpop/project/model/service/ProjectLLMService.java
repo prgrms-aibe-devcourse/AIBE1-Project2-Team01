@@ -45,7 +45,6 @@ public class ProjectLLMService {
             - requiredTags (필수 기술 태그, 문자열 배열)
             - selectiveTags (선택 기술 태그, 문자열 배열)
             - field (분야: 웹, 앱, AI, 게임 등 중 하나로 선택)
-            - locationType (대면 또는 비대면 중 하나 선택)
             - durationWeeks (진행 기간, 숫자)
 
             [응답 예시]
@@ -56,7 +55,6 @@ public class ProjectLLMService {
               "requiredTags": ["Java", "Spring Boot"],
               "selectiveTags": ["MySQL"],
               "field": "웹",
-              "locationType": "비대면",
               "durationWeeks": 6
             }
             """, profile.getNickname(), profile.getBio(), String.join(", ", tagNames));
