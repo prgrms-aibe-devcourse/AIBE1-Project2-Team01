@@ -10,6 +10,7 @@ import org.sunday.projectpop.model.repository.ProjectRequireTagRepository;
 import org.sunday.projectpop.model.repository.SkillTagRepository;
 import org.sunday.projectpop.model.repository.UserAccountRepository;
 import org.sunday.projectpop.model.repository.UserSkillTagRepository;
+import org.sunday.projectpop.service.matching.CompatibilityService;
 import org.sunday.projectpop.service.matching.RedisTagService;
 
 import java.util.List;
@@ -24,6 +25,7 @@ public class MatchController {
     private final RedisTagService redisTagService;
     private final UserAccountRepository userRepo; // matchedUsers 조회용
     private final UserSkillTagRepository userSkillTagRepository;
+    private final CompatibilityService compatibilityService;
 
     // GET /match or /match?projectId=...
     @GetMapping
@@ -79,5 +81,15 @@ public class MatchController {
     public List<String> getUserSkillTags(@RequestParam String userId) {
         return userSkillTagRepository.findTagNamesByUserId(userId); // 예시 메서드
     }
+
+    @GetMapping("/user-personality")
+    @ResponseBody
+    public CompatibilityService.CompatibilityResult getUserPersonalityAndCompatibility(
+            @RequestParam String userId,
+            @RequestParam String leaderKey) {
+        return compatibilityService.calculateCompatibility(userId, leaderKey);
+    }
+
+
 
 }

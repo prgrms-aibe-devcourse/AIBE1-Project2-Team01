@@ -4,6 +4,7 @@ on:
   push:
     branches:
       - main  # main 브랜치에 푸시될 때만 실행
+      - dev
 
 jobs:
   docker-build:
@@ -28,4 +29,5 @@ jobs:
           context: .
           file: ./Dockerfile
           push: true
-          tags: dohhh/project-pop:latest
+          tags: testhub195/project-pop:${{ github.ref_name }}
+

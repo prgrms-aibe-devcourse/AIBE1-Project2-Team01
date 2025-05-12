@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
-<head th:replace="fragments/header :: head"></head>
+<head th:replace="fragments/header :: head">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+
 <body>
 <header th:replace="fragments/header :: header"></header>
 
@@ -45,6 +48,11 @@
             <p id="modalUserId" class="text-sm text-gray-700">유저 ID: uXX</p>
             <p id="modalUserEmail" class="text-sm text-gray-700">이메일: example@example.com</p>
             <div id="modalUserSkills" class="mt-2 flex flex-wrap gap-2"></div>
+            <!-- ✅ 레이다 차트 Canvas 추가 -->
+            <div class="mt-4">
+                <canvas id="personalityChart" width="300" height="300"></canvas>
+            </div>
+
         </div>
         <div class="flex justify-end space-x-2">
             <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm">쪽지 보내기</button>
@@ -135,6 +143,7 @@
         const skillContainer = document.getElementById('modalUserSkills');
         skillContainer.innerHTML = '';
 
+        // 1. 기술 태그 표시
         fetch(`/match/user-tags?userId=${userId}`)
             .then(res => res.json())
             .then(skills => {
@@ -143,6 +152,51 @@
                     badge.className = 'bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs';
                     badge.textContent = skill;
                     skillContainer.appendChild(badge);
+                });
+            });
+
+        // ✅ 2. 성향 점수 + 궁합 점수 불러오기 및 차트 렌더링
+        const leaderKey = "12345"; // 또는 백엔드에서 전달한 값 활용
+        fetch(`/match/user-personality?userId=${userId}&leaderKey=${leaderKey}`)
+            .then(res => res.json())
+            .then(data => {
+                const scaledScores = data.scores.map(score => score * 20);
+                document.getElementById("compatibilityScore").textContent = data.compatibility;
+
+                const ctx = document.getElementById('personalityChart').getContext('2d');
+                if (window.personalityRadar) window.personalityRadar.destroy();
+                window.personalityRadar = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['개방성', '성실성', '외향성', '친화성', '신경성'],
+                        datasets: [{
+                            label: '성향 점수 (1~5)',
+                            data: scaledScores,
+                            fill: true,
+                            backgroundColor: 'rgba(155, 48, 255, 0.2)',
+                            borderColor: 'rgba(155, 48, 255, 0.8)',
+                            pointBackgroundColor: 'rgba(155, 48, 255, 1)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                ticks: {
+                                    stepSize: 20,
+                                    callback: (v) => (v / 20).toFixed(1)
+                                },
+                                pointLabels: {
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
                 });
             });
 

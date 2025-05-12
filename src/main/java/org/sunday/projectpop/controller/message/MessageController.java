@@ -10,6 +10,7 @@ import org.sunday.projectpop.model.dto.SuggestionDto;
 import org.sunday.projectpop.model.entity.UserAccount;
 import org.sunday.projectpop.model.repository.UserAccountRepository;
 import org.sunday.projectpop.model.entity.Message;
+import org.sunday.projectpop.model.repository.message.MessageRepository;
 import org.sunday.projectpop.service.message.MessageService;
 import org.sunday.projectpop.model.dto.GetMessageDto;
 
@@ -22,6 +23,8 @@ public class MessageController {
 
     private final MessageService messageService;
     private final UserAccountRepository userAccountRepository;
+    private final MessageRepository messageRepository;
+
 
     @GetMapping
     public String showMessagePage(@RequestParam("userId") String userId, Model model) {
@@ -86,5 +89,13 @@ public String showMessagePage(@AuthenticationPrincipal CustomUserDetails userDet
                 ))
                 .toList();
         return ResponseEntity.ok(dtoList);
+    }
+    @PostMapping("/{id}/toggle-read")
+    public ResponseEntity<Void> toggleMessageRead(@PathVariable Long id) {
+        Message message = messageRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("메시지를 찾을 수 없습니다."));
+        message.setChecking(!message.isChecking());
+        messageRepository.save(message);
+        return ResponseEntity.ok().build();
     }
 }

@@ -52,4 +52,11 @@ public class SuggestFromLeaderService {
         return repository.findBySender(sender);
     }
 
+    public void reject(Long id) {
+        SuggestFromLeader suggestion = repository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("제안 없음"));
+        repository.delete(suggestion); // 또는 상태 변경
+    }
+
+
 }
