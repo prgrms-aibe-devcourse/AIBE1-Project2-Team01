@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.controller;
+package org.sunday.projectpop.controller;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;

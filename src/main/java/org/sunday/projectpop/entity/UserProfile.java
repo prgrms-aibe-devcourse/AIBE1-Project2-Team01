@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.entity;
+package org.sunday.projectpop.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;

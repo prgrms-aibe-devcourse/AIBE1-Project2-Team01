@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.auth;
+package org.sunday.projectpop.auth;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -8,8 +8,8 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.newnew.entity.Users;
-import org.sunday.projectpop.newnew.repository.UsersRepository;
+import org.sunday.projectpop.entity.Users;
+import org.sunday.projectpop.repository.UsersRepository;
 
 import java.util.Map;
 

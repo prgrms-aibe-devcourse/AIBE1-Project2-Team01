@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.auth;
+package org.sunday.projectpop.auth;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;

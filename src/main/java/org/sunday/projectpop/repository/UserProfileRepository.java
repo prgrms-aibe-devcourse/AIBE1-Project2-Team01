@@ -1,7 +1,7 @@
-package org.sunday.projectpop.newnew.repository;
+package org.sunday.projectpop.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.sunday.projectpop.newnew.entity.UserProfile;
+import org.sunday.projectpop.entity.UserProfile;
 
 import java.util.UUID;
 

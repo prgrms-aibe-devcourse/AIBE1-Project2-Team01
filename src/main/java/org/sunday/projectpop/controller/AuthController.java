@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.controller;
+package org.sunday.projectpop.controller;
 
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletResponse;
@@ -10,10 +10,10 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.newnew.auth.JwtTokenProvider;
-import org.sunday.projectpop.newnew.dto.JoinDTO;
-import org.sunday.projectpop.newnew.dto.LoginDTO;
-import org.sunday.projectpop.newnew.service.UserService;
+import org.sunday.projectpop.auth.JwtTokenProvider;
+import org.sunday.projectpop.dto.JoinDTO;
+import org.sunday.projectpop.dto.LoginDTO;
+import org.sunday.projectpop.service.UserService;
 
 import java.io.IOException;
 import java.time.Duration;

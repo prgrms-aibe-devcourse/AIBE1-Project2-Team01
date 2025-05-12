@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.dto;
+package org.sunday.projectpop.dto;
 
 public record LoginDTO(
         String email,

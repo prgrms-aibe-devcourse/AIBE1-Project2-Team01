@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.service;
+package org.sunday.projectpop.service;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.userdetails.User;
@@ -6,10 +6,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.newnew.entity.Users;
-import org.sunday.projectpop.newnew.repository.UsersRepository;
-
-import java.util.List;
+import org.sunday.projectpop.entity.Users;
+import org.sunday.projectpop.repository.UsersRepository;
 
 @Service
 @RequiredArgsConstructor

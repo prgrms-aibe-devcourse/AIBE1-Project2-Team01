@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.service;
+package org.sunday.projectpop.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -6,7 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.core.StringRedisTemplate;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.newnew.dto.UserTagCacheDTO;
+import org.sunday.projectpop.dto.UserTagCacheDTO;
 
 import java.time.Duration;
 import java.util.Optional;

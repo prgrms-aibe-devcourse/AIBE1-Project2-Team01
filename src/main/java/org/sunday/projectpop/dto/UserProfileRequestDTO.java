@@ -1,4 +1,4 @@
-package org.sunday.projectpop.newnew.dto;
+package org.sunday.projectpop.dto;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
