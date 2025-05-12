@@ -22,6 +22,7 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.converter.FormHttpMessageConverter;
 
+
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
@@ -109,3 +110,4 @@ public class SecurityConfig {
         return new ProviderManager(Collections.singletonList(authProvider()));
     }
 }
+

@@ -1,0 +1,512 @@
+<div th:fragment="content" class="max-w-4xl mx-auto p-4 sm:p-6 bg-white rounded-lg shadow-md">
+    <!-- 제목 -->
+    <h1 class="text-2xl sm:text-3xl font-bold text-gray-800 mb-6 sm:mb-8 border-b pb-3 sm:pb-4"
+        th:text="${portfolio.portfolioId != null} ? '포트폴리오 수정' : '포트폴리오 등록'">
+    </h1>
+
+    <form th:action="${portfolio.portfolioId != null} ?
+                @{'/portfolios/' + ${portfolio.portfolioId} + '/edit'} :
+                @{/portfolios/new}"
+          method="post" enctype="multipart/form-data" id="portfolio-form">
+        <!-- CSRF 토큰 (실제 구현 시 활성화) -->
+        <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
+
+        <!-- ID 필드 (수정 시에만 표시) -->
+        <input type="hidden" name="portfolioId" th:value="${portfolio.portfolioId}" th:if="${portfolio.portfolioId != null}">
+
+        <!-- 타입 선택 섹션 -->
+        <div class="mb-6">
+            <label class="block text-lg font-semibold text-gray-700 mb-3">포트폴리오 타입 <span class="text-red-500">*</span></label>
+            <div class="grid grid-cols-2 sm:grid-cols-3 gap-3">
+                <div th:each="type : ${allTypes}">
+                    <input type="radio" th:id="${'type-' + type}"
+                           th:value="${type}" name="portfolioType"
+                           th:checked="${portfolio.portfolioType == type}"
+                           class="peer hidden" required>
+                    <label th:for="${'type-' + type}"
+                           class="block p-3 border-2 rounded-lg cursor-pointer text-center transition-colors
+                                  peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary
+                                  hover:bg-gray-50">
+                        <span th:text="${type}"></span>
+                    </label>
+                </div>
+            </div>
+            <span th:errors="${portfolio.portfolioType}" class="block text-sm text-red-500 mt-1"></span>
+        </div>
+
+        <!-- 제목 섹션 -->
+        <div class="mb-6">
+            <label for="title" class="block text-lg font-semibold text-gray-700 mb-2">제목 <span class="text-red-500">*</span></label>
+            <input type="text" id="title" name="title" th:value="${portfolio.title}"
+                   class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                   placeholder="포트폴리오 제목을 입력해주세요" required>
+            <span th:errors="${portfolio.title}" class="block text-sm text-red-500 mt-1"></span>
+        </div>
+
+        <!-- 템플릿 선택 -->
+        <div class="mb-6">
+            <label for="templateSelect" class="block text-sm font-medium text-gray-700 mb-2">템플릿 선택</label>
+            <select id="templateSelect" name="template" onchange="applyDefaultTemplate()"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2">
+                <option value="">선택 안 함</option>
+                <option value="basic">기본 포트폴리오 템플릿</option>
+            </select>
+        </div>
+
+        <!-- 설명 섹션 -->
+        <div class="mb-6">
+            <label for="description" class="block text-lg font-semibold text-gray-700 mb-2">설명 <span class="text-red-500">*</span></label>
+            <textarea id="description" name="description" rows="8"
+                      class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
+                      placeholder="포트폴리오에 대한 상세 설명을 작성해주세요 (최대 2000자)"
+                      th:text="${portfolio.description}" required></textarea>
+            <div class="flex justify-between mt-1">
+                <span th:errors="${portfolio.description}" class="block text-sm text-red-500"></span>
+                <span class="text-sm text-gray-500" id="char-count">0/2000</span>
+            </div>
+        </div>
+
+        <!-- 기존 파일 표시 (수정 시) -->
+        <div th:if="${portfolio.files != null and !portfolio.files.empty}" class="mb-6">
+            <label class="block text-lg font-semibold text-gray-700 mb-3">기존 파일</label>
+            <div class="space-y-3">
+                <div th:each="file : ${portfolio.files}"
+                     class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <div class="flex items-center min-w-0">
+                        <span th:text="${file.filename}" class="truncate"></span>
+                        <a th:href="${file.fileUrl}" target="_blank" class="ml-2 text-blue-500 hover:text-blue-700">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm1-11a1 1 0 10-2 0v3.586L7.707 9.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L11 10.586V7z" clip-rule="evenodd"/>
+                            </svg>
+                        </a>
+                    </div>
+                    <button type="button" class="text-red-500 hover:text-red-700 p-1"
+                            onclick="confirmFileDelete(this)" th:data-file-id="${file.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <input type="hidden" class="file-status" th:value="${file.id}" th:data-file-id="${file.id}">
+                </div>
+            </div>
+        </div>
+
+        <!-- 파일 업로드 섹션 -->
+        <div class="mb-6">
+            <label class="block text-lg font-semibold text-gray-700 mb-3">파일 첨부</label>
+
+            <!-- 실제 파일 입력 (숨겨둠) -->
+            <input id="file-upload" name="files" type="file" multiple class="hidden" accept=".pdf,.jpg,.jpeg,.png,,.doc,.docx,.xls,.xlsx, .csv, .txt">
+
+            <!-- 드래그 앤 드롭 영역 -->
+            <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors bg-gray-50 cursor-pointer"
+                 onclick="document.getElementById('file-upload').click()"
+                 ondragover="handleDragOver(event)"
+                 ondragleave="handleDragLeave(event)"
+                 ondrop="handleDrop(event)">
+
+                <div class="space-y-3 text-center">
+                    <svg class="mx-auto h-12 w-12 text-gray-400" stroke="currentColor" fill="none" viewBox="0 0 48 48">
+                        <path d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+                              stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    <p class="text-sm text-gray-600">
+                        <span class="font-medium text-primary">파일 선택</span>
+                        또는 드래그 앤 드롭
+                    </p>
+                    <p class="text-xs text-gray-500">PDF, JPG, PNG, ZIP 파일 (최대 50MB)</p>
+
+                    <!-- 선택된 파일 목록 -->
+                    <div id="file-list" class="text-sm text-gray-700 mt-2 space-y-2 max-h-40 overflow-y-auto">
+                        <p class="text-gray-400">선택된 파일 없음</p>
+                    </div>
+                </div>
+            </div>
+            <!-- 파일 크기 제한 알림 메시지 -->
+            <div id="file-size-error" class="hidden mt-2 p-2 text-sm text-red-500 bg-red-50 rounded"></div>
+        </div>
+
+        <!-- 선택된 파일 관리용 컨테이너 (폼 제출 시 여기에 있는 파일들이 전송됨) -->
+        <div id="selected-files-container"></div>
+
+        <!-- 삭제할 파일 ID 목록을 담을 숨겨진 필드들 -->
+        <div id="delete-files-container"></div>
+
+        <!-- URL 추가 섹션 -->
+        <div class="mb-6">
+            <label class="block text-lg font-semibold text-gray-700 mb-3">참고 URL</label>
+            <div class="flex gap-2 mb-2">
+                <input type="url" id="url-input" placeholder="https://example.com"
+                       class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent">
+                <button type="button" id="add-url"
+                        class="px-4 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors">
+                    추가
+                </button>
+            </div>
+            <div id="url-error" class="hidden text-sm text-red-500 mb-2"></div>
+
+            <div id="url-container" class="space-y-2">
+                <!-- 기존 URL 목록 -->
+                <div th:each="url : ${portfolio.urls}"
+                     class="flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200">
+                    <a th:href="${url.url}" th:text="${url.url}" target="_blank"
+                       class="text-blue-500 hover:underline truncate"></a>
+                    <button type="button" class="text-red-500 hover:text-red-700 p-1"
+                            onclick="removeUrl(this, '${url}')" th:data-url-id="${url.id}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                    <input type="hidden" name="existingUrls" th:value="${url}">
+                </div>
+            </div>
+
+            <!-- 새로운 URL 목록을 담을 숨겨진 필드들 -->
+            <div id="new-urls-container"></div>
+        </div>
+
+        <!-- 버튼 그룹 -->
+        <div class="flex flex-col sm:flex-row justify-end gap-3 pt-6 border-t">
+            <a th:href="@{/portfolios}"
+               class="px-6 py-2 border border-gray-300 rounded-lg text-gray-700 hover:bg-gray-50 transition-colors text-center">
+                취소
+            </a>
+            <button type="submit" id="submit-button"
+                    class="px-6 py-2 bg-primary text-white rounded-lg hover:bg-primary-dark transition-colors flex items-center justify-center">
+                <span>저장하기</span>
+                <svg id="loading-spinner" class="hidden ml-2 animate-spin h-5 w-5 text-white"
+                     xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor"
+                          d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+            </button>
+        </div>
+    </form>
+
+    <script>
+        // 템플릿 스크립트
+        function applyDefaultTemplate() {
+            const select = document.getElementById("templateSelect");
+            const textarea = document.getElementById("description");
+
+            if (select.value === "basic") {
+                textarea.value =
+                    `🕒 기간:
+💻 사용 기술:
+👤 맡은 역할:
+🤝 팀 구성:
+📌 프로젝트 개요:   `;
+            } else {
+                textarea.value = "";
+            }
+        }
+
+
+
+        // 전역 변수
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+        let selectedFiles = [];
+        let deleteFileIds = [];
+        let existingUrls = new Set([...document.querySelectorAll('input[name="existingUrls"]')].map(input => input.value));
+        let newUrls = [];
+
+        // DOM 요소
+        const fileInput = document.getElementById('file-upload');
+        const fileList = document.getElementById('file-list');
+        const dropZone = document.getElementById('drop-zone');
+        const fileSizeError = document.getElementById('file-size-error');
+        const urlInput = document.getElementById('url-input');
+        const urlError = document.getElementById('url-error');
+        const urlContainer = document.getElementById('url-container');
+        const description = document.getElementById('description');
+        const charCount = document.getElementById('char-count');
+
+        // 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 글자 수 카운트 초기화
+            updateCharCount();
+
+            // 기존 URL이 있는 경우 표시
+            if (existingUrls.size > 0) {
+                document.querySelector('#url-container p.text-gray-400')?.remove();
+            }
+        });
+
+        // 글자 수 업데이트
+        function updateCharCount() {
+            const count = description.value.length;
+            charCount.textContent = `${count}/2000`;
+            if (count > 2000) {
+                charCount.classList.add('text-red-500');
+            } else {
+                charCount.classList.remove('text-red-500');
+            }
+        }
+
+        // 드래그 오버 핸들러
+        function handleDragOver(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.add('border-primary', 'bg-blue-50');
+        }
+
+        // 드래그 리브 핸들러
+        function handleDragLeave(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            dropZone.classList.remove('border-primary', 'bg-blue-50');
+        }
+
+        // 드롭 핸들러
+        function handleDrop(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            handleDragLeave(e);
+
+            if (e.dataTransfer.files.length > 0) {
+                processFiles(Array.from(e.dataTransfer.files));
+            }
+        }
+
+        // 파일 처리
+        function processFiles(files) {
+            const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
+
+            if (oversizedFiles.length > 0) {
+                showFileError(`${oversizedFiles.length}개 파일이 50MB 제한을 초과했습니다.`);
+                files = files.filter(file => file.size <= MAX_FILE_SIZE);
+            }
+
+            selectedFiles = [...selectedFiles, ...files];
+            updateFileDisplay();
+        }
+
+        // 파일 오류 표시
+        function showFileError(message) {
+            fileSizeError.textContent = message;
+            fileSizeError.classList.remove('hidden');
+            setTimeout(() => fileSizeError.classList.add('hidden'), 5000);
+        }
+
+        // 파일 목록 업데이트
+        function updateFileDisplay() {
+            if (selectedFiles.length === 0) {
+                fileList.innerHTML = '<p class="text-gray-400">선택된 파일 없음</p>';
+                return;
+            }
+
+            let html = `<p class="font-medium mb-1">선택된 파일 (${selectedFiles.length}개):</p><ul class="space-y-1">`;
+            selectedFiles.forEach((file, index) => {
+                html += `
+                <li class="flex justify-between items-center bg-gray-50 p-2 rounded">
+                    <div class="flex items-center min-w-0">
+                        <span class="truncate">${file.name}</span>
+                        <span class="text-xs text-gray-500 ml-2">(${formatFileSize(file.size)})</span>
+                    </div>
+                    <button type="button" onclick="removeFile(${index})" class="text-red-500 hover:text-red-700 p-1">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd"/>
+                        </svg>
+                    </button>
+                </li>`;
+            });
+            html += '</ul>';
+            fileList.innerHTML = html;
+        }
+
+        // 파일 삭제
+        function removeFile(index) {
+            selectedFiles.splice(index, 1);
+            updateFileDisplay();
+        }
+
+        // 파일 크기 포맷팅
+        function formatFileSize(bytes) {
+            if (bytes === 0) return '0 Bytes';
+            const k = 1024;
+            const sizes = ['Bytes', 'KB', 'MB', 'GB'];
+            const i = Math.floor(Math.log(bytes) / Math.log(k));
+            return parseFloat((bytes / Math.pow(k, i)).toFixed(2)) + ' ' + sizes[i];
+        }
+
+        // 파일 삭제 확인
+        function confirmFileDelete(button) {
+            if (confirm('이 파일을 정말 삭제하시겠습니까?')) {
+                const fileId = button.getAttribute('data-file-id');
+                deleteFileIds.push(fileId);
+                button.closest('div').style.display = 'none';
+
+                // 삭제할 파일 ID를 폼에 추가
+                const input = document.createElement('input');
+                input.type = 'hidden';
+                input.name = 'deleteFileIds';
+                input.value = fileId;
+                document.getElementById('delete-files-container').appendChild(input);
+            }
+        }
+
+        // URL 추가
+        document.getElementById('add-url').addEventListener('click', function() {
+            let url = urlInput.value.trim();
+
+            // URL 유효성 검사
+            if (!url) {
+                showUrlError('URL을 입력해주세요.');
+                return;
+            }
+
+            // http:// 또는 https://가 없는 경우 추가
+            if (!url.startsWith('http://') && !url.startsWith('https://')) {
+                url = 'https://' + url;
+            }
+
+            // URL 형식 검증
+            try {
+                new URL(url);
+            } catch (e) {
+                showUrlError('유효한 URL 형식이 아닙니다.');
+                return;
+            }
+
+            // 중복 URL 검사
+            if (existingUrls.has(url) || newUrls.includes(url)) {
+                showUrlError('이미 추가된 URL입니다.');
+                return;
+            }
+
+            // 새 URL 추가
+            newUrls.push(url);
+            addUrlToDisplay(url);
+            urlInput.value = '';
+            urlError.classList.add('hidden');
+
+            // 새 URL을 폼에 추가
+            const input = document.createElement('input');
+            input.type = 'hidden';
+            input.name = 'newUrls';
+            input.value = url;
+            document.getElementById('new-urls-container').appendChild(input);
+        });
+
+        // URL 오류 표시
+        function showUrlError(message) {
+            urlError.textContent = message;
+            urlError.classList.remove('hidden');
+            setTimeout(() => urlError.classList.add('hidden'), 3000);
+        }
+
+        // URL 표시에 추가
+        function addUrlToDisplay(url) {
+            const urlItem = document.createElement('div');
+            urlItem.className = 'flex items-center justify-between bg-gray-50 p-3 rounded-lg border border-gray-200';
+            urlItem.innerHTML = `
+                <a href="${url}" target="_blank" class="text-blue-500 hover:underline truncate">${url}</a>
+                <button type="button" class="text-red-500 hover:text-red-700 p-1" onclick="removeUrl(this, '${url}')">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                        <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"/>
+                    </svg>
+                </button>
+            `;
+            urlContainer.appendChild(urlItem);
+        }
+
+        // URL 삭제 함수
+        function removeUrl(button, url) {
+            const urlId = button.getAttribute('data-url-id');
+
+            if (confirm('이 URL을 정말 삭제하시겠습니까?')) {
+                // 기존 URL인 경우 (ID가 있는 경우)
+                if (urlId) {
+                    // 삭제할 URL ID를 폼에 추가
+                    const deleteInput = document.createElement('input');
+                    deleteInput.type = 'hidden';
+                    deleteInput.name = 'deleteUrlIds';
+                    deleteInput.value = urlId;
+                    document.getElementById('delete-files-container').appendChild(deleteInput);
+                }
+                // 새 URL인 경우
+                else {
+                    // 폼에서 새 URL 제거
+                    const inputs = document.querySelectorAll('#new-urls-container input');
+                    inputs.forEach(input => {
+                        if (input.value === url) {
+                            input.remove();
+                        }
+                    });
+                    // 새 URL 목록에서 제거
+                    newUrls = newUrls.filter(u => u !== url);
+                }
+
+                // 화면에서 제거
+                button.closest('div').remove();
+            }
+        }
+        // 폼 제출 처리
+        document.getElementById('portfolio-form').addEventListener('submit', function(e) {
+            const submitButton = document.getElementById('submit-button');
+            const loadingSpinner = document.getElementById('loading-spinner');
+
+            // 필수 필드 검증
+            const requiredFields = ['portfolioType', 'title', 'description'];
+            for (const field of requiredFields) {
+                if (!this.elements[field].value) {
+                    e.preventDefault();
+                    alert('필수 항목을 모두 입력해주세요.');
+                    return;
+                }
+            }
+
+            // 설명 글자 수 검증
+            if (description.value.length > 2000) {
+                e.preventDefault();
+                alert('설명은 2000자 이하로 입력해주세요.');
+                description.focus();
+                return;
+            }
+
+            // 파일 크기 검증
+            const oversizedFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
+            if (oversizedFiles.length > 0) {
+                e.preventDefault();
+                showFileError('50MB 이상의 파일은 업로드할 수 없습니다.');
+                return;
+            }
+
+            // 로딩 상태 표시
+            submitButton.disabled = true;
+            submitButton.querySelector('span').textContent = '처리 중...';
+            loadingSpinner.classList.remove('hidden');
+
+            // 선택된 파일이 있는 경우에만 파일 입력 필드 추가
+            if (selectedFiles.length > 0) {
+                const dataTransfer = new DataTransfer();
+                selectedFiles.forEach(file => dataTransfer.items.add(file));
+
+                const filesInput = document.createElement('input');
+                filesInput.type = 'file';
+                filesInput.name = 'files';
+                filesInput.files = dataTransfer.files;
+                filesInput.style.display = 'none';
+                this.appendChild(filesInput);
+            }
+        });
+
+        // 이벤트 리스너
+        fileInput.addEventListener('change', function() {
+            if (this.files.length > 0) {
+                processFiles(Array.from(this.files));
+                this.value = ''; // 동일한 파일 다시 선택 가능하도록 초기화
+            }
+        });
+
+        description.addEventListener('input', updateCharCount);
+
+        urlInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                document.getElementById('add-url').click();
+            }
+        });
+    </script>
+</div>

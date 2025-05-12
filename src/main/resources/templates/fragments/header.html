@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PoP people on project</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a855f7',
+                        secondary: '#c084fc'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.css"/>
+</head>
+<body class="bg-white">
+
+
+<!-- 헤더 내 알림 아이콘 -->
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100 relative">
+    <div class="flex items-center space-x-4">
+        <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+        <a href="/about" class="text-gray-600 text-sm flex items-center"><i class="ri-information-line mr-1"></i> 소개</a>
+        <a href="/dashboard" class="text-gray-600 text-sm flex items-center"><i class="ri-dashboard-line mr-1"></i> 대시보드</a>
+        <a href="/message" class="text-gray-600 text-sm flex items-center"><i class="ri-chat-3-line mr-1"></i> 메시지</a>
+
+    </div>
+    <div class="flex items-center space-x-3">
+        <div sec:authorize="isAnonymous()" class="flex items-center space-x-2">
+            <a href="/signup" class="text-primary text-sm">회원가입</a>
+            <a href="/login" class="bg-primary text-white px-4 py-1.5 text-sm rounded-button">로그인</a>
+        </div>
+        <div sec:authorize="isAuthenticated()" class="flex items-center space-x-2">
+            <span class="text-gray-700 text-sm" th:text="${#authentication.name}">유저이름</span>
+            <a href="/profile" class="text-gray-600 text-sm">마이페이지</a>
+            <form th:action="@{/logout}" method="post" class="inline">
+                <button type="submit" class="bg-secondary text-white px-4 py-1.5 text-sm rounded-button">로그아웃</button>
+            </form>
+
+        </div>
+
+        <!-- 알림 아이콘 -->
+        <div class="relative ml-4">
+            <button id="notificationButton" onclick="toggleNotificationDropdown()" class="relative text-gray-700 text-2xl">
+                <i class="ri-notification-3-line"></i>
+                <span id="notificationDot" class="absolute top-0 right-0 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
+            </button>
+            <div id="notificationDropdown" class="hidden absolute right-0 mt-2 w-80 bg-white shadow-md rounded border border-gray-200 z-50">
+                <div class="p-3 text-sm font-semibold border-b border-gray-100 flex justify-between items-center">
+                    <span>최근 알림</span>
+                    <a href="/notifications" class="text-xs text-primary hover:underline">더보기</a>
+                </div>
+                <ul id="notificationList" class="max-h-96 overflow-y-auto text-sm">
+                    <!-- 동적으로 채워질 영역 -->
+                </ul>
+            </div>
+        </div>
+    </div>
+</header>
