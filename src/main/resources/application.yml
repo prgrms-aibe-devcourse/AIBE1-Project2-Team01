@@ -4,6 +4,11 @@ spring:
   profiles:
     active: dev
 
+logging:
+  level:
+    org.springframework.security.web.FilterChainProxy: DEBUG
+
+
   # 업로드 파일 크기 제한
   servlet:
     multipart:
@@ -13,4 +18,5 @@ spring:
     hiddenmethod:
       filter:
         enabled: true
+
 

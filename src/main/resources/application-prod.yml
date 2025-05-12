@@ -38,6 +38,23 @@ spring:
             scope:
               - profile_nickname
         #              - account_email # 추가적 동의가 필요하다
+
+          github:
+            client-id: ${GITHUB_CLIENT_ID}
+            client-secret: ${GITHUB_CLIENT_SECRET}
+            scope:
+              - read:user
+            #              - user:email
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
+          google:
+            client-id: ${GOOGLE_CLIENT_ID}
+            client-secret: ${GOOGLE_CLIENT_SECRET}
+            scope:
+              - email
+              - profile
+            redirect-uri: "{baseUrl}/login/oauth2/code/{registrationId}"
+
         provider:
           kakao:
             authorization-uri: https://kauth.kakao.com/oauth/authorize
@@ -48,6 +65,7 @@ spring:
 jwt:
   # openssl rand -base64 32
   secret: ${JWT_SECRET}
+  encrypt-secret: ${JWT_ENCRYPT_SECRET}
   expiration-ms: ${JWT_EXPIRATION_MS} # 1시간
 # 화면단 url
 front-end:
