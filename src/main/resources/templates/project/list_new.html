@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로젝트 공고 조회</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>tailwind.config={theme:{extend:{colors:{primary:'#A78BFA',secondary:'#DDD6FE'},borderRadius:{'none':'0px','sm':'4px',DEFAULT:'8px','md':'12px','lg':'16px','xl':'20px','2xl':'24px','3xl':'32px','full':'9999px','button':'8px'}}}}</script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+            background-color: #F5F3FF;
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #A78BFA 0%, #9333EA 100%);
+            transition: all 0.3s ease;
+        }
+        .status-button {
+            background-color: #F5F3FF;
+            color: #6B7280;
+            padding: 0.5rem 1rem;
+            border-radius: 9999px;
+            font-size: 0.875rem;
+            font-weight: 500;
+            transition: all 0.2s ease;
+        }
+        .status-button.active {
+            background-color: #A78BFA;
+            color: white;
+        }
+        .select-box {
+            background-color: white;
+            border: 1px solid #E5E7EB;
+            padding: 0.5rem 2rem 0.5rem 1rem;
+            border-radius: 0.5rem;
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236B7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 0.5rem center;
+            background-repeat: no-repeat;
+            background-size: 1.5em 1.5em;
+        }
+        .search-input:focus {
+            outline: none;
+            box-shadow: 0 0 0 2px rgba(139, 92, 246, 0.3);
+        }
+        .filter-dropdown:hover {
+            border-color: #8B5CF6;
+        }
+        .card-hover:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+        }
+        .btn-primary {
+            background: linear-gradient(135deg, #8B5CF6 0%, #7C3AED 100%);
+            transition: all 0.3s ease;
+        }
+        .btn-primary:hover {
+            transform: scale(1.02);
+            box-shadow: 0 4px 12px rgba(124, 58, 237, 0.3);
+        }
+        .btn-outline {
+            transition: all 0.3s ease;
+        }
+        .btn-outline:hover {
+            background-color: #F9F7FF;
+        }
+        .status-chip {
+            transition: all 0.2s ease;
+        }
+        .status-chip.active {
+            background-color: #7C3AED;
+            color: white;
+        }
+        .status-chip:hover:not(.active) {
+            background-color: #F3F4F6;
+        }
+        .tech-tag {
+            background-color: #F5F3FF;
+            color: #8B5CF6;
+            padding: 0.25rem 0.75rem;
+            border-radius: 9999px;
+            font-size: 0.75rem;
+            font-weight: 500;
+            display: inline-block;
+            margin-right: 0.5rem;
+            margin-bottom: 0.5rem;
+        }
+    </style>
+</head>
+<div th:replace="fragments/header :: header"></div>
+<body class="min-h-screen">
+<div class="container mx-auto px-4 py-8 max-w-7xl">
+    <!-- 메인 헤더 -->
+    <div class="text-center mb-10">
+        <h1 class="text-2xl font-bold text-gray-800 mb-2">원하는 매치를 찾아 멋진 것을 함께 만들어보세요</h1>
+        <div class="flex justify-center mt-6 space-x-4">
+            <button class="btn-primary text-white px-6 py-3 rounded-md font-medium !rounded-button shadow-md">
+                시작하기
+            </button>
+            <a th:href="@{/projects/create}"
+               class="btn-outline border border-gray-300 px-6 py-3 rounded-md font-medium text-gray-700 !rounded-button">
+                프로젝트 만들기
+            </a>
+        </div>
+    </div>
+    <!-- 소셜 로그인 버튼 -->
+    <div class="flex justify-center space-x-4 mb-10">
+        <button class="btn-outline flex items-center justify-center space-x-2 px-5 py-2.5 border border-gray-300 rounded-md font-medium text-gray-700 !rounded-button">
+            <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-kakao-talk-fill ri-lg text-black"></i>
+            </div>
+            <span>카카오로 계속하기</span>
+        </button>
+        <button class="btn-outline flex items-center justify-center space-x-2 px-5 py-2.5 border border-gray-300 rounded-md font-medium text-gray-700 !rounded-button">
+            <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-google-fill ri-lg text-red-500"></i>
+            </div>
+            <span>구글로 계속하기</span>
+        </button>
+        <button class="btn-outline flex items-center justify-center space-x-2 px-5 py-2.5 border border-gray-300 rounded-md font-medium text-gray-700 !rounded-button">
+            <div class="w-5 h-5 flex items-center justify-center">
+                <i class="ri-github-fill ri-lg"></i>
+            </div>
+            <span>깃허브로 계속하기</span>
+        </button>
+    </div>
+    <form method="get" th:action="@{/projects}" class="mb-10">
+        <!-- 검색 및 필터 섹션 -->
+
+        <div class="relative mb-4">
+            <input type="text" placeholder="프로젝트 검색" th:name="keyword" th:value="${condition.keyword}" class="w-full px-4 py-3 pl-10 bg-white border border-gray-300 rounded-lg text-gray-700 focus:border-primary focus:outline-none">
+            <i class="ri-search-line ri-lg absolute left-3 top-1/2 -translate-y-1/2 text-gray-400"></i>
+        </div>
+        <div class="flex flex-wrap items-center gap-4">
+            <div class="relative">
+                <select th:name="field" th:value="${condition.field}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
+                    <option value="">관심분야</option>
+                    <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.name}"></option>
+                </select>
+
+                <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="relative">
+                <select th:name="skillTag" th:value="${condition.skillTag}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
+                    <option value="">기술 스택</option>
+                    <option th:each="tag : ${tags}" th:value="${tag.name}" th:text="${tag.name}"></option>
+
+                </select>
+                <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="relative">
+                <select th:name="type" th:value="${condition.type}" class="filter-dropdown flex items-center justify-between w-32 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
+                    <option value="">종류</option>
+                    <option value="project">프로젝트</option>
+                    <option value="competition">대회</option>
+                </select>
+                <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+            </div>
+            <div class="relative">
+                <select th:name="experienceLevel" th:value="${condition.experienceLevel}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
+                    <option value="" disabled selected>경력 수준</option>
+                    <option value="비전공/비개발 경험자">비전공/비개발 경험자</option>
+                    <option value="초급 (개인 프로젝트 수준)">초급 (개인 프로젝트 수준)</option>
+                    <option value="중급 (팀 프로젝트 경험자)">중급 (팀 프로젝트 경험자)</option>
+                    <option value="준실무 (부트캠프/인턴)">준실무 (부트캠프/인턴)</option>
+                    <option value="실무 1년 이상">실무 1년 이상</option>
+                    <option value="실무 3년 이상">실무 3년 이상</option>
+                </select>
+                <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>
+
+            </div>
+            <div class="flex items-center gap-4 ml-auto">
+                <a href="/projects" button class="flex items-center space-x-1 px-4 py-3 text-gray-600 hover:text-primary transition-colors">
+                    <i class="ri-refresh-line ri-lg"></i>
+                    <span>필터 초기화</span>
+                </a>
+                <button type="submit" class="btn-primary text-white px-6 py-3 rounded-lg font-medium !rounded-button">
+                    검색
+                </button>
+            </div>
+        </div>
+    </form>
+</div>
+
+<!-- 전체 프로젝트 섹션 -->
+<div class="mb-12">
+    <div class="flex justify-between items-center mb-6">
+        <h2 class="text-xl font-bold text-gray-800">전체 프로젝트</h2>
+        <div class="flex items-center space-x-4">
+            <div class="flex space-x-2">
+                <button type="button" class="status-button active" data-status="모집중">모집중</button>
+                <button type="button" class="status-button" data-status="진행중">진행중</button>
+                <button type="button" class="status-button" data-status="완료">완료</button>
+            </div>
+            <select class="select-box text-sm text-gray-700">
+                <option value="latest">최신순</option>
+                <option value="oldest">오래된순</option>
+            </select>
+        </div>
+    </div>
+    <!-- project-cards.html -->
+    <div id="projectList">
+        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            <div th:each="project : ${projects}" class="card-hover bg-white rounded-lg shadow-md overflow-hidden transition-all duration-300">
+                <div class="p-6">
+                    <div class="flex items-center mb-4">
+                        <div class="w-10 h-10 flex items-center justify-center bg-purple-100 rounded-lg text-primary">
+                            <i class="ri-code-s-slash-line ri-lg"></i>
+                        </div>
+                        <div class="ml-3">
+                            <h3 class="font-bold text-gray-800" th:text="${project.title}">프로젝트 제목</h3>
+                            <p class="text-sm text-gray-500" th:text="|${project.type}-${project.locationType}|"></p>
+                        </div>
+                    </div>
+                    <p class="text-gray-700 mb-4 line-clamp-2" th:text="${project.description}">설명</p>
+                    <div class="mb-4">
+                        <span class="tech-tag" th:each="tag : ${project.requiredTags}" th:text="${tag}"></span>
+                        <span class="tech-tag" th:each="tag : ${project.selectiveTags}" th:text="${tag}"></span>
+                    </div>
+                    <div class="flex justify-between items-center">
+                        <a th:href="@{'/projects/detail'(projectId=${project.projectId})}" class="btn-primary text-white px-5 py-2 rounded-md text-sm font-medium !rounded-button whitespace-nowrap">보기</a>
+                        <form th:action="@{/projects/apply}" method="post">
+                            <input type="hidden" name="projectId" th:value="${project.projectId}" />
+                            <button type="submit" class="border border-gray-300 px-5 py-2 rounded-md text-sm font-medium text-gray-700 hover:border-primary transition-all !rounded-button whitespace-nowrap">지원</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 인기 프로필 섹션 -->
+    <div class="mb-12">
+        <h2 class="text-xl font-bold text-gray-800 mb-6"></h2>
+        <!-- 페이지네이션 -->
+        <div class="flex justify-center mt-10">
+            <nav class="flex items-center space-x-2">
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">
+                    <i class="ri-arrow-left-s-line ri-lg"></i>
+                </button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full bg-primary text-white">1</button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">2</button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">3</button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">4</button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">5</button>
+                <button class="w-10 h-10 flex items-center justify-center rounded-full border border-gray-300 text-gray-600 hover:border-primary hover:text-primary transition-colors">
+                    <i class="ri-arrow-right-s-line ri-lg"></i>
+                </button>
+            </nav>
+        </div>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+// 필터 드롭다운 토글 기능
+        const filterDropdowns = document.querySelectorAll('.filter-dropdown');
+        filterDropdowns.forEach(dropdown => {
+            dropdown.addEventListener('click', function() {
+// 여기에 드롭다운 토글 로직 추가
+                console.log('Filter dropdown clicked');
+            });
+        });
+    });
+</script>
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        const statusButtons = document.querySelectorAll(".status-button");
+        const sortSelect = document.getElementById("sortSelect");
+        const projectList = document.getElementById("projectList");
+
+        function fetchProjects(status, sortBy) {
+            const url = new URL('/projects/filter', window.location.origin);
+            if (status) url.searchParams.set("status", status);
+            if (sortBy) url.searchParams.set("sortBy", sortBy);
+            fetch(url).then(res => res.text()).then(html => {
+                projectList.innerHTML = html;
+            });
+        }
+
+        statusButtons.forEach(btn => {
+            btn.addEventListener("click", () => {
+                const status = btn.dataset.status;
+                fetchProjects(status, sortSelect.value);
+            });
+        });
+
+        sortSelect.addEventListener("change", () => {
+            const activeBtn = document.querySelector(".status-button.active");
+            const status = activeBtn ? activeBtn.dataset.status : null;
+            fetchProjects(status, sortSelect.value);
+        });
+    });
+</script>
+</body>
+</html>

@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>명세서 추가</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#A855F7',
+                        secondary: '#8B5CF6'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@400;600&display=swap" rel="stylesheet">
+</head>
+
+<body class="flex bg-gray-100 min-h-screen">
+<main class="flex-1 p-8 space-y-10 overflow-y-auto">
+    <!-- 명세서 추가 폼 -->
+    <section class="bg-white p-6 rounded-lg shadow-sm">
+        <h2 class="font-medium text-xl mb-4">명세서 추가</h2>
+        <form th:action="@{/projects/onprojects/{projectId}/specs/add(projectId=${onGoingProjectId})}"
+              method="post">
+            <div class="mb-4">
+                <label for="requirement" class="block text-sm font-medium text-gray-700">요구사항</label>
+                <textarea id="requirement" name="requirement" rows="3" class="mt-1 block w-full border border-gray-300 rounded-lg p-2" required></textarea>
+            </div>
+            <div class="mb-4">
+                <label for="assignee" class="block text-sm font-medium text-gray-700">담당자</label>
+                <input type="text" id="assignee" name="assignee" class="mt-1 block w-full border border-gray-300 rounded-lg p-2" required>
+            </div>
+            <div class="mb-4">
+                <label for="status" class="block text-sm font-medium text-gray-700">상태</label>
+                <select id="status" name="status" class="mt-1 block w-full border border-gray-300 rounded-lg p-2" required>
+                    <option value="onGoing">진행중</option>
+                    <option value="completed">완료</option>
+                    <option value="waiting">대기</option>
+                </select>
+            </div>
+            <div class="mb-4">
+                <label for="dueDate" class="block text-sm font-medium text-gray-700">마감일</label>
+                <input type="date" id="dueDate" name="dueDate" class="mt-1 block w-full border border-gray-300 rounded-lg p-2" required>
+            </div>
+<!--            <div class="mb-4">-->
+<!--                <label for="progressRate" class="block text-sm font-medium text-gray-700">진행률</label>-->
+<!--                <input type="number" id="progressRate" name="progressRate" class="mt-1 block w-full border border-gray-300 rounded-lg p-2" min="0" max="100" required>-->
+<!--            </div>-->
+            <div class="flex justify-end">
+                <button type="submit" class="bg-blue-600 text-white px-6 py-2 rounded-lg shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">저장</button>
+            </div>
+        </form>
+    </section>
+</main>
+</body>
+</html>
