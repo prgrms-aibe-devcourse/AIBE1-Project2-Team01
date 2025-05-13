@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head th:replace="~{fragments/header :: head}"></head>
+<body>
+<header th:replace="~{fragments/header :: header}"></header>
+
+<div class="flex">
+    <!-- 왼쪽 사이드바 -->
+    <aside class="w-64 bg-gray-50 min-h-screen p-4 border-r border-gray-200">
+        <nav>
+            <ul class="space-y-2">
+                <li>
+                    <a href="/portfolios" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded">
+                        <i class="ri-folder-line mr-2"></i> 포트폴리오 관리
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded" style="pointer-events: none;">
+<!--                        <i class="ri-group-line mr-2"></i> -->
+                        <i class="ri-hourglass-fill"></i>
+                         피어리뷰
+                    </a>
+                </li>
+                <li>
+                    <a href="#" class="flex items-center p-2 text-gray-700 hover:bg-purple-50 rounded" style="pointer-events: none;">
+<!--                        <i class="ri-stack-line mr-2"></i> -->
+                        <i class="ri-hourglass-fill"></i>
+                         프로젝트 관리
+                    </a>
+                </li>
+            </ul>
+        </nav>
+    </aside>
+
+    <!-- 메인 컨텐츠 -->
+    <main class="flex-1 p-8">
+        <div th:replace="~{${viewName} :: content}"></div>
+    </main>
+
+</div>
+
+<!-- 푸터 -->
+<footer th:replace="~{fragments/footer :: footer}"></footer>
+
+</body>
+</html>

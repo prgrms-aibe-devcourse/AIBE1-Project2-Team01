@@ -28,5 +28,5 @@ public class UserAccount {
     private boolean admin = false;
 
     @Column
-    private Boolean banned;
+    private boolean banned;
 }

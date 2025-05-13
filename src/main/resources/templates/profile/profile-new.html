@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>프로필 생성 - PoP</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a855f7',
+                        secondary: '#c084fc'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col">
+
+<!-- 상단 네비게이션 -->
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100">
+    <div class="flex items-center space-x-4">
+        <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-information-line mr-1"></i> 소개
+        </a>
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-dashboard-line mr-1"></i> 대시보드
+        </a>
+    </div>
+</header>
+
+<!-- 프로필 생성 컨텐츠 -->
+<div class="flex-grow flex items-center justify-center py-10">
+    <div class="bg-white p-10 rounded-xl shadow-md w-full max-w-lg space-y-6">
+        <h1 class="text-2xl font-bold text-center text-primary">프로필 생성</h1>
+
+        <form id="profileForm" class="space-y-4">
+            <div>
+                <label class="block text-sm font-medium mb-1">이메일</label>
+                <input id="email" type="email" class="w-full border rounded-button p-2" placeholder="이메일 입력" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">닉네임</label>
+                <input id="nickname" type="text" class="w-full border rounded-button p-2" placeholder="닉네임 입력" required>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">소개</label>
+                <textarea id="bio" class="w-full border rounded-button p-2" placeholder="자기소개 입력"></textarea>
+            </div>
+            <div>
+                <label class="block text-sm font-medium mb-1">연락처</label>
+                <input id="phone" type="text" class="w-full border rounded-button p-2" placeholder="010-1234-5678" required>
+            </div>
+
+            <!-- 기술 태그 -->
+            <div>
+                <label class="block text-sm font-medium mb-1">기술 태그</label>
+                <div class="flex space-x-2 mb-2">
+                    <input id="techTagInput" type="text" class="flex-1 border rounded-button p-2" placeholder="예: React, Java">
+                    <button type="button" id="addTechTag" class="bg-primary text-white px-4 py-2 rounded-button">추가</button>
+                </div>
+                <div id="techTagsContainer" class="flex flex-wrap gap-2"></div>
+            </div>
+
+            <!-- 성향 태그 -->
+            <div>
+                <label class="block text-sm font-medium mb-1">성향</label>
+                <div class="flex items-center space-x-4">
+                    <input type="range" id="personalityScoreSlider" min="1" max="5" step="1" class="w-full accent-primary">
+                    <span id="personalityText" class="w-24 text-sm text-gray-700">보통</span>
+                    <button type="button" id="applyPersonality" class="bg-primary text-white px-4 py-2 rounded-button">적용</button>
+                </div>
+                <div id="personalityTagContainer" class="mt-2 flex gap-2"></div>
+            </div>
+
+            <button type="submit" class="w-full bg-primary hover:bg-secondary text-white py-2 rounded-button font-semibold transition">
+                프로필 저장
+            </button>
+        </form>
+    </div>
+</div>
+
+<script>
+    const techTags = [];
+    const personalityMap = {1:"조용함",2:"조금 조용함",3:"보통",4:"조금 활발함",5:"활발함"};
+    let selectedPersonalityText="";
+
+    document.getElementById('addTechTag').addEventListener('click',()=>{
+        const input=document.getElementById('techTagInput');
+        const value=input.value.trim();
+        if(value&&!techTags.includes(value)){
+            techTags.push(value);
+            renderTechTags();
+            input.value='';
+        }
+    });
+
+    function renderTechTags(){
+        const container=document.getElementById('techTagsContainer');
+        container.innerHTML='';
+        techTags.forEach((tag,index)=>{
+            const el=document.createElement('span');
+            el.className='bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm';
+            el.innerHTML=`${tag}<button class="ml-2" onclick="removeTechTag(${index})">×</button>`;
+            container.appendChild(el);
+        });
+    }
+
+    function removeTechTag(index){techTags.splice(index,1);renderTechTags();}
+
+    document.getElementById('personalityScoreSlider').addEventListener('input',e=>{
+        document.getElementById('personalityText').textContent=personalityMap[e.target.value];
+    });
+
+    document.getElementById('applyPersonality').addEventListener('click',()=>{
+        selectedPersonalityText=personalityMap[document.getElementById('personalityScoreSlider').value];
+        const container=document.getElementById('personalityTagContainer');
+        container.innerHTML=`<span class='bg-green-100 text-green-800 px-3 py-1 rounded-full text-sm'>${selectedPersonalityText}</span>`;
+    });
+
+    document.getElementById('profileForm').addEventListener('submit', async(e)=>{
+        e.preventDefault();
+        const profile={email:document.getElementById('email').value,nickname:document.getElementById('nickname').value,bio:document.getElementById('bio').value,phone:document.getElementById('phone').value,profileImageUrl:''};
+        const tags={techTags,personalityScore:+document.getElementById('personalityScoreSlider').value,personalityText:selectedPersonalityText};
+
+        try{
+            await fetch('/api/profile/me',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(profile)});
+            await fetch('/api/profile/me/tags',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(tags)});
+            alert('저장 성공!');
+            location.href='/profile/view';
+        }catch(err){alert('저장 실패! 다시 시도해주세요.');}
+    });
+    // 전화번호 자동 하이픈 삽입
+    document.getElementById('phone').addEventListener('input', (e) => {
+        let value = e.target.value.replace(/\D/g, '');
+        if (value.length < 4) {
+            e.target.value = value;
+        } else if (value.length < 8) {
+            e.target.value = `${value.slice(0, 3)}-${value.slice(3)}`;
+        } else {
+            e.target.value = `${value.slice(0, 3)}-${value.slice(3, 7)}-${value.slice(7, 11)}`;
+        }
+    });
+</script>
+</body>
+</html>

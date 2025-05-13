@@ -2,6 +2,7 @@
 FROM gradle:8.1.0-jdk17 AS builder
 WORKDIR /app
 COPY --chown=gradle:gradle . .
+RUN chmod +x gradlew
 RUN ./gradlew bootJar
 
 # 2단계: 실행 이미지
