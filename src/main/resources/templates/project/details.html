@@ -105,7 +105,7 @@
     <div class="grid grid-cols-2 md:grid-cols-3 gap-4 mb-8">
         <div class="bg-gray-50 p-4 rounded">
             <p class="text-sm text-gray-500 mb-1">분야</p>
-            <p class="font-medium" th:text="${project.field}"></p>
+            <p class="font-medium" th:text="${project.field.description}"></p>
         </div>
         <div class="bg-gray-50 p-4 rounded">
             <p class="text-sm text-gray-500 mb-1">진행 방식</p>
@@ -151,49 +151,49 @@
             </div>
         </div>
         <div
-                class="bg-white border border-gray-100 rounded-lg p-6 custom-shadow mb-6"
+                class="whitespace-pre-line bg-white border border-gray-100 rounded-lg p-6 custom-shadow mb-6"
                 th:text="${project.description}"
         >
         </div>
     </div>
     <!-- 모집 분야 -->
-    <div class="mb-8">
-        <h2 class="text-xl font-bold mb-4 text-gray-800">모집 분야</h2>
-        <div class="space-y-4">
-            <div
-                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"
-            >
-                <h3 class="font-bold text-gray-800 mb-2">
-                    프론트엔드 개발자 (2명)
-                </h3>
-                <ul class="list-disc pl-5 text-gray-700 space-y-1">
-                    <li>React, TypeScript 활용 가능자</li>
-                    <li>데이터 시각화 라이브러리 사용 경험자 우대</li>
-                    <li>반응형 웹 디자인 경험</li>
-                </ul>
-            </div>
-            <div
-                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"
-            >
-                <h3 class="font-bold text-gray-800 mb-2">백엔드 개발자 (2명)</h3>
-                <ul class="list-disc pl-5 text-gray-700 space-y-1">
-                    <li>Django, Django REST Framework 경험자</li>
-                    <li>데이터베이스 설계 및 최적화 경험</li>
-                    <li>AWS 서비스 활용 경험자 우대</li>
-                </ul>
-            </div>
-            <div
-                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"
-            >
-                <h3 class="font-bold text-gray-800 mb-2">AI/ML 엔지니어 (1~2명)</h3>
-                <ul class="list-disc pl-5 text-gray-700 space-y-1">
-                    <li>TensorFlow 또는 PyTorch 프레임워크 활용 경험</li>
-                    <li>머신러닝/딥러닝 모델 개발 및 최적화 경험</li>
-                    <li>데이터 전처리 및 특성 추출 경험</li>
-                </ul>
-            </div>
-        </div>
-    </div>
+<!--    <div class="mb-8">-->
+<!--        <h2 class="text-xl font-bold mb-4 text-gray-800">모집 분야</h2>-->
+<!--        <div class="space-y-4">-->
+<!--            <div-->
+<!--                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"-->
+<!--            >-->
+<!--                <h3 class="font-bold text-gray-800 mb-2">-->
+<!--                    프론트엔드 개발자 (2명)-->
+<!--                </h3>-->
+<!--                <ul class="list-disc pl-5 text-gray-700 space-y-1">-->
+<!--                    <li>React, TypeScript 활용 가능자</li>-->
+<!--                    <li>데이터 시각화 라이브러리 사용 경험자 우대</li>-->
+<!--                    <li>반응형 웹 디자인 경험</li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--            <div-->
+<!--                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"-->
+<!--            >-->
+<!--                <h3 class="font-bold text-gray-800 mb-2">백엔드 개발자 (2명)</h3>-->
+<!--                <ul class="list-disc pl-5 text-gray-700 space-y-1">-->
+<!--                    <li>Django, Django REST Framework 경험자</li>-->
+<!--                    <li>데이터베이스 설계 및 최적화 경험</li>-->
+<!--                    <li>AWS 서비스 활용 경험자 우대</li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--            <div-->
+<!--                    class="bg-white border border-gray-100 rounded-lg p-5 custom-shadow"-->
+<!--            >-->
+<!--                <h3 class="font-bold text-gray-800 mb-2">AI/ML 엔지니어 (1~2명)</h3>-->
+<!--                <ul class="list-disc pl-5 text-gray-700 space-y-1">-->
+<!--                    <li>TensorFlow 또는 PyTorch 프레임워크 활용 경험</li>-->
+<!--                    <li>머신러닝/딥러닝 모델 개발 및 최적화 경험</li>-->
+<!--                    <li>데이터 전처리 및 특성 추출 경험</li>-->
+<!--                </ul>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
     <!-- 진행 계획 -->
 <!--    <div class="mb-24">-->
 <!--        <div class="flex items-center justify-between mb-4">-->

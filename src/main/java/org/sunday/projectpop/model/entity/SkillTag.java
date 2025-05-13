@@ -1,5 +1,6 @@
 package org.sunday.projectpop.model.entity;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -9,6 +10,7 @@ import lombok.*;
 @AllArgsConstructor
 @Table(name = "skill_tag")
 @Data
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})
 public class SkillTag {
 
     @Id
