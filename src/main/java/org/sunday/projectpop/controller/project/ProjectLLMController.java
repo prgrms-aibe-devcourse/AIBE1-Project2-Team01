@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller.controller;
+package org.sunday.projectpop.controller.project;
 
 import lombok.RequiredArgsConstructor;
 import org.sunday.projectpop.model.dto.GeminiResponse;

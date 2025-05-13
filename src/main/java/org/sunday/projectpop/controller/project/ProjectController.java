@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller.controller;
+package org.sunday.projectpop.controller.project;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
