@@ -112,7 +112,7 @@ public class ProjectService {
                 .type(project.getType())
                 .status(project.getStatus())
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField().getName())
+                .field(project.getField())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())

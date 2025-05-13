@@ -8,6 +8,7 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
+import org.sunday.projectpop.model.dto.GeminiResponse;
 import org.sunday.projectpop.model.dto.ProjectRequest;
 import org.sunday.projectpop.model.dto.ProjectResponse;
 
@@ -18,8 +19,11 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.entity.Project;
+import org.sunday.projectpop.model.entity.ProjectField;
 import org.sunday.projectpop.model.entity.SkillTag;
 import org.sunday.projectpop.model.entity.UserAccount;
+import org.sunday.projectpop.model.repository.ProjectFieldRepository;
+import org.sunday.projectpop.model.repository.SkillTagRepository;
 import org.sunday.projectpop.service.project.*;
 
 
@@ -35,13 +39,56 @@ public class ProjectController {
     private final ProjectApplicationService applicationService;
     private final ProjectFieldService projectFieldService;
 
+    private final ProjectLLMService projectLLMService;
+    private final GeminiLLMService geminiLLMService;
+
+    private final ProjectFieldRepository projectFieldRepository;
+    private final SkillTagRepository skillTagRepository;
 
 
 
     // 🖼️ 공고 작성 폼 (HTML 렌더링)
     @GetMapping("/create")
-    public String showCreateForm(Model model) {
-        model.addAttribute("projectRequest", new ProjectRequest());
+    public String showCreateForm(@RequestParam(required = false) String mode,
+                                 @AuthenticationPrincipal UserDetails userDetails,
+                                 Model model) {
+        ProjectRequest projectRequest;
+
+        if ("llm".equals(mode)) {
+            // 1. 프롬프트 생성 및 Gemini 호출
+            //String userId = userDetails.getUsername(); // 또는 임시 "u01"
+            String userId = "u01";
+            String prompt = projectLLMService.generatePrompt(userId);
+            GeminiResponse response = geminiLLMService.getGeneratedProject(prompt);
+
+            ProjectField field = projectFieldRepository.findByName(response.field())
+                    .orElseThrow(() -> new IllegalArgumentException("해당 분야가 존재하지 않습니다."));
+
+            // 📌 String 태그 → ID 매핑
+
+            List<Long> requiredTagIds = skillTagRepository.findByNameIn(response.requiredTags())
+                    .stream().map(SkillTag::getTagId).toList();
+
+            List<Long> selectiveTagIds = skillTagRepository.findByNameIn(response.selectiveTags())
+                    .stream().map(SkillTag::getTagId).toList();
+
+            // 2. Gemini 응답을 ProjectRequest로 매핑
+            projectRequest = ProjectRequest.builder()
+                    .title(response.title())
+                    .description(response.description())
+                    .teamSize(response.teamSize())
+                    .durationWeeks(response.durationWeeks())
+                    .fieldId(field.getId())
+                    .requiredTagIds(requiredTagIds) // ✅ 여기는 TagId
+                    .selectiveTagIds(selectiveTagIds)
+                    .build();
+        } else {
+            projectRequest = new ProjectRequest(); // 빈 폼
+        }
+
+
+
+        model.addAttribute("projectRequest", projectRequest);
         model.addAttribute("tags", skillTagService.getAllTags());
         model.addAttribute("fields", projectFieldService.getAllFields()); // 💡 추가
 
