@@ -20,16 +20,16 @@ public class ProjectLLMController {
     // 로그인한 유저의 프로필 + 기술 태그 기반으로 prompt 문자열 생성
     @GetMapping("/generate")
     public ResponseEntity<String> generatePrompt(@AuthenticationPrincipal UserDetails userDetails) {
-        // String userId = userDetails.getUsername(); // 현재 로그인된 유저의 ID (String)
+        //String userId = userDetails.getUsername(); // 현재 로그인된 유저의 ID (String)
         String userId = "u01";
 
         String prompt = projectLLMService.generatePrompt(userId); // prompt 생성 로직 호출
 
         return ResponseEntity.ok(prompt);
     }
-    @GetMapping("/generate/execute")
+    @PostMapping("/generate/execute")
     public ResponseEntity<GeminiResponse> generateProjectFromLLM(@AuthenticationPrincipal UserDetails userDetails) {
-        // String userId = userDetails.getUsername();
+        //String userId = userDetails.getUsername();
         String userId = "u01";
         String prompt = projectLLMService.generatePrompt(userId); // 기존 프롬프트 생성
         GeminiResponse result = geminiLLMService.getGeneratedProject(prompt); // Gemini 호출

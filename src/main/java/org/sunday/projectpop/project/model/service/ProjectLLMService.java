@@ -52,7 +52,13 @@ public class ProjectLLMService {
     보유 기술: %s
 
     [요청 사항]
+    아래 사용자의 기술을 바탕으로 실제로 만들 수 있는 앱/웹/AI/도구/게임 등 프로젝트 아이디어를 하나 제안하세요.
+    단순한 기술 나열이 아닌, 명확한 컨셉이 있는 주제를 작성하세요.
     아래 항목을 JSON 형식으로 작성해주세요.
+                        - 프로젝트 설명은 다음 내용을 포함해야 합니다:
+                          1. 어떤 문제를 해결하는지
+                          2. 어떤 핵심 기능이 있는지 (예: 로그인, 리뷰, AI 추천)
+                          3. 역할별 모집인원
     단, field는 아래 리스트 중 하나에서 선택하고,
     requiredTags와 selectiveTags는 아래 기술 태그 목록 중에서만 선택하세요.
 
@@ -70,8 +76,8 @@ public class ProjectLLMService {
 
     [응답 예시]
     {
-      "title": "Spring 기반 협업 프로젝트",
-      "description": "함께 성장하는 백엔드 팀원을 찾습니다.",
+      "title": "프로젝트 제목",
+      "description": "프로젝트 설명",
       "teamSize": 4,
       "requiredTags": ["Java", "Spring Boot"],
       "selectiveTags": ["MySQL"],
