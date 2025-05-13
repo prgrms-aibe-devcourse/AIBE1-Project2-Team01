@@ -7,6 +7,7 @@
     <form th:action="${portfolio.portfolioId != null} ?
                 @{'/portfolios/' + ${portfolio.portfolioId} + '/edit'} :
                 @{/portfolios/new}"
+          th:object="${portfolio}"
           method="post" enctype="multipart/form-data" id="portfolio-form">
         <!-- CSRF 토큰 (실제 구현 시 활성화) -->
         <!-- <input type="hidden" th:name="${_csrf.parameterName}" th:value="${_csrf.token}"> -->
@@ -21,8 +22,9 @@
                 <div th:each="type : ${allTypes}">
                     <input type="radio" th:id="${'type-' + type}"
                            th:value="${type}" name="portfolioType"
-                           th:checked="${portfolio.portfolioType == type}"
+                           checked
                            class="peer hidden" required>
+                    <!--                           th:checked="${portfolio.portfolioType == type}"-->
                     <label th:for="${'type-' + type}"
                            class="block p-3 border-2 rounded-lg cursor-pointer text-center transition-colors
                                   peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary
@@ -31,7 +33,12 @@
                     </label>
                 </div>
             </div>
-            <span th:errors="${portfolio.portfolioType}" class="block text-sm text-red-500 mt-1"></span>
+            <!--            <span th:errors="${portfolio.portfolioType}" class="block text-sm text-red-500 mt-1"></span>-->
+            <!-- 오류 메시지 출력 부분 -->
+            <div th:if="${#fields.hasErrors('portfolioType')}"
+                 class="text-sm text-red-500 mt-1">
+                <span th:errors="${portfolio.portfolioType}"></span>
+            </div>
         </div>
 
         <!-- 제목 섹션 -->
@@ -40,7 +47,11 @@
             <input type="text" id="title" name="title" th:value="${portfolio.title}"
                    class="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent"
                    placeholder="포트폴리오 제목을 입력해주세요" required>
-            <span th:errors="${portfolio.title}" class="block text-sm text-red-500 mt-1"></span>
+            <!-- 오류 메시지 출력 부분 수정 -->
+            <div th:if="${#fields.hasErrors('title')}"
+                 class="text-sm text-red-500 mt-1">
+                <span th:errors="${portfolio.title}"></span>
+            </div>
         </div>
 
         <!-- 템플릿 선택 -->
@@ -61,9 +72,14 @@
                       placeholder="포트폴리오에 대한 상세 설명을 작성해주세요 (최대 2000자)"
                       th:text="${portfolio.description}" required></textarea>
             <div class="flex justify-between mt-1">
-                <span th:errors="${portfolio.description}" class="block text-sm text-red-500"></span>
+                <!-- 오류 메시지 출력 부분 수정 -->
+                <div th:if="${#fields.hasErrors('description')}"
+                     class="text-sm text-red-500">
+                    <span th:errors="${portfolio.description}"></span>
+                </div>
                 <span class="text-sm text-gray-500" id="char-count">0/2000</span>
             </div>
+
         </div>
 
         <!-- 기존 파일 표시 (수정 시) -->
@@ -90,13 +106,17 @@
                 </div>
             </div>
         </div>
-
+        <!-- 파일 오류 메시지 추가 -->
+        <div th:if="${#fields.hasErrors('files')}"
+             class="text-sm text-red-500 mt-2">
+            <span th:errors="${portfolio.files}"></span>
+        </div>
         <!-- 파일 업로드 섹션 -->
         <div class="mb-6">
             <label class="block text-lg font-semibold text-gray-700 mb-3">파일 첨부</label>
 
             <!-- 실제 파일 입력 (숨겨둠) -->
-            <input id="file-upload" name="files" type="file" multiple class="hidden" accept=".pdf,.jpg,.jpeg,.png,,.doc,.docx,.xls,.xlsx, .csv, .txt">
+            <input id="file-upload" name="files" type="file" multiple class="hidden" accept=".pdf,.txt,.md,.csv,.doc,.docx,.xls,.xlsx,.ppt,.pptx">
 
             <!-- 드래그 앤 드롭 영역 -->
             <div id="drop-zone" class="mt-1 flex justify-center px-6 pt-8 pb-8 border-2 border-dashed border-gray-300 rounded-xl hover:border-primary transition-colors bg-gray-50 cursor-pointer"
@@ -114,7 +134,7 @@
                         <span class="font-medium text-primary">파일 선택</span>
                         또는 드래그 앤 드롭
                     </p>
-                    <p class="text-xs text-gray-500">PDF, JPG, PNG, ZIP 파일 (최대 50MB)</p>
+                    <p class="text-xs text-gray-500">TXT, PDF, MD, CSV, MS Office 파일만 가능 (최대 50MB)</p>
 
                     <!-- 선택된 파일 목록 -->
                     <div id="file-list" class="text-sm text-gray-700 mt-2 space-y-2 max-h-40 overflow-y-auto">
@@ -202,10 +222,26 @@
             }
         }
 
-
-
         // 전역 변수
         const MAX_FILE_SIZE = 50 * 1024 * 1024; // 50MB
+        const ALLOWED_FILE_TYPES = [
+            'application/pdf', // .pdf
+            'text/markdown', // .md
+            'text/csv', // .csv
+            'text/plain', // .txt
+            'application/msword', // .doc
+            'application/vnd.openxmlformats-officedocument.wordprocessingml.document', // .docx
+            'application/vnd.ms-excel', // .xls
+            'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet', // .xlsx
+            'application/vnd.ms-powerpoint', // .ppt
+            'application/vnd.openxmlformats-officedocument.presentationml.presentation' // .pptx
+        ];
+        const FILE_EXTENSIONS = [
+            '.pdf', '.md', '.csv', '.txt',
+            '.doc', '.docx', '.xls', '.xlsx',
+            '.ppt', '.pptx'
+        ];
+
         let selectedFiles = [];
         let deleteFileIds = [];
         let existingUrls = new Set([...document.querySelectorAll('input[name="existingUrls"]')].map(input => input.value));
@@ -269,16 +305,72 @@
             }
         }
 
-        // 파일 처리
-        function processFiles(files) {
-            const oversizedFiles = files.filter(file => file.size > MAX_FILE_SIZE);
-
-            if (oversizedFiles.length > 0) {
-                showFileError(`${oversizedFiles.length}개 파일이 50MB 제한을 초과했습니다.`);
-                files = files.filter(file => file.size <= MAX_FILE_SIZE);
+        // 파일 타입 검증 함수
+        function validateFileType(file) {
+            // MIME 타입 검증
+            if (!ALLOWED_FILE_TYPES.includes(file.type)) {
+                return {
+                    valid: false,
+                    message: `지원되지 않는 파일 형식입니다.
+            허용된 형식: ${FILE_EXTENSIONS.join(', ')}`
+                };
             }
 
-            selectedFiles = [...selectedFiles, ...files];
+            // 확장자 검증
+            const fileName = file.name.toLowerCase();
+            const hasValidExtension = FILE_EXTENSIONS.some(ext =>
+                fileName.endsWith(ext)
+            );
+
+            if (!hasValidExtension) {
+                return {
+                    valid: false,
+                    message: `유효하지 않은 파일 확장자입니다.
+            허용된 확장자: ${FILE_EXTENSIONS.join(', ')}`
+                };
+            }
+
+            return { valid: true };
+        }
+        // 파일 처리 함수 (기존 함수 수정)
+        function processFiles(files) {
+            const validFiles = [];
+            const invalidFiles = [];
+
+            files.forEach(file => {
+                // 파일 타입 검증
+                const typeValidation = validateFileType(file);
+                if (!typeValidation.valid) {
+                    invalidFiles.push({
+                        file: file,
+                        message: typeValidation.message
+                    });
+                    return;
+                }
+
+                // 파일 크기 검증
+                if (file.size > MAX_FILE_SIZE) {
+                    invalidFiles.push({
+                        file: file,
+                        message: '파일 크기가 50MB를 초과했습니다.'
+                    });
+                    return;
+                }
+                validFiles.push(file);
+            });
+
+            // 유효하지 않은 파일 처리
+            if (invalidFiles.length > 0) {
+                let errorMessage = '다음 파일들에 문제가 있습니다:\n';
+                invalidFiles.forEach(invalid => {
+                    errorMessage += `- ${invalid.file.name}: ${invalid.message}\n`;
+                });
+
+                showFileError(errorMessage);
+            }
+
+            // 선택된 파일 업데이트
+            selectedFiles = [...selectedFiles, ...validFiles];
             updateFileDisplay();
         }
 
@@ -442,8 +534,28 @@
                 button.closest('div').remove();
             }
         }
+
+        // 파일 입력 accept 속성 설정
+        fileInput.setAttribute('accept', FILE_EXTENSIONS.join(','));
+
         // 폼 제출 처리
         document.getElementById('portfolio-form').addEventListener('submit', function(e) {
+            // 파일 타입 검증
+            const invalidFiles = selectedFiles.filter(file => {
+                const typeValidation = validateFileType(file);
+                return !typeValidation.valid;
+            });
+
+            if (invalidFiles.length > 0) {
+                e.preventDefault();
+                let errorMessage = '다음 파일들이 허용되지 않은 형식입니다:\n';
+                invalidFiles.forEach(file => {
+                    errorMessage += `- ${file.name}\n`;
+                });
+                alert(errorMessage);
+                return;
+            }
+
             const submitButton = document.getElementById('submit-button');
             const loadingSpinner = document.getElementById('loading-spinner');
 
@@ -465,13 +577,13 @@
                 return;
             }
 
-            // 파일 크기 검증
-            const oversizedFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
-            if (oversizedFiles.length > 0) {
-                e.preventDefault();
-                showFileError('50MB 이상의 파일은 업로드할 수 없습니다.');
-                return;
-            }
+            // // 파일 크기 검증
+            // const oversizedFiles = selectedFiles.filter(file => file.size > MAX_FILE_SIZE);
+            // if (oversizedFiles.length > 0) {
+            //     e.preventDefault();
+            //     showFileError('50MB 이상의 파일은 업로드할 수 없습니다.');
+            //     return;
+            // }
 
             // 로딩 상태 표시
             submitButton.disabled = true;

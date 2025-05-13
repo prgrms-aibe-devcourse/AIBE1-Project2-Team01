@@ -8,6 +8,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -33,7 +34,10 @@ public class PortfolioController {
 
     // 포트폴리오 목록 조회
     @GetMapping
-    public String getMyPortfolios(Model model) {
+    public String getMyPortfolios(Model model
+//                                  @RequestParam String userId
+    ) {
+
         String userId = "dummy1"; // TODO: Authentication에서 userId 받기
         List<PortfolioSimple> portfolios = portfolioService.getMyPortfolios(userId);
         model.addAttribute("portfolios", portfolios);

@@ -5,6 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.enums.PortfolioType;
+import org.sunday.projectpop.validator.FileValidation;
 
 import java.util.List;
 
@@ -22,6 +23,8 @@ public record PortfolioRequest(
         String description,
 
         List<String> urls,
+
+//        @FileValidation(message = "첨부된 파일에 문제가 있습니다.")
         List<MultipartFile> files,
 
         // 수정용 필요
