@@ -238,6 +238,16 @@
             border-top: 6px solid #8B5CF6;
             pointer-events: none;
         }
+        .awesomplete [aria-hidden="true"],
+        .awesomplete-help,
+        span[aria-label*="Type 1 or more characters for results."] {
+            display: none !important;
+        }
+        span[aria-label*="Type 1 or more characters for results."] {
+            display: none !important;
+        }
+
+
     </style>
 </head>
 <body>
@@ -489,6 +499,7 @@
                 </button>
                 <button
                         type="button"
+                        onclick="location.href='/projects/create?mode=llm'"
                         class="px-8 py-3 border-2 border-primary text-primary font-medium rounded-full hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap text-sm"
                 >
                     LLM 기반 맞춤형 공고 생성하기
@@ -542,40 +553,6 @@
     const tagMap = {};
     skillTags.forEach(tag => tagMap[tag.name] = tag.tagId);
 
-    // function setupTagInput(inputId, containerId, hiddenId) {
-    //     const input = document.getElementById(inputId);
-    //     const container = document.getElementById(containerId);
-    //     const hidden = document.getElementById(hiddenId);
-    //     const selected = new Set();
-    //
-    //     new Awesomplete(input, {
-    //         list: skillTags.map(t => t.name),
-    //         minChars: 1,
-    //         autoFirst: true
-    //     });
-    //
-    //     input.addEventListener("keydown", function (e) {
-    //         if (e.key === "Enter" && input.value.trim() !== "") {
-    //             e.preventDefault();
-    //             const tagName = input.value.trim();
-    //             const tagId = tagMap[tagName];
-    //             if (!tagId || selected.has(tagId)) return;
-    //             selected.add(tagId);
-    //
-    //             const tagElement = document.createElement("div");
-    //             tagElement.className = "tag";
-    //             tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
-    //             tagElement.querySelector(".tag-close").addEventListener("click", () => {
-    //                 selected.delete(tagId);
-    //                 container.removeChild(tagElement);
-    //                 hidden.value = Array.from(selected).join(",");
-    //             });
-    //             container.insertBefore(tagElement, input);
-    //             hidden.value = Array.from(selected).join(",");
-    //             input.value = "";
-    //         }
-    //     });
-    // }
     function setupTagInput(inputId, containerId, hiddenId) {
         const input = document.getElementById(inputId);
         const container = document.getElementById(containerId);
@@ -589,7 +566,7 @@
         });
 
         function updateHiddenInput() {
-            hidden.value = Array.from(selected).join(","); // 필수!
+            hidden.value = Array.from(selected).join(",");
         }
 
         input.addEventListener("keydown", function (e) {
@@ -618,9 +595,48 @@
             }
         });
     }
+
+    function restoreTagInput(tagIds, containerId, hiddenId) {
+        const container = document.getElementById(containerId);
+        const hidden = document.getElementById(hiddenId);
+        const selected = new Set();
+
+        tagIds.forEach(tagId => {
+            const tag = skillTags.find(t => t.tagId === tagId);
+            if (!tag) return;
+
+            selected.add(tagId);
+
+            const tagElement = document.createElement("div");
+            tagElement.className = "tag";
+            tagElement.innerHTML = `${tag.name}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+
+            tagElement.querySelector(".tag-close").addEventListener("click", () => {
+                selected.delete(tagId);
+                container.removeChild(tagElement);
+                hidden.value = Array.from(selected).join(",");
+            });
+
+            container.appendChild(tagElement);
+        });
+
+        hidden.value = Array.from(selected).join(",");
+    }
+
+    // 초기 자동완성 설정
     setupTagInput("required-skills-input", "required-skills-container", "required-tags-hidden");
     setupTagInput("optional-skills-input", "optional-skills-container", "optional-tags-hidden");
+
+    // LLM 기반 진입 시 자동으로 태그 복원
+    window.addEventListener("DOMContentLoaded", function () {
+        const required = /*[[${projectRequest.requiredTagIds}]]*/ [];
+        const optional = /*[[${projectRequest.selectiveTagIds}]]*/ [];
+
+        restoreTagInput(required, "required-skills-container", "required-tags-hidden");
+        restoreTagInput(optional, "optional-skills-container", "optional-tags-hidden");
+    });
 </script>
+
 
 <div th:replace="fragments/footer :: footer"></div>
 </body>
