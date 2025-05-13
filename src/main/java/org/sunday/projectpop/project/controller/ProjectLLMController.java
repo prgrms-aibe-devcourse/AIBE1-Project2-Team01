@@ -34,6 +34,7 @@ public class ProjectLLMController {
         String prompt = projectLLMService.generatePrompt(userId); // 기존 프롬프트 생성
         GeminiResponse result = geminiLLMService.getGeneratedProject(prompt); // Gemini 호출
         projectLLMService.saveGeneratedProject(result, userId);
+
         return ResponseEntity.ok(result); // JSON 형태로 응답
     }
 }

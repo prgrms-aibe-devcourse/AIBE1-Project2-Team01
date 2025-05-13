@@ -1,6 +1,9 @@
 package org.sunday.projectpop.project.model.service;
 
 import lombok.RequiredArgsConstructor;
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
@@ -11,6 +14,10 @@ import org.sunday.projectpop.project.model.entity.*;
 import org.sunday.projectpop.project.model.repository.*;
 import org.sunday.projectpop.project.model.entity.UserAccount;
 import org.springframework.stereotype.Service;
+
+import org.commonmark.node.Node;
+import org.commonmark.parser.Parser;
+import org.commonmark.renderer.html.HtmlRenderer;
 
 import org.springframework.data.jpa.domain.Specification;
 import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
@@ -114,7 +121,7 @@ public class ProjectService {
                 .type(project.getType())
                 .status(project.getStatus())
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField().getName())
+                .field(project.getField())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())
@@ -124,6 +131,9 @@ public class ProjectService {
                 .requiredTags(requiredTags)
                 .selectiveTags(selectiveTags)
                 .build();
+
+
+
     }
     public List<String> getRequiredTagNames(String projectId) {
         return requireTagRepository.findByProject_ProjectId(projectId).stream()

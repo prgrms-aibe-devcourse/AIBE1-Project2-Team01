@@ -89,6 +89,30 @@ INSERT INTO project (
              '실무 1년 이상', NOW()
          );
 
+INSERT INTO project (
+    project_id, user_id, type, status, generated_by_ai, field_id,
+    title, description, location_type, duration_weeks, team_size,
+    experience_level, created_at
+) VALUES (
+             'p005', 'u01', 'PROJECT', '모집중', false, 4,
+             '주니어 대상 협업 툴 기획', '비전공자도 쉽게 협업할 수 있는 도구를 함께 기획합니다.', '비대면', 4, 3,
+             '비전공/비개발 경험자', NOW()
+         );
+INSERT INTO project_require_tag (project_id, tag_id) VALUES ('p005', 22); -- Git
+INSERT INTO project_selective_tag (project_id, tag_id) VALUES ('p005', 5); -- Vue.js
+
+-- 📢 프로젝트 6: 개인 포트폴리오 웹 개발 (초급 수준)
+INSERT INTO project (
+    project_id, user_id, type, status, generated_by_ai, field_id,
+    title, description, location_type, duration_weeks, team_size,
+    experience_level, created_at
+) VALUES (
+             'p006', 'u01', 'PROJECT', '모집중', false, 2,
+             '개인 포트폴리오 웹 개발', 'HTML/CSS/JavaScript 기반 포트폴리오 웹사이트를 함께 개발합니다.', '대면', 3, 2,
+             '초급 (개인 프로젝트 수준)', NOW()
+         );
+INSERT INTO project_require_tag (project_id, tag_id) VALUES ('p006', 11); -- JavaScript
+INSERT INTO project_selective_tag (project_id, tag_id) VALUES ('p006', 36); -- Thymeleaf
 -- 🔖 필수 태그
 INSERT INTO project_require_tag (project_id, tag_id) VALUES
                                                          ('p001', 1),

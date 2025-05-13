@@ -93,7 +93,7 @@
     </style>
 </head>
 <div th:replace="fragments/header :: header"></div>
-<body class="min-h-screen">
+<body class="min-h-screen overflow-aut">
 <div class="container mx-auto px-4 py-8 max-w-7xl">
     <!-- 메인 헤더 -->
     <div class="text-center mb-10">
@@ -140,7 +140,7 @@
             <div class="relative">
                 <select th:name="field" th:value="${condition.field}" class="filter-dropdown flex items-center justify-between w-40 px-4 py-3 bg-white border border-gray-300 rounded-lg text-gray-700 appearance-none pr-10">
                     <option value="">관심분야</option>
-                    <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.name}"></option>
+                    <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.description}"></option>
                 </select>
 
                 <i class="ri-arrow-down-s-line ri-lg absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-400 pointer-events-none"></i>

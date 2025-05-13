@@ -185,13 +185,25 @@ public String filterProjectsAjax(
 //    }
 @GetMapping("/detail")
 public String viewProjectDetail(@RequestParam("projectId") String projectId, Model model) {
+
+
     ProjectResponse response = projectService.getProjectDetailWithTags(projectId);
+    // 🔍 여기에 로그 추가
+    System.out.println("===== 공고 설명 원문 =====");
+    System.out.println(response.description());
+    System.out.println("========================");
+
     List<String> requiredTags = projectService.getRequiredTagNames(projectId);
     List<String> selectiveTags = projectService.getSelectiveTagNames(projectId);
+
+
+
+
 
     model.addAttribute("project", response);
     model.addAttribute("requiredTags", requiredTags);
     model.addAttribute("selectiveTags", selectiveTags);
+
     return "project/details";
 }
 

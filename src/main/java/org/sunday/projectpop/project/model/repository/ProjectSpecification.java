@@ -53,6 +53,10 @@ public class ProjectSpecification {
 //                predicates.add(root.join("skillTags").get("name").in(condition.getSkillTag()));
 //            }
             if (!CollectionUtils.isEmpty(condition.getSkillTag())) {
+                List<String> lowercasedTags = condition.getSkillTag().stream()
+                        .map(String::toLowerCase)
+                        .toList();
+
                 // 필수 태그 조인
                 Join<Project, ?> requireJoin = root.join("requireTagList", JoinType.LEFT);
                 Join<?, SkillTag> requireSkillJoin = requireJoin.join("tag");
@@ -61,11 +65,12 @@ public class ProjectSpecification {
                 Join<Project, ?> selectiveJoin = root.join("selectiveTagList", JoinType.LEFT);
                 Join<?, SkillTag> selectiveSkillJoin = selectiveJoin.join("tag");
 
-                Predicate requiredMatch = requireSkillJoin.get("name").in(condition.getSkillTag());
-                Predicate selectiveMatch = selectiveSkillJoin.get("name").in(condition.getSkillTag());
+                Predicate requiredMatch = cb.lower(requireSkillJoin.get("name")).in(lowercasedTags);
+                Predicate selectiveMatch = cb.lower(selectiveSkillJoin.get("name")).in(lowercasedTags);
 
                 predicates.add(cb.or(requiredMatch, selectiveMatch));
             }
+
 
             query.distinct(true); // 중복 제거
 

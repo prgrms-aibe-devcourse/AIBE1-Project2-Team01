@@ -2,6 +2,7 @@ package org.sunday.projectpop.project.model.dto;
 
 import lombok.Builder;
 import org.sunday.projectpop.project.model.entity.Project;
+import org.sunday.projectpop.project.model.entity.ProjectField;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
@@ -16,7 +17,7 @@ public record ProjectResponse(
         String type,
         String status,
         boolean generatedByAi,
-        String field,
+        ProjectField field,
         String experienceLevel,
         String locationType,
         int durationWeeks,
@@ -40,7 +41,7 @@ public record ProjectResponse(
                 .type(project.getType())
                 .status(status)
                 .generatedByAi(project.getGeneratedByAi())
-                .field(project.getField().getDescription())
+                .field(project.getField())
                 .experienceLevel(project.getExperienceLevel())
                 .locationType(project.getLocationType())
                 .durationWeeks(project.getDurationWeeks())
