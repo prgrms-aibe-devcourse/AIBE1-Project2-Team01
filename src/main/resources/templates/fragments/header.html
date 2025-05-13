@@ -28,7 +28,7 @@
 
 
 <!-- 헤더 내 알림 아이콘 -->
-<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100 relative">
+<header th:fragment="header" class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100 relative">
     <div class="flex items-center space-x-4">
         <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
         <a href="/about" class="text-gray-600 text-sm flex items-center"><i class="ri-information-line mr-1"></i> 소개</a>
@@ -47,7 +47,6 @@
             <form th:action="@{/logout}" method="post" class="inline">
                 <button type="submit" class="bg-secondary text-white px-4 py-1.5 text-sm rounded-button">로그아웃</button>
             </form>
-
         </div>
 
         <!-- 알림 아이콘 -->

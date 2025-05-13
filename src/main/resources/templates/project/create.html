@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>프로젝트 공고 생성</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap"
+            rel="stylesheet"
+    />
+    <link
+            href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;600;700&display=swap"
+            rel="stylesheet"
+    />
+    <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css"
+    />
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#8B5CF6",
+                        secondary: "#A78BFA",
+                    },
+                    borderRadius: {
+                        none: "0px",
+                        sm: "4px",
+                        DEFAULT: "8px",
+                        md: "12px",
+                        lg: "16px",
+                        xl: "20px",
+                        "2xl": "24px",
+                        "3xl": "32px",
+                        full: "9999px",
+                        button: "8px",
+                    },
+                },
+            },
+        };
+    </script>
+    <style>
+        :where([class^="ri-"])::before { content: "\f3c2"; }
+        body {
+            font-family: 'Noto Sans KR', sans-serif;
+            background-color: #f9f9ff;
+        }
+        .form-input {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 0.75rem;
+            transition: all 0.3s ease;
+            background-color: rgba(139, 92, 246, 0.02);
+        }
+        .form-input:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background-color: white;
+        }
+        .input-group {
+            position: relative;
+        }
+        .input-group i {
+            position: absolute;
+            left: 1rem;
+            top: 50%;
+            transform: translateY(-50%);
+            color: #8B5CF6;
+        }
+        .input-with-icon {
+            padding-left: 2.5rem;
+        }
+        .tag-input-container {
+            flex-wrap: wrap;        /* ✅ 태그들이 여러 줄로 자동 줄바꿈 */
+            gap: 0.5rem;            /* ✅ 태그 간 간격 */
+            align-items: center;
+            background-color: rgba(139, 92, 246, 0.02);
+            transition: all 0.3s ease;
+            border: 1px solid #e2e8f0;
+        }
+        .tag-input-container:focus-within {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background-color: white;
+        }
+        .custom-select select {
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+        .custom-select select:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background-color: white;
+        }
+        .tag {
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(167, 139, 250, 0.1));
+            border: 1px solid rgba(139, 92, 246, 0.2);
+            transition: all 0.3s ease;
+        }
+        .tag:hover {
+            background: linear-gradient(135deg, rgba(139, 92, 246, 0.15), rgba(167, 139, 250, 0.15));
+            transform: translateY(-1px);
+        }
+        .custom-radio label:hover .radio-circle {
+            border-color: #8B5CF6;
+        }
+        input[type="date"] {
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+        input[type="date"]:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background-color: white;
+        }
+        input[type="number"] {
+            background-color: #fafafa;
+            transition: all 0.3s ease;
+        }
+        input[type="number"]:focus {
+            border-color: #8B5CF6;
+            box-shadow: 0 0 0 4px rgba(139, 92, 246, 0.1);
+            background-color: white;
+        }
+        .tag-input-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            padding: 8px;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            min-height: 48px;
+        }
+        .tag {
+            display: flex;
+            align-items: center;
+            background-color: rgba(139, 92, 246, 0.1);
+            color: #8B5CF6;
+            padding: 4px 10px;
+            border-radius: 16px;
+            font-size: 14px;
+        }
+        .tag-close {
+            margin-left: 6px;
+            cursor: pointer;
+        }
+        .tag-input {
+            flex: 1;
+            min-width: 60px;
+            border: none;
+            outline: none;
+            background: transparent;
+            padding: 4px;
+        }
+        input[type="number"]::-webkit-inner-spin-button,
+        input[type="number"]::-webkit-outer-spin-button {
+            -webkit-appearance: none;
+            margin: 0;
+        }
+        input[type="number"] {
+            -moz-appearance: textfield;
+        }
+        .custom-radio input[type="radio"] {
+            display: none;
+        }
+        .custom-radio label {
+            display: inline-flex;
+            align-items: center;
+            cursor: pointer;
+            margin-right: 16px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            transition: all 0.2s ease;
+        }
+        .custom-radio label:hover {
+            background-color: rgba(139, 92, 246, 0.05);
+        }
+        .custom-radio .radio-circle {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: 2px solid #d1d5db;
+            margin-right: 8px;
+            position: relative;
+            transition: all 0.2s ease;
+        }
+        .custom-radio input[type="radio"]:checked + label {
+            color: #8B5CF6;
+        }
+        .custom-radio input[type="radio"]:checked + label .radio-circle {
+            border-color: #8B5CF6;
+        }
+        .custom-radio input[type="radio"]:checked + label .radio-circle::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0);
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background-color: #8B5CF6;
+            animation: radioCheck 0.2s ease forwards;
+        }
+        @keyframes radioCheck {
+            0% {
+                transform: translate(-50%, -50%) scale(0);
+            }
+            100% {
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+        .custom-select {
+            position: relative;
+        }
+        .custom-select select {
+            appearance: none;
+            padding-right: 2.5rem;
+        }
+        .custom-select::after {
+            content: '';
+            position: absolute;
+            top: 50%;
+            right: 1rem;
+            transform: translateY(-50%);
+            width: 0;
+            height: 0;
+            border-left: 6px solid transparent;
+            border-right: 6px solid transparent;
+            border-top: 6px solid #8B5CF6;
+            pointer-events: none;
+        }
+    </style>
+</head>
+<body>
+<div th:replace="fragments/header :: header"></div>
+<div class="min-h-screen py-12 px-4 sm:px-6">
+    <div
+            class="max-w-4xl mx-auto bg-white rounded-2xl shadow-lg p-8 sm:p-12 border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300"
+    >
+        <h1
+                class="text-4xl font-bold text-primary mb-12 text-center bg-gradient-to-r from-primary/10 to-secondary/10 py-6 rounded-2xl font-['Pacifico']"
+        >
+            프로젝트 공고 생성하기
+        </h1>
+        <form th:action="@{/projects/submit}" th:object="${projectRequest}" method="post">
+            <!-- 프로젝트 제목 -->
+            <div class="mb-6">
+                <label
+                        for="title"
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >프로젝트 제목</label
+                >
+                <div class="input-group">
+                    <i class="ri-edit-line text-gray-400"></i>
+                    <input
+                            type="text"
+                            id="title"
+                            th:field="*{title}"
+                            class="form-input input-with-icon"
+                            placeholder="프로젝트 제목을 입력해주세요"
+                    />
+                </div>
+            </div>
+            <!-- 프로젝트 설명 -->
+            <div class="mb-6">
+                <label
+                        for="description"
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >프로젝트 설명</label
+                >
+                <div class="input-group">
+              <textarea
+                      id="description"
+                      th:field="*{description}"
+                      rows="10"
+                      class="form-input"
+                      placeholder="프로젝트에 대한 상세 설명을 입력해주세요"
+              ></textarea>
+                </div>
+            </div>
+            <!-- 분야 선택 -->
+            <div class="mb-6">
+                <label
+                        for="field"
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >분야</label
+                >
+                <div class="custom-select">
+                    <select th:field="*{fieldId}" id="field" class="form-input form-select">
+                        <option value="" disabled selected>분야를 선택해주세요</option>
+                        <option th:each="field : ${fields}" th:value="${field.id}" th:text="${field.description}"></option>
+                    </select>
+                </div>
+            </div>
+            <!-- 지역 선택 -->
+            <div class="mb-6">
+                <label
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >진행 방식</label
+                >
+                <div class="custom-radio">
+                    <input
+                            th:field="*{locationType}"
+                            type="radio"
+                            id="offline"
+
+                            value="대면"
+                    />
+                    <label for="offline">
+                        <div class="radio-circle"></div>
+                        <span>대면</span>
+                    </label>
+                    <input th:field="*{locationType}" type="radio" id="online" value="비대면" />
+                    <label for="online">
+                        <div class="radio-circle"></div>
+                        <span>비대면</span>
+                    </label>
+                </div>
+            </div>
+            <!-- 진행 기간 -->
+            <div class="mb-6 grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div>
+                    <label
+                            for="durationWeeks"
+                            class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                    >진행 기간 (주)</label
+                    >
+                    <input
+                            type="number"
+                            th:field="*{durationWeeks}"
+                            id="durationWeeks"
+
+                            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                            placeholder="진행 기간 (주 단위)"
+                    />
+                </div>
+<!--                <div>-->
+<!--                    <label-->
+<!--                            for="end-date"-->
+<!--                            class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"-->
+<!--                    >종료일</label-->
+<!--                    >-->
+<!--                    <input-->
+<!--                            type="date"-->
+<!--                            id="end-date"-->
+<!--                            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"-->
+<!--                    />-->
+<!--                </div>-->
+            </div>
+            <!-- 팀 인원 수 -->
+            <div class="mb-6">
+                <label
+                        for="teamSize"
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >팀 인원 수</label
+                >
+                <input
+                        type="number"
+                        id="teamSize"
+                        th:field="*{teamSize}"
+                        min="1"
+                        class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                        placeholder="필요한 팀원 수를 입력해주세요"
+                />
+            </div>
+            <!-- 유형 선택 -->
+            <div class="mb-6">
+                <label
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >유형</label
+                >
+                <div class="custom-radio">
+                    <input type="radio" th:field="*{type}" id="project" name="type" value="project" />
+                    <label for="project">
+                        <div class="radio-circle"></div>
+                        <span>프로젝트</span>
+                    </label>
+                    <input
+                            type="radio"
+                            th:field="*{type}"
+                            id="competition"
+                            name="type"
+                            value="competition"
+                    />
+                    <label for="competition">
+                        <div class="radio-circle"></div>
+                        <span>대회</span>
+                    </label>
+                </div>
+            </div>
+            <!-- 경력 수준 -->
+            <div class="mb-6">
+                <label
+                        for="experienceLevel"
+                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"
+                >경력 수준</label
+                >
+                <div class="custom-select">
+                    <select
+
+                            id="experienceLevel"
+                            th:field="*{experienceLevel}"
+                            class="w-full px-4 py-3 border border-gray-300 rounded focus:outline-none focus:ring-2 focus:ring-primary focus:border-transparent"
+                    >
+
+                        <option value="" disabled selected>경력 수준을 선택해주세요</option>
+                        <option value="비전공/비개발 경험자">비전공/비개발 경험자</option>
+                        <option value="초급 (개인 프로젝트 수준)">초급 (개인 프로젝트 수준)</option>
+                        <option value="중급 (팀 프로젝트 경험자)">중급 (팀 프로젝트 경험자)</option>
+                        <option value="준실무 (부트캠프/인턴)">준실무 (부트캠프/인턴)</option>
+                        <option value="실무 1년 이상">실무 1년 이상</option>
+                        <option value="실무 3년 이상">실무 3년 이상</option>
+                    </select>
+                </div>
+            </div>
+            <!-- 필수 기술 태그 -->
+            <div class="mb-6">
+                <label for="required-skills-input" class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    필수 기술 태그
+                </label>
+                <div class="tag-input-container bg-white" id="required-skills-container">
+                    <input type="text" id="required-skills-input" class="tag-input" placeholder="기술을 입력하고 Enter를 누르세요" />
+                </div>
+                <input type="hidden" name="requiredTagIds" id="required-tags-hidden" />
+            </div>
+
+            <!-- 필수 기술 태그 -->
+<!--            <div class="mb-6">-->
+<!--                <label-->
+<!--                        for="requiredTags"-->
+<!--                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"-->
+<!--                >필수 기술 태그</label-->
+<!--                >-->
+<!--                <div-->
+<!--                        class="tag-input-container bg-white"-->
+<!--                        id="requiredTags"-->
+<!--                >-->
+<!--&lt;!&ndash;                    <input&ndash;&gt;-->
+<!--&lt;!&ndash;                            type="text"&ndash;&gt;-->
+<!--&lt;!&ndash;                            class="tag-input"&ndash;&gt;-->
+<!--&lt;!&ndash;                            id="required-skills-input"&ndash;&gt;-->
+<!--&lt;!&ndash;                            placeholder="기술을 입력하고 Enter를 누르세요"&ndash;&gt;-->
+<!--&lt;!&ndash;                    />&ndash;&gt;-->
+<!--                    <select multiple th:field="*{requiredTagIds}" class="form-input">-->
+<!--                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+            <!-- 선택 기술 태그 -->
+<!--            <div class="mb-8">-->
+<!--                <label-->
+<!--                        for="selectiveTags"-->
+<!--                        class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent"-->
+<!--                >선택 기술 태그</label-->
+<!--                >-->
+<!--                <div class="tag-input-container" id="selectiveTags">-->
+<!--                    <select multiple th:field="*{selectiveTagIds}" class="form-input">-->
+<!--                        <option th:each="tag : ${tags}" th:value="${tag.tagId}" th:text="${tag.name}"></option>-->
+<!--                    </select>-->
+<!--                </div>-->
+<!--            </div>-->
+            <!-- 선택 기술 태그 -->
+            <div class="mb-6">
+                <label for="optional-skills-input" class="block text-sm font-semibold text-gray-700 mb-2 bg-gradient-to-r from-primary to-secondary bg-clip-text text-transparent">
+                    선택 기술 태그
+                </label>
+                <div class="tag-input-container bg-white" id="optional-skills-container">
+                    <input type="text" id="optional-skills-input" class="tag-input" placeholder="기술을 입력하고 Enter를 누르세요" />
+                </div>
+                <input type="hidden" name="selectiveTagIds" id="optional-tags-hidden" />
+            </div>
+
+            <!-- 버튼 영역 -->
+            <div class="flex flex-col sm:flex-row gap-4 justify-center mt-10">
+                <button
+                        type="submit"
+                        class="px-8 py-3 bg-gradient-to-r from-primary to-secondary text-white font-medium rounded-full hover:shadow-lg hover:shadow-primary/20 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap text-sm"
+                >
+                    공고 생성하기
+                </button>
+                <button
+                        type="button"
+                        class="px-8 py-3 border-2 border-primary text-primary font-medium rounded-full hover:bg-gradient-to-r hover:from-primary/10 hover:to-secondary/10 hover:shadow-lg hover:shadow-primary/10 hover:-translate-y-0.5 transition-all duration-300 whitespace-nowrap text-sm"
+                >
+                    LLM 기반 맞춤형 공고 생성하기
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener("DOMContentLoaded", function () {
+        function handleRadioClick(radioId) {
+            const radio = document.getElementById(radioId);
+            const allRadios = document.querySelectorAll(`input[name="${radio.name}"]`);
+            allRadios.forEach((r) => {
+                const circle = r.nextElementSibling.querySelector(".radio-circle");
+                if (r.id === radioId) {
+                    r.checked = true;
+                    circle.style.borderColor = "#8B5CF6";
+                } else {
+                    circle.style.borderColor = "#d1d5db";
+                }
+            });
+        }
+        document
+            .getElementById("offline")
+            .nextElementSibling.addEventListener("click", () =>
+            handleRadioClick("offline"),
+        );
+        document
+            .getElementById("online")
+            .nextElementSibling.addEventListener("click", () =>
+            handleRadioClick("online"),
+        );
+        document
+            .getElementById("project")
+            .nextElementSibling.addEventListener("click", () =>
+            handleRadioClick("project"),
+        );
+        document
+            .getElementById("competition")
+            .nextElementSibling.addEventListener("click", () =>
+            handleRadioClick("competition"),
+        );
+
+    });
+</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+<script th:inline="javascript">
+    const skillTags = /*[[${tags}]]*/ [];
+    const tagMap = {};
+    skillTags.forEach(tag => tagMap[tag.name] = tag.tagId);
+
+    // function setupTagInput(inputId, containerId, hiddenId) {
+    //     const input = document.getElementById(inputId);
+    //     const container = document.getElementById(containerId);
+    //     const hidden = document.getElementById(hiddenId);
+    //     const selected = new Set();
+    //
+    //     new Awesomplete(input, {
+    //         list: skillTags.map(t => t.name),
+    //         minChars: 1,
+    //         autoFirst: true
+    //     });
+    //
+    //     input.addEventListener("keydown", function (e) {
+    //         if (e.key === "Enter" && input.value.trim() !== "") {
+    //             e.preventDefault();
+    //             const tagName = input.value.trim();
+    //             const tagId = tagMap[tagName];
+    //             if (!tagId || selected.has(tagId)) return;
+    //             selected.add(tagId);
+    //
+    //             const tagElement = document.createElement("div");
+    //             tagElement.className = "tag";
+    //             tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+    //             tagElement.querySelector(".tag-close").addEventListener("click", () => {
+    //                 selected.delete(tagId);
+    //                 container.removeChild(tagElement);
+    //                 hidden.value = Array.from(selected).join(",");
+    //             });
+    //             container.insertBefore(tagElement, input);
+    //             hidden.value = Array.from(selected).join(",");
+    //             input.value = "";
+    //         }
+    //     });
+    // }
+    function setupTagInput(inputId, containerId, hiddenId) {
+        const input = document.getElementById(inputId);
+        const container = document.getElementById(containerId);
+        const hidden = document.getElementById(hiddenId);
+        const selected = new Set();
+
+        new Awesomplete(input, {
+            list: skillTags.map(t => t.name),
+            minChars: 1,
+            autoFirst: true
+        });
+
+        function updateHiddenInput() {
+            hidden.value = Array.from(selected).join(","); // 필수!
+        }
+
+        input.addEventListener("keydown", function (e) {
+            if (e.key === "Enter" && input.value.trim() !== "") {
+                e.preventDefault();
+                const tagName = input.value.trim();
+                const tagId = tagMap[tagName];
+
+                if (!tagId || selected.has(tagId)) return;
+
+                selected.add(tagId);
+
+                const tagElement = document.createElement("div");
+                tagElement.className = "tag";
+                tagElement.innerHTML = `${tagName}<span class="tag-close ml-2"><i class="ri-close-line"></i></span>`;
+
+                tagElement.querySelector(".tag-close").addEventListener("click", () => {
+                    selected.delete(tagId);
+                    container.removeChild(tagElement);
+                    updateHiddenInput();
+                });
+
+                container.appendChild(tagElement);
+                input.value = "";
+                updateHiddenInput();
+            }
+        });
+    }
+    setupTagInput("required-skills-input", "required-skills-container", "required-tags-hidden");
+    setupTagInput("optional-skills-input", "optional-skills-container", "optional-tags-hidden");
+</script>
+
+<div th:replace="fragments/footer :: footer"></div>
+</body>
+
+</html>
