@@ -1,17 +1,19 @@
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 //유저 기반 프롬프트 생성
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.sunday.projectpop.model.entity.ProjectField;
 import org.sunday.projectpop.model.repository.*;
 import org.sunday.projectpop.model.dto.GeminiResponse;
-import org.sunday.projectpop.project.model.entity.*;
-import org.sunday.projectpop.project.model.repository.UserProfileRepository;
+import org.sunday.projectpop.model.entity.*;
+import org.sunday.projectpop.model.repository.UserProfileRepository;
+import org.sunday.projectpop.model.repository.UserAccountRepository;
+import org.sunday.projectpop.model.repository.ProjectRepository;
 
 
-import org.sunday.projectpop.temp.user.UserAccountRepository;
 
 import java.util.List;
+import java.util.UUID;
 
 @Service
 @RequiredArgsConstructor
@@ -29,7 +31,7 @@ public class ProjectLLMService {
 
     public String generatePrompt(String userId) {
         // 1. 프로필 가져오기
-        UserProfile profile = userProfileRepository.findByUser_UserId(userId)
+        UserProfile profile = userProfileRepository.findByUser_Id(UUID.fromString(userId))
                 .orElseThrow(() -> new IllegalArgumentException("프로필이 없습니다."));
 
         List<UserSkillTag> skillTags = userSkillTagRepository.findByUser_UserId(userId);

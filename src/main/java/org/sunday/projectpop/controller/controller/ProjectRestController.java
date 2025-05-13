@@ -5,9 +5,9 @@
 //import org.springframework.data.domain.Page;
 //import org.springframework.http.ResponseEntity;
 //import org.springframework.web.bind.annotation.*;
-//import org.sunday.projectpop.project.model.dto.ProjectRequest;
-//import org.sunday.projectpop.project.model.dto.ProjectResponse;
-//import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
+//import org.sunday.projectpop.model.dto.ProjectRequest;
+//import org.sunday.projectpop.model.dto.ProjectResponse;
+//import org.sunday.projectpop.model.dto.ProjectSearchCondition;
 //import org.sunday.projectpop.project.model.entity.Project;
 //import org.sunday.projectpop.project.model.entity.SkillTag;
 //import org.sunday.projectpop.project.model.entity.UserAccount;

@@ -1,11 +1,11 @@
-package org.sunday.projectpop.project.model.repository;
+package org.sunday.projectpop.model.repository;
 
 import jakarta.persistence.criteria.*;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.util.CollectionUtils;
-import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
-import org.sunday.projectpop.project.model.entity.Project;
-import org.sunday.projectpop.project.model.entity.SkillTag;
+import org.sunday.projectpop.model.dto.ProjectSearchCondition;
+import org.sunday.projectpop.model.entity.Project;
+import org.sunday.projectpop.model.entity.SkillTag;
 
 import java.util.ArrayList;
 import java.util.List;

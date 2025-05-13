@@ -1,11 +1,14 @@
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+import org.sunday.projectpop.model.entity.Project;
 import org.sunday.projectpop.model.entity.ProjectApplication;
+import org.sunday.projectpop.model.entity.UserAccount;
 import org.sunday.projectpop.model.repository.ProjectApplicationRepository;
-import org.sunday.projectpop.temp.user.UserAccountRepository;
+import org.sunday.projectpop.model.repository.UserAccountRepository;
+import org.sunday.projectpop.model.repository.ProjectRepository;
 
 @Service
 @RequiredArgsConstructor

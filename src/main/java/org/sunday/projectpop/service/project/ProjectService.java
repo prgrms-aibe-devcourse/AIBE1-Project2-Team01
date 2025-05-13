@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.data.domain.Page;
@@ -6,12 +6,10 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.data.domain.Sort;
 import org.sunday.projectpop.model.entity.ProjectField;
-import org.sunday.projectpop.model.repository.ProjectFieldRepository;
-import org.sunday.projectpop.model.repository.ProjectSelectiveTagRepository;
-import org.sunday.projectpop.model.repository.ProjectSpecification;
+import org.sunday.projectpop.model.repository.*;
 import org.sunday.projectpop.model.dto.ProjectRequest;
 import org.sunday.projectpop.model.dto.ProjectResponse;
-import org.sunday.projectpop.project.model.entity.*;
+import org.sunday.projectpop.model.entity.*;
 import org.springframework.stereotype.Service;
 
 import org.sunday.projectpop.model.dto.ProjectSearchCondition;

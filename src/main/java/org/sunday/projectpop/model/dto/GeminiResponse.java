@@ -1,7 +1,6 @@
-package org.sunday.projectpop.project.model.dto;
+package org.sunday.projectpop.model.dto;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import lombok.Data;
 
 import java.util.List;
 

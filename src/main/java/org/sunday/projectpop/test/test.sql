@@ -1,19 +1,6 @@
 
 SET FOREIGN_KEY_CHECKS = 0;
 
-
-# DROP TABLE IF EXISTS user_skill_tag;
-# DROP TABLE IF EXISTS user_trait;
-# DROP TABLE IF EXISTS trait_match;
-# DROP TABLE IF EXISTS member;
-# DROP TABLE IF EXISTS project;
-# DROP TABLE IF EXISTS user_account;
-# DROP TABLE IF EXISTS skill_tag;
-# DROP TABLE IF EXISTS project_require_tag;
-# DROP TABLE IF EXISTS message;
-# DROP TABLE IF EXISTS suggest_from_leader;
-
-
 TRUNCATE TABLE suggest_from_leader;
 TRUNCATE TABLE user_skill_tag;
 TRUNCATE TABLE user_trait;

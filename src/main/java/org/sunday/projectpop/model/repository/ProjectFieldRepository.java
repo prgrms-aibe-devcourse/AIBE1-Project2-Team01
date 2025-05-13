@@ -1,7 +1,7 @@
-package org.sunday.projectpop.project.model.repository;
+package org.sunday.projectpop.model.repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.sunday.projectpop.project.model.entity.ProjectField;
+import org.sunday.projectpop.model.entity.ProjectField;
 
 import java.util.Optional;
 

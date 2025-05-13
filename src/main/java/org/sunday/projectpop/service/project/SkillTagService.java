@@ -1,8 +1,10 @@
 
 
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 
 
+
+import org.sunday.projectpop.model.entity.SkillTag;
 
 import java.util.List;
 

@@ -4,6 +4,9 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
+@Builder
+@NoArgsConstructor(access = AccessLevel.PROTECTED) // ✅ 필수
+@AllArgsConstructor
 @Table(name = "skill_tag")
 @Data
 public class SkillTag {

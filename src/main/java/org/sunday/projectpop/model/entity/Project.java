@@ -5,15 +5,21 @@ import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+import org.sunday.projectpop.model.entity.ProjectField;
+import org.sunday.projectpop.model.entity.UserAccount;
+
 
 import java.time.LocalDateTime;
+import java.util.List;
+
 
 @Entity
 @Table(name = "project")
 @Data
+@Builder
 @NoArgsConstructor
 @AllArgsConstructor
-@Builder
+
 public class Project {
 
     @Id
@@ -34,9 +40,9 @@ public class Project {
     @Column(name = "generated_by_ai")
     private Boolean generatedByAi = false;
 
-
-    @Column(length = 50)
-    private String field;  // ENUM 제거, 프론트 제한
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "field_id")
+    private ProjectField field;
 
     @Column(length = 255)
     private String title;
@@ -50,9 +56,26 @@ public class Project {
     @Column(name = "duration_weeks")
     private Integer durationWeeks;
 
+    @Column(name = "experience_level", length = 50)
+    private String experienceLevel;
+
     @Column(name = "team_size")
     private Integer teamSize;
 
     @Column(name = "created_at")
     private LocalDateTime createdAt;
+
+    @OneToMany(mappedBy = "project")
+    private List<org.sunday.projectpop.model.entity.ProjectRequireTag> requireTagList;
+
+    @OneToMany(mappedBy = "project")
+    private List<org.sunday.projectpop.model.entity.ProjectSelectiveTag> selectiveTagList;
+
+    @PrePersist
+    public void prePersist() {
+        if (this.createdAt == null) {
+            this.createdAt = LocalDateTime.now();
+        }
+    }
+
 }

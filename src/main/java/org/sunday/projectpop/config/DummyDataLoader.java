@@ -6,7 +6,7 @@
 //import org.sunday.projectpop.project.model.entity.*;
 //import org.sunday.projectpop.project.model.repository.ProjectRepository;
 //import org.sunday.projectpop.project.model.repository.ProjectRequireTagRepository;
-//import org.sunday.projectpop.project.model.repository.ProjectSelectiveTagRepository;
+//import org.sunday.projectpop.model.repository.ProjectSelectiveTagRepository;
 //import org.sunday.projectpop.project.model.repository.SkillTagRepository;
 //import org.sunday.projectpop.temp.user.UserAccountRepository;
 //

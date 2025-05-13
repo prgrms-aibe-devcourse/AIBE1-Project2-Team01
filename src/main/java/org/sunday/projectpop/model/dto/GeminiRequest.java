@@ -1,6 +1,4 @@
-package org.sunday.projectpop.project.model.dto;
-
-import java.util.List;
+package org.sunday.projectpop.model.dto;
 
 public record GeminiRequest(
         String prompt

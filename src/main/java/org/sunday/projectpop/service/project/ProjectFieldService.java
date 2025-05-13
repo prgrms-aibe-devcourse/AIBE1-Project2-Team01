@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

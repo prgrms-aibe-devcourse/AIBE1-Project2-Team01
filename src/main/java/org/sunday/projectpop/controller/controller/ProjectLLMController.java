@@ -1,9 +1,9 @@
-package org.sunday.projectpop.project.controller;
+package org.sunday.projectpop.controller.controller;
 
 import lombok.RequiredArgsConstructor;
-import org.sunday.projectpop.project.model.dto.GeminiResponse;
-import org.sunday.projectpop.project.model.service.GeminiLLMService;
-import org.sunday.projectpop.project.model.service.ProjectLLMService;
+import org.sunday.projectpop.model.dto.GeminiResponse;
+import org.sunday.projectpop.service.project.GeminiLLMService;
+import org.sunday.projectpop.service.project.ProjectLLMService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;

@@ -1,4 +1,4 @@
-package org.sunday.projectpop.project.controller;
+package org.sunday.projectpop.controller.controller;
 
 import org.springframework.data.domain.Pageable;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -8,19 +8,19 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.web.PageableDefault;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
-import org.sunday.projectpop.project.model.dto.ProjectRequest;
-import org.sunday.projectpop.project.model.dto.ProjectResponse;
-import org.sunday.projectpop.project.model.entity.UserAccount;
-import org.sunday.projectpop.project.model.service.*;
-import org.sunday.projectpop.project.model.entity.SkillTag;
+import org.sunday.projectpop.model.dto.ProjectRequest;
+import org.sunday.projectpop.model.dto.ProjectResponse;
 
-import org.sunday.projectpop.project.model.dto.ProjectSearchCondition;
-import org.sunday.projectpop.project.model.entity.Project;
+import org.sunday.projectpop.model.dto.ProjectSearchCondition;
 
 
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.sunday.projectpop.model.entity.Project;
+import org.sunday.projectpop.model.entity.SkillTag;
+import org.sunday.projectpop.model.entity.UserAccount;
+import org.sunday.projectpop.service.project.*;
 
 
 import java.util.List;

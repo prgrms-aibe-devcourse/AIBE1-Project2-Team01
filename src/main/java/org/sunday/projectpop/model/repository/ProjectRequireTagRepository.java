@@ -19,5 +19,6 @@ public interface ProjectRequireTagRepository extends JpaRepository<ProjectRequir
 
     @Query("SELECT pr.tag FROM ProjectRequireTag pr WHERE pr.project.projectId = :projectId")
     List<SkillTag> findTagsByProjectId(@Param("projectId") String projectId);
+    List<org.sunday.projectpop.model.entity.ProjectRequireTag> findByProject_ProjectId(String projectId);
 
 }

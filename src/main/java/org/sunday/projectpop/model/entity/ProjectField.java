@@ -1,4 +1,4 @@
-package org.sunday.projectpop.project.model.entity;
+package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.*;

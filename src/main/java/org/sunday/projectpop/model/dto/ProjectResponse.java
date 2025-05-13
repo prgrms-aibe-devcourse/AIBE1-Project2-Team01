@@ -1,12 +1,11 @@
-package org.sunday.projectpop.project.model.dto;
+package org.sunday.projectpop.model.dto;
 
 import lombok.Builder;
-import org.sunday.projectpop.project.model.entity.Project;
+import org.sunday.projectpop.model.entity.Project;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
-import java.util.stream.Collectors;
 
 @Builder
 public record ProjectResponse(

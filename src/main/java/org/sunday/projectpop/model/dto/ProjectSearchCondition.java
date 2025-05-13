@@ -1,4 +1,4 @@
-package org.sunday.projectpop.project.model.dto;
+package org.sunday.projectpop.model.dto;
 
 import lombok.Getter;
 import lombok.Setter;

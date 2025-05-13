@@ -1,4 +1,4 @@
-package org.sunday.projectpop.service.service;
+package org.sunday.projectpop.service.project;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;

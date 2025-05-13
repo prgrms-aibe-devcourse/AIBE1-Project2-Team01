@@ -1,4 +1,4 @@
-package org.sunday.projectpop.project.model.entity;
+package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.AccessLevel;
@@ -16,7 +16,7 @@ public class ProjectApplication {
     private Long id;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    private Project project;
+    private org.sunday.projectpop.model.entity.Project project;
 
     @ManyToOne(fetch = FetchType.LAZY)
     private UserAccount user;

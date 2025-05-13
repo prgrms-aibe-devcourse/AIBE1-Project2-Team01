@@ -1,8 +1,10 @@
-package org.sunday.projectpop.temp.user;
+package org.sunday.projectpop.service.fake;
 
 
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.service.service.UserAccountService;
+import org.sunday.projectpop.model.entity.UserAccount;
+import org.sunday.projectpop.service.project.UserAccountService;
+import org.sunday.projectpop.model.repository.UserAccountRepository;
 
 
 
