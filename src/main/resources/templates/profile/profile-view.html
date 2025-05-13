@@ -1,0 +1,163 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>내 프로필 보기 - PoP</title>
+    <script src="https://cdn.tailwindcss.com/3.4.16"></script>
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        primary: '#a855f7',
+                        secondary: '#c084fc'
+                    },
+                    borderRadius: {
+                        'button': '8px'
+                    }
+                }
+            }
+        }
+    </script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Pacifico&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/remixicon/4.6.0/remixicon.min.css">
+    <style>
+        body {
+            font-family: 'Pretendard', 'Apple SD Gothic Neo', sans-serif;
+        }
+    </style>
+</head>
+<body class="min-h-screen bg-gray-50 flex flex-col">
+
+<!-- 상단 네비게이션 -->
+<header class="w-full bg-white py-3 px-6 flex items-center justify-between border-b border-gray-100">
+    <div class="flex items-center space-x-4">
+        <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-information-line mr-1"></i> 소개
+        </a>
+        <a href="#" class="text-gray-600 text-sm flex items-center">
+            <i class="ri-dashboard-line mr-1"></i> 대시보드
+        </a>
+    </div>
+    <div class="flex items-center space-x-3">
+        <button id="logoutBtn" class="text-sm bg-red-500 hover:bg-red-600 text-white px-4 py-1.5 rounded-button">
+            로그아웃
+        </button>
+    </div>
+</header>
+
+<!-- 프로필 보기 카드 -->
+<main class="flex-grow py-12 px-4 flex items-center justify-center">
+    <div class="w-full max-w-xl bg-white rounded-xl shadow p-8 space-y-6">
+        <h2 class="text-2xl font-bold text-primary">👤 내 프로필</h2>
+        <div class="space-y-4 text-sm text-gray-700">
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">닉네임</span>
+                <p id="nickname" class="text-lg font-semibold text-gray-800"></p>
+            </div>
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">이메일</span>
+                <p id="email"></p>
+            </div>
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">소개</span>
+                <p id="bio"></p>
+            </div>
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">연락처</span>
+                <p id="phone"></p>
+            </div>
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">기술 태그</span>
+                <div id="techTags" class="flex flex-wrap gap-2 mt-1"></div>
+            </div>
+            <div>
+                <span class="font-medium text-gray-500 block mb-1">성향</span>
+                <div id="personalityText" class="inline-block bg-green-100 text-green-800 text-sm px-3 py-1 rounded-full font-medium"></div>
+            </div>
+        </div>
+        <div class="text-right">
+            <a href="/profile/edit" class="bg-primary text-white px-6 py-2 rounded-button hover:bg-secondary transition">
+                프로필 수정
+            </a>
+        </div>
+    </div>
+</main>
+
+<!-- 푸터 -->
+<footer class="w-full bg-white py-6 border-t border-gray-100">
+    <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
+        <div>
+            <a href="/" class="font-['Pacifico'] text-primary text-xl">PoP</a>
+            <p class="text-sm text-gray-600 mt-1">© 2025 PoP. 모든 권리 보유.</p>
+        </div>
+        <div class="flex space-x-4">
+            <a href="#" class="text-gray-600">
+                <i class="ri-instagram-line text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-600">
+                <i class="ri-twitter-x-line text-lg"></i>
+            </a>
+            <a href="#" class="text-gray-600">
+                <i class="ri-linkedin-line text-lg"></i>
+            </a>
+        </div>
+    </div>
+</footer>
+
+<script>
+    document.addEventListener('DOMContentLoaded', async () => {
+        try {
+            const res = await fetch('/api/profile/me/full');
+            if (res.status === 401 || res.status === 403) {
+                location.href = '/auth/signin';
+                return;
+            }
+            if (!res.ok) throw new Error('프로필 로딩 실패');
+
+            const data = await res.json();
+
+            document.getElementById('nickname').textContent = data.profile.nickname;
+            document.getElementById('email').textContent = data.profile.email;
+            document.getElementById('bio').textContent = data.profile.bio;
+            document.getElementById('phone').textContent = data.profile.phone;
+
+            (data.tags.techTags || []).forEach(tag => {
+                const span = document.createElement('span');
+                span.textContent = tag;
+                span.className = "bg-purple-100 text-purple-800 text-sm px-3 py-1 rounded-full";
+                document.getElementById('techTags').appendChild(span);
+            });
+
+            document.getElementById('personalityText').textContent = data.tags.personalityText || '정보 없음';
+        } catch (err) {
+            console.error('❌ 프로필 조회 오류:', err);
+            location.href = '/auth/signin';
+        }
+    });
+
+    document.getElementById('logoutBtn').addEventListener('click', async () => {
+        try {
+            const res = await fetch('/auth/logout', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'}
+            });
+
+            if (res.ok) {
+                alert('로그아웃 되었습니다.');
+                location.href = '/auth/signin';
+            } else {
+                throw new Error('서버 오류');
+            }
+        } catch (err) {
+            alert('로그아웃 실패');
+            console.error(err);
+        }
+    });
+</script>
+</body>
+</html>

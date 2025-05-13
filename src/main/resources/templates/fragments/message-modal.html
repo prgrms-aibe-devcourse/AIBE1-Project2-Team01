@@ -1,0 +1,16 @@
+<!-- message-modal.html -->
+<div th:fragment="message-modal">
+    <div id="message-modal" class="fixed inset-0 bg-black bg-opacity-50 hidden items-center justify-center z-50">
+        <div class="bg-white rounded-lg p-6 w-full max-w-md absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2">
+            <button id="close-modal" class="absolute top-2 right-2 text-gray-400 text-xl">&times;</button>
+            <h2 class="text-xl font-semibold mb-4">쪽지 보내기</h2>
+            <form id="send-message-form" class="space-y-4">
+                <input type="text" name="receiverId" placeholder="받는 유저 ID" class="w-full border border-gray-300 rounded px-4 py-2">
+                <textarea name="message" placeholder="메시지 내용" class="w-full border border-gray-300 rounded px-4 py-2"></textarea>
+                <div class="text-right">
+                    <button type="submit" class="bg-secondary text-white px-6 py-2 rounded-button">보내기</button>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
+<head th:replace="fragments/header :: head">
+</head>
+
+<body>
+<header th:replace="fragments/header :: header"></header>
+
+<main class="max-w-6xl mx-auto px-4 py-10">
+    <h1 class="text-2xl font-semibold text-primary mb-6">태그 기반 매칭</h1>
+
+    <form method="post" th:action="@{/match/result}" class="space-y-6">
+        <input type="hidden" name="projectId" th:value="${projectId}" />
+        <!-- 태그 선택 -->
+        <div class="relative w-full">
+            <label for="tag-input" class="block text-sm font-medium text-gray-700 mb-1">사용할 태그 선택</label>
+            <input id="tag-input" type="text" class="block w-full border border-gray-300 rounded px-4 py-3 text-base" style="width:100%!important;" placeholder="태그를 입력하세요">
+            <div id="tag-container" class="mt-3 flex flex-wrap gap-2"></div>
+            <input type="hidden" name="tags" id="selected-tags">
+        </div>
+
+        <!-- 매칭 버튼 -->
+        <div class="text-center">
+            <button type="submit" class="bg-primary text-white px-6 py-2 rounded-button text-base">매칭 시작</button>
+        </div>
+    </form>
+
+    <!-- 매칭 결과 출력 -->
+    <div th:if="${matchedUsers != null}" class="mt-10">
+        <h2 class="text-xl font-semibold text-primary mb-4">매칭된 유저</h2>
+        <div class="grid grid-cols-3 gap-6">
+            <div th:each="user : ${matchedUsers}"
+                 class="border border-gray-200 rounded p-4 shadow-sm cursor-pointer"
+                 th:attr="data-userid=${user.userId},
+              data-email=${user.email},
+              data-compatibility=${user.compatibilityScore}"
+                 onclick="openModalFromDiv(this)">
+                <h3 class="text-lg font-bold text-primary" th:text="${user.userId}">유저 ID</h3>
+                <p class="text-sm text-gray-600" th:text="${user.email}">이메일</p>
+            </div>
+        </div>
+    </div>
+</main>
+
+<!-- 유저 모달 -->
+<div id="userModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-primary">유저 정보</h3>
+            <button onclick="closeModal()" class="text-gray-500 hover:text-gray-700">×</button>
+        </div>
+        <div class="mb-4">
+            <p id="modalUserId" class="text-sm text-gray-700">유저 ID: uXX</p>
+            <p id="modalUserEmail" class="text-sm text-gray-700">이메일: example@example.com</p>
+            <div id="modalUserSkills" class="mt-2 flex flex-wrap gap-2"></div>
+            <!--  레이다 차트 Canvas 추가 -->
+            <div class="mt-4">
+                <canvas id="personalityChart" width="300" height="300"></canvas>
+            </div>
+            <p class="text-sm text-center mt-2">
+                나와의 궁합 점수: <span id="compatibilityScore" class="font-bold text-primary">--</span>점
+            </p>
+
+        </div>
+        <div class="flex justify-end space-x-2">
+            <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm"
+                    onclick="openMessageModalWithUser()">쪽지 보내기</button>
+
+            <button class="bg-primary text-white px-4 py-2 rounded-button text-sm">참여 제안</button>
+        </div>
+    </div>
+</div>
+
+<!-- 쪽지 모달 -->
+<div id="messageModal" class="fixed inset-0 hidden bg-black bg-opacity-50 flex items-center justify-center z-50">
+    <div class="bg-white rounded-lg p-6 w-full max-w-md">
+        <div class="flex justify-between items-center mb-4">
+            <h3 class="text-lg font-semibold text-primary">쪽지 보내기</h3>
+            <button onclick="closeMessageModal()" class="text-gray-500 hover:text-gray-700">×</button>
+        </div>
+        <form id="messageForm">
+            <textarea id="messageContent" rows="5" class="w-full border border-gray-300 rounded px-3 py-2 text-sm mb-4" placeholder="내용을 입력하세요..."></textarea>
+            <div class="flex justify-end">
+                <button type="submit" class="bg-primary text-white px-4 py-2 rounded-button text-sm">보내기</button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- 푸터 -->
+<footer th:replace="fragments/footer :: footer"></footer>
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
+<script th:inline="javascript">
+    const validTags = /*[[${skillTagNames}]]*/ [];
+    const initialTags = /*[[${tags}]]*/ [];
+    const tagInput = document.getElementById('tag-input');
+    const tagContainer = document.getElementById('tag-container');
+    const hiddenInput = document.getElementById('selected-tags');
+    const leaderKey = /*[[${leaderKey}]]*/ "";
+    const projectId = /*[[${projectId}]]*/ "";
+    const userId = /*[[${userId}]]*/ "";
+    let selectedUserIdForMessage = null;
+
+    new Awesomplete(tagInput, {
+        list: validTags,
+        minChars: 1,
+        maxItems: 20,
+        autoFirst: true
+    });
+
+    const tagSet = new Set(initialTags || []);
+    tagSet.forEach(tag => createTagBadge(tag));
+    updateHiddenInput();
+
+    function createTagBadge(tag) {
+        const span = document.createElement('span');
+        span.className = 'bg-purple-100 text-primary px-3 py-1 rounded-full text-sm flex items-center gap-1';
+        span.setAttribute('data-tag', tag);
+        span.innerHTML = tag + ' <button type="button" class="text-red-500 ml-1">×</button>';
+        span.querySelector('button').addEventListener('click', () => {
+            tagSet.delete(tag);
+            tagContainer.removeChild(span);
+            updateHiddenInput();
+        });
+        tagContainer.appendChild(span);
+    }
+
+    function updateHiddenInput() {
+        hiddenInput.value = Array.from(tagSet).join(',');
+    }
+
+    tagInput.addEventListener('keydown', function (e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            const tag = tagInput.value.trim();
+            if (!tag || tagSet.has(tag)) return;
+            if (!validTags.includes(tag)) {
+                alert('유효하지 않은 태그입니다.');
+                return;
+            }
+            tagSet.add(tag);
+            createTagBadge(tag);
+            updateHiddenInput();
+            tagInput.value = '';
+        }
+    });
+
+    function openModalFromDiv(div) {
+        const userId = div.getAttribute('data-userid');
+        const email = div.getAttribute('data-email');
+        const compatibility = div.getAttribute('data-compatibility');
+        openModal(userId, email, compatibility);
+    }
+
+    function openModal(userIdToOpen, email, compatibility) {
+        selectedUserIdForMessage = userIdToOpen;
+        document.getElementById('modalUserId').textContent = '유저 ID: ' + userIdToOpen;
+        document.getElementById('modalUserEmail').textContent = '이메일: ' + email;
+        document.getElementById('compatibilityScore').textContent = compatibility;
+
+        const skillContainer = document.getElementById('modalUserSkills');
+        skillContainer.innerHTML = '';
+
+        fetch(`/match/user-tags?userId=${userIdToOpen}`)
+            .then(res => res.json())
+            .then(skills => {
+                skills.forEach(skill => {
+                    const badge = document.createElement('span');
+                    badge.className = 'bg-gray-100 text-gray-800 px-2 py-1 rounded text-xs';
+                    badge.textContent = skill;
+                    skillContainer.appendChild(badge);
+                });
+            });
+
+        fetch(`/match/user-personality?userId=${userIdToOpen}&leaderKey=${leaderKey}`)
+            .then(res => res.json())
+            .then(data => {
+                const scaledScores = data.scores.map(score => score * 20);
+                const ctx = document.getElementById('personalityChart').getContext('2d');
+                if (window.personalityRadar) window.personalityRadar.destroy();
+
+                window.personalityRadar = new Chart(ctx, {
+                    type: 'radar',
+                    data: {
+                        labels: ['개방성', '성실성', '외향성', '친화성', '신경성'],
+                        datasets: [{
+                            label: '성향 점수 (1~5)',
+                            data: scaledScores,
+                            fill: true,
+                            backgroundColor: 'rgba(155, 48, 255, 0.2)',
+                            borderColor: 'rgba(155, 48, 255, 0.8)',
+                            pointBackgroundColor: 'rgba(155, 48, 255, 1)',
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        scales: {
+                            r: {
+                                suggestedMin: 0,
+                                suggestedMax: 100,
+                                ticks: {
+                                    stepSize: 20,
+                                    callback: (v) => (v / 20).toFixed(1)
+                                },
+                                pointLabels: {
+                                    font: { size: 12 }
+                                }
+                            }
+                        },
+                        plugins: {
+                            legend: { display: false }
+                        }
+                    }
+                });
+            });
+
+        document.getElementById('userModal').classList.remove('hidden');
+    }
+
+    function closeModal() {
+        document.getElementById('userModal').classList.add('hidden');
+    }
+
+    function openMessageModalWithUser() {
+        if (!selectedUserIdForMessage) return;
+        document.getElementById('messageModal').classList.remove('hidden');
+        document.getElementById('messageForm').setAttribute('data-user', selectedUserIdForMessage);
+    }
+
+    function closeMessageModal() {
+        document.getElementById('messageModal').classList.add('hidden');
+    }
+
+    document.getElementById('messageForm').onsubmit = async function (e) {
+        e.preventDefault();
+        const receiverId = e.target.getAttribute('data-user');
+        const message = document.getElementById('messageContent').value.trim();
+        if (!message) {
+            alert("메시지를 입력하세요.");
+            return;
+        }
+
+        const res = await fetch('/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: userId, receiverId, message })
+        });
+        console.log("userId:", userId);
+        if (res.ok) {
+            alert('쪽지를 보냈습니다.');
+            closeMessageModal();
+            e.target.reset();
+        } else {
+            alert('전송 실패');
+        }
+    };
+
+    async function sendSuggestion() {
+        if (!selectedUserIdForMessage) return;
+
+        const res = await fetch('/suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                senderId: userId,
+                receiverId: selectedUserIdForMessage,
+                projectId: projectId
+            })
+        });
+
+        if (res.ok) {
+            alert("참여 제안을 보냈습니다.");
+            closeModal();
+        } else {
+            alert("참여 제안 실패");
+        }
+    }
+</script>
+</body>
+</html>
