@@ -1,7 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
 <head th:replace="fragments/header :: head">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
@@ -11,6 +10,7 @@
     <h1 class="text-2xl font-semibold text-primary mb-6">태그 기반 매칭</h1>
 
     <form method="post" th:action="@{/match/result}" class="space-y-6">
+        <input type="hidden" name="projectId" th:value="${projectId}" />
         <!-- 태그 선택 -->
         <div class="relative w-full">
             <label for="tag-input" class="block text-sm font-medium text-gray-700 mb-1">사용할 태그 선택</label>
@@ -29,7 +29,12 @@
     <div th:if="${matchedUsers != null}" class="mt-10">
         <h2 class="text-xl font-semibold text-primary mb-4">매칭된 유저</h2>
         <div class="grid grid-cols-3 gap-6">
-            <div th:each="user : ${matchedUsers}" class="border border-gray-200 rounded p-4 shadow-sm cursor-pointer" th:attr="data-userid=${user.userId}, data-email=${user.email}" onclick="openModalFromDiv(this)">
+            <div th:each="user : ${matchedUsers}"
+                 class="border border-gray-200 rounded p-4 shadow-sm cursor-pointer"
+                 th:attr="data-userid=${user.userId},
+              data-email=${user.email},
+              data-compatibility=${user.compatibilityScore}"
+                 onclick="openModalFromDiv(this)">
                 <h3 class="text-lg font-bold text-primary" th:text="${user.userId}">유저 ID</h3>
                 <p class="text-sm text-gray-600" th:text="${user.email}">이메일</p>
             </div>
@@ -48,14 +53,19 @@
             <p id="modalUserId" class="text-sm text-gray-700">유저 ID: uXX</p>
             <p id="modalUserEmail" class="text-sm text-gray-700">이메일: example@example.com</p>
             <div id="modalUserSkills" class="mt-2 flex flex-wrap gap-2"></div>
-            <!-- ✅ 레이다 차트 Canvas 추가 -->
+            <!--  레이다 차트 Canvas 추가 -->
             <div class="mt-4">
                 <canvas id="personalityChart" width="300" height="300"></canvas>
             </div>
+            <p class="text-sm text-center mt-2">
+                나와의 궁합 점수: <span id="compatibilityScore" class="font-bold text-primary">--</span>점
+            </p>
 
         </div>
         <div class="flex justify-end space-x-2">
-            <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm">쪽지 보내기</button>
+            <button class="bg-secondary text-white px-4 py-2 rounded-button text-sm"
+                    onclick="openMessageModalWithUser()">쪽지 보내기</button>
+
             <button class="bg-primary text-white px-4 py-2 rounded-button text-sm">참여 제안</button>
         </div>
     </div>
@@ -79,7 +89,7 @@
 
 <!-- 푸터 -->
 <footer th:replace="fragments/footer :: footer"></footer>
-
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/awesomplete/1.1.5/awesomplete.min.js"></script>
 <script th:inline="javascript">
     const validTags = /*[[${skillTagNames}]]*/ [];
@@ -87,13 +97,21 @@
     const tagInput = document.getElementById('tag-input');
     const tagContainer = document.getElementById('tag-container');
     const hiddenInput = document.getElementById('selected-tags');
+    const leaderKey = /*[[${leaderKey}]]*/ "";
+    const projectId = /*[[${projectId}]]*/ "";
+    const userId = /*[[${userId}]]*/ "";
+    let selectedUserIdForMessage = null;
 
     new Awesomplete(tagInput, {
         list: validTags,
         minChars: 1,
-        maxItems: 8,
+        maxItems: 20,
         autoFirst: true
     });
+
+    const tagSet = new Set(initialTags || []);
+    tagSet.forEach(tag => createTagBadge(tag));
+    updateHiddenInput();
 
     function createTagBadge(tag) {
         const span = document.createElement('span');
@@ -107,9 +125,6 @@
         });
         tagContainer.appendChild(span);
     }
-
-    const tagSet = new Set(initialTags || []);
-    tagSet.forEach(tag => createTagBadge(tag));
 
     function updateHiddenInput() {
         hiddenInput.value = Array.from(tagSet).join(',');
@@ -134,17 +149,20 @@
     function openModalFromDiv(div) {
         const userId = div.getAttribute('data-userid');
         const email = div.getAttribute('data-email');
-        openModal(userId, email);
+        const compatibility = div.getAttribute('data-compatibility');
+        openModal(userId, email, compatibility);
     }
 
-    function openModal(userId, email) {
-        document.getElementById('modalUserId').textContent = '유저 ID: ' + userId;
+    function openModal(userIdToOpen, email, compatibility) {
+        selectedUserIdForMessage = userIdToOpen;
+        document.getElementById('modalUserId').textContent = '유저 ID: ' + userIdToOpen;
         document.getElementById('modalUserEmail').textContent = '이메일: ' + email;
+        document.getElementById('compatibilityScore').textContent = compatibility;
+
         const skillContainer = document.getElementById('modalUserSkills');
         skillContainer.innerHTML = '';
 
-        // 1. 기술 태그 표시
-        fetch(`/match/user-tags?userId=${userId}`)
+        fetch(`/match/user-tags?userId=${userIdToOpen}`)
             .then(res => res.json())
             .then(skills => {
                 skills.forEach(skill => {
@@ -155,16 +173,13 @@
                 });
             });
 
-        // ✅ 2. 성향 점수 + 궁합 점수 불러오기 및 차트 렌더링
-        const leaderKey = "12345"; // 또는 백엔드에서 전달한 값 활용
-        fetch(`/match/user-personality?userId=${userId}&leaderKey=${leaderKey}`)
+        fetch(`/match/user-personality?userId=${userIdToOpen}&leaderKey=${leaderKey}`)
             .then(res => res.json())
             .then(data => {
                 const scaledScores = data.scores.map(score => score * 20);
-                document.getElementById("compatibilityScore").textContent = data.compatibility;
-
                 const ctx = document.getElementById('personalityChart').getContext('2d');
                 if (window.personalityRadar) window.personalityRadar.destroy();
+
                 window.personalityRadar = new Chart(ctx, {
                     type: 'radar',
                     data: {
@@ -207,15 +222,60 @@
         document.getElementById('userModal').classList.add('hidden');
     }
 
-    function openMessageModal() {
+    function openMessageModalWithUser() {
+        if (!selectedUserIdForMessage) return;
         document.getElementById('messageModal').classList.remove('hidden');
+        document.getElementById('messageForm').setAttribute('data-user', selectedUserIdForMessage);
     }
 
     function closeMessageModal() {
         document.getElementById('messageModal').classList.add('hidden');
     }
 
-    updateHiddenInput();
+    document.getElementById('messageForm').onsubmit = async function (e) {
+        e.preventDefault();
+        const receiverId = e.target.getAttribute('data-user');
+        const message = document.getElementById('messageContent').value.trim();
+        if (!message) {
+            alert("메시지를 입력하세요.");
+            return;
+        }
+
+        const res = await fetch('/message', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ senderId: userId, receiverId, message })
+        });
+        console.log("userId:", userId);
+        if (res.ok) {
+            alert('쪽지를 보냈습니다.');
+            closeMessageModal();
+            e.target.reset();
+        } else {
+            alert('전송 실패');
+        }
+    };
+
+    async function sendSuggestion() {
+        if (!selectedUserIdForMessage) return;
+
+        const res = await fetch('/suggestions', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                senderId: userId,
+                receiverId: selectedUserIdForMessage,
+                projectId: projectId
+            })
+        });
+
+        if (res.ok) {
+            alert("참여 제안을 보냈습니다.");
+            closeModal();
+        } else {
+            alert("참여 제안 실패");
+        }
+    }
 </script>
 </body>
 </html>

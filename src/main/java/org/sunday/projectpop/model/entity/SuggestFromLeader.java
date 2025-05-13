@@ -28,6 +28,7 @@ public class SuggestFromLeader {
     @Column(length = 1000)
     private String message;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private boolean checking = false;
 
     private LocalDateTime createdAt = LocalDateTime.now();

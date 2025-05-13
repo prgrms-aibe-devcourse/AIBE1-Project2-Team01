@@ -24,6 +24,7 @@ public class Message {
     @Column(length = 1000)
     private String content;
 
+    @Column(nullable = false, columnDefinition = "BIT DEFAULT 0")
     private boolean checking = false;
 
     @Column(name = "sent_at")

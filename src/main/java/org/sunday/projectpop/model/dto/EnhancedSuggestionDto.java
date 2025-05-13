@@ -8,7 +8,8 @@ public record EnhancedSuggestionDto(
         String senderId,
         String receiverId,
         LocalDateTime createdAt,
-        ProjectPreview project
+        ProjectPreview project,
+        Boolean checking
 ) {
     public record ProjectPreview(
             String projectId,
@@ -27,7 +28,8 @@ public record EnhancedSuggestionDto(
                         s.getProject().getProjectId(),
                         s.getProject().getTitle(),
                         s.getProject().getDescription()
-                )
+                ),
+                s.isChecking()
         );
     }
 }
