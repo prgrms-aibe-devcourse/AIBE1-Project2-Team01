@@ -58,7 +58,8 @@ public class SecurityConfig {
                                 "/auth/signup",
                                 "/css/**", "/js/**", "/images/**", "/favicon.ico"
                         ).permitAll()
-                        .anyRequest().authenticated() // 🔐 나머지 모든 요청은 인증 필요
+//                        .anyRequest().authenticated() // 🔐 로그인 페이지 외 다른 페이지 잠금
+                          .anyRequest().permitAll() // 🗝️ 잠금 해제
                 )
                 .formLogin(form -> form
                         .loginPage("/auth/signin")
