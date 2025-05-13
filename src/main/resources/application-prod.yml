@@ -5,7 +5,7 @@ spring:
   jpa:
     hibernate:
       # ddl-auto: create # 배포 시는 none 또는 validate 추천
-      ddl-auto: none
+      ddl-auto: create
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQL8Dialect # MySQL

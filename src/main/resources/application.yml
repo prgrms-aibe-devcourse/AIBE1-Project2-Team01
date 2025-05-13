@@ -2,7 +2,7 @@ spring:
   application:
     name: project-pop
   profiles:
-    active: frod
+    active: prod
 
 logging:
   level:
