@@ -113,6 +113,17 @@ INSERT INTO project (
          );
 INSERT INTO project_require_tag (project_id, tag_id) VALUES ('p006', 11); -- JavaScript
 INSERT INTO project_selective_tag (project_id, tag_id) VALUES ('p006', 36); -- Thymeleaf
+INSERT INTO project (
+    project_id, user_id, type, status, generated_by_ai, field_id,
+    title, description, location_type, duration_weeks, team_size,
+    experience_level, created_at
+) VALUES (
+             'p007', 'u01', 'PROJECT', '모집중', false, 1,
+             '팀 협업 게시판 개발', '팀 커뮤니케이션을 위한 실시간 게시판 서비스를 개발합니다.', '비대면', 6, 5,
+             '중급 (팀 프로젝트 경험자)', NOW()
+         );
+INSERT INTO project_require_tag (project_id, tag_id) VALUES ('p007', 1), ('p007', 3); -- Spring, Docker
+INSERT INTO project_selective_tag (project_id, tag_id) VALUES ('p007', 38);
 -- 🔖 필수 태그
 INSERT INTO project_require_tag (project_id, tag_id) VALUES
                                                          ('p001', 1),
