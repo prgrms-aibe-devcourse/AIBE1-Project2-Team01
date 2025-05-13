@@ -1,9 +1,13 @@
 package org.sunday.projectpop.project.model.dto;
 
-import lombok.Data;
+import lombok.*;
+
 import java.util.List;
 
 @Data
+@Builder
+@AllArgsConstructor(access = AccessLevel.PUBLIC) // ✅ 추가
+@NoArgsConstructor(access = AccessLevel.PUBLIC)
 public class ProjectRequest {
     private String title;
     private String description;
