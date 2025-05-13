@@ -28,31 +28,32 @@ public class LLMClient {
                 .build();
     }
 
-    // 토큰 수 확인
-    public Mono<Integer> countTokens(String text) {
-        Map<String, Object> requestBody = new HashMap<>();
-        Map<String, Object> content = new HashMap<>();
-        content.put("parts", new Object[]{Map.of("text", text)});
-        requestBody.put("contents", new Object[]{content});
-
-        return createWebClient()
-                .post()
-                .uri(":countTokens?key=%s", apiKey)
-                .bodyValue(requestBody)
-                .retrieve()
-                .bodyToMono(Map.class)
-                .map(response -> (Integer) ((Map<?, ?>) response.get("usage")).get("totalTokens"))
-                .onErrorResume(e -> {
-                    System.err.println("토큰 수 계산 중 오류 발생: " + e.getMessage());
-                    return Mono.error(e);
-                });
-    }
+//    // 토큰 수 확인
+//    public Mono<Integer> countTokens(String text) {
+//        Map<String, Object> requestBody = new HashMap<>();
+//        Map<String, Object> content = new HashMap<>();
+//        content.put("parts", new Object[]{Map.of("text", text)});
+//        requestBody.put("contents", new Object[]{content});
+//
+//        return createWebClient()
+//                .post()
+//                .uri(":countTokens?key=%s", apiKey)
+//                .bodyValue(requestBody)
+//                .retrieve()
+//                .bodyToMono(Map.class)
+//                .map(response -> (Integer) ((Map<?, ?>) response.get("usage")).get("totalTokens"))
+//                .onErrorResume(e -> {
+//                    System.err.println("토큰 수 계산 중 오류 발생: " + e.getMessage());
+//                    return Mono.error(e);
+//                });
+//    }
 
     // LLM 피드백 요청
     public Mono<String> feedback(String content, String type) {
         return createWebClient()
                 .post()
-                .uri(":generateContent?key=%s".formatted(apiKey))
+                .uri("?key=%s".formatted(apiKey))
+//                .uri(":generateContent?key=%s".formatted(apiKey))
                 .bodyValue(buildFeedbackPrompt(content, type))
                 .retrieve()
                 .bodyToMono(GeminiResponse.class)
@@ -136,7 +137,8 @@ public class LLMClient {
     public Mono<String> summarize(String content, String type) {
         return createWebClient()
                 .post()
-                .uri(":generateContent?key=%s".formatted(apiKey))
+//                .uri(":generateContent?key=%s".formatted(apiKey))
+                .uri("?key=%s".formatted(apiKey))
                 .bodyValue(buildSummaryPrompt(content, type))
                 .retrieve()
                 .bodyToMono(GeminiResponse.class)
