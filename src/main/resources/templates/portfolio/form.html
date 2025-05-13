@@ -22,8 +22,9 @@
                 <div th:each="type : ${allTypes}">
                     <input type="radio" th:id="${'type-' + type}"
                            th:value="${type}" name="portfolioType"
-                           th:checked="${portfolio.portfolioType == type}"
+                           checked
                            class="peer hidden" required>
+                    <!--                           th:checked="${portfolio.portfolioType == type}"-->
                     <label th:for="${'type-' + type}"
                            class="block p-3 border-2 rounded-lg cursor-pointer text-center transition-colors
                                   peer-checked:border-primary peer-checked:bg-primary/10 peer-checked:text-primary
