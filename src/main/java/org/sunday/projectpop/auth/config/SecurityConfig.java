@@ -1,6 +1,7 @@
 package org.sunday.projectpop.auth.config;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -21,17 +22,17 @@ import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 import org.springframework.web.client.RestTemplate;
 import org.springframework.http.converter.FormHttpMessageConverter;
-import org.sunday.projectpop.auth.client.LoggingTokenResponseClient;
+import org.sunday.projectpop.auth.oauth2.CustomOAuth2UserService;
 import org.sunday.projectpop.auth.jwt.JwtAuthenticationFilter;
 import org.sunday.projectpop.auth.jwt.JwtTokenProvider;
-import org.sunday.projectpop.auth.oauth2.CustomOAuth2UserService;
 import org.sunday.projectpop.auth.oauth2.OAuth2LoginSuccessHandler;
-
+import org.sunday.projectpop.auth.client.LoggingTokenResponseClient;
 
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 
+@Slf4j
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -45,6 +46,9 @@ public class SecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http,
                                                    JwtAuthenticationFilter jwtAuthenticationFilter) throws Exception {
+        log.info("🔧 SecurityFilterChain 설정 시작됨");
+        log.info("🔧 JwtAuthenticationFilter가 SecurityFilterChain에 추가됨");
+
         http
                 .csrf(csrf -> csrf.disable())
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
@@ -70,9 +74,10 @@ public class SecurityConfig {
                 )
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
+        log.info("✅ SecurityFilterChain 빌드 완료");
+
         return http.build();
     }
-
 
     @Bean
     public OAuth2AccessTokenResponseClient<OAuth2AuthorizationCodeGrantRequest> accessTokenResponseClient() {
@@ -94,6 +99,7 @@ public class SecurityConfig {
 
     @Bean
     public JwtAuthenticationFilter jwtAuthenticationFilter(JwtTokenProvider jwtTokenProvider) {
+        log.info("🛡️ JwtAuthenticationFilter Bean 등록됨");
         return new JwtAuthenticationFilter(jwtTokenProvider);
     }
 
@@ -115,4 +121,3 @@ public class SecurityConfig {
         return new ProviderManager(Collections.singletonList(authProvider()));
     }
 }
-

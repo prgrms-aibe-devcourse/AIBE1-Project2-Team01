@@ -1,4 +1,4 @@
-package org.sunday.projectpop.dto;
+package org.sunday.projectpop.dto.auth;
 
 public record JoinDTO(
         String email,

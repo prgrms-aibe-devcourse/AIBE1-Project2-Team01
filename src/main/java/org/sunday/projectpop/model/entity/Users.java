@@ -1,4 +1,4 @@
-package org.sunday.projectpop.entity;
+package org.sunday.projectpop.model.entity;
 
 import jakarta.persistence.*;
 import lombok.Getter;
@@ -7,7 +7,7 @@ import lombok.Setter;
 
 import java.util.UUID;
 
-@Table(name = "user_account")
+@Table(name = "users")
 @Entity
 @Getter
 @Setter

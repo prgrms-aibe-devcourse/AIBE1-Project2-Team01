@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller;
+package org.sunday.projectpop.controller.tags;
 
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -7,9 +7,9 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.dto.UserTagCacheDTO;
+import org.sunday.projectpop.dto.tags.UserTagCacheDTO;
 import org.sunday.projectpop.model.repository.UsersRepository;
-import org.sunday.projectpop.service.UserTagCacheService;
+import org.sunday.projectpop.service.tags.UserTagCacheService;
 
 import java.util.UUID;
 

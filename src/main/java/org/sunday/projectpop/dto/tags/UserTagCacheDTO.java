@@ -1,4 +1,4 @@
-package org.sunday.projectpop.dto;
+package org.sunday.projectpop.dto.tags;
 
 import java.util.List;
 import java.util.UUID;

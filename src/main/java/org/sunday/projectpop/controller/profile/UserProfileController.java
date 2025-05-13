@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller;
+package org.sunday.projectpop.controller.profile;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
@@ -6,13 +6,13 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.web.bind.annotation.*;
-import org.sunday.projectpop.dto.ProfileResponse;
-import org.sunday.projectpop.dto.UserProfileRequestDTO;
-import org.sunday.projectpop.dto.UserProfileResponseDTO;
-import org.sunday.projectpop.dto.UserTagCacheDTO;
+import org.sunday.projectpop.dto.profile.ProfileResponse;
+import org.sunday.projectpop.dto.profile.UserProfileRequestDTO;
+import org.sunday.projectpop.dto.profile.UserProfileResponseDTO;
+import org.sunday.projectpop.dto.tags.UserTagCacheDTO;
 import org.sunday.projectpop.model.repository.UsersRepository;
-import org.sunday.projectpop.service.UserProfileService;
-import org.sunday.projectpop.service.UserTagCacheService;
+import org.sunday.projectpop.service.profile.UserProfileService;
+import org.sunday.projectpop.service.tags.UserTagCacheService;
 
 import java.util.List;
 import java.util.UUID;

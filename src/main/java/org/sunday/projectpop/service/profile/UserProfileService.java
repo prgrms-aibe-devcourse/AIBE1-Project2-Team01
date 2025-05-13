@@ -1,12 +1,12 @@
-package org.sunday.projectpop.service;
+package org.sunday.projectpop.service.profile;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
-import org.sunday.projectpop.dto.UserProfileRequestDTO;
-import org.sunday.projectpop.dto.UserProfileResponseDTO;
-import org.sunday.projectpop.entity.UserProfile;
-import org.sunday.projectpop.entity.Users;
+import org.sunday.projectpop.dto.profile.UserProfileRequestDTO;
+import org.sunday.projectpop.dto.profile.UserProfileResponseDTO;
+import org.sunday.projectpop.model.entity.UserProfile;
+import org.sunday.projectpop.model.entity.Users;
 import org.sunday.projectpop.model.repository.UserProfileRepository;
 import org.sunday.projectpop.model.repository.UsersRepository;
 

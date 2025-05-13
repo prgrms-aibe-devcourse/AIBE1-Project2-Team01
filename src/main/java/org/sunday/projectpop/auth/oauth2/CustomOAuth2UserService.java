@@ -8,7 +8,7 @@ import org.springframework.security.oauth2.client.userinfo.OAuth2UserService;
 import org.springframework.security.oauth2.core.OAuth2AuthenticationException;
 import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.stereotype.Service;
-import org.sunday.projectpop.entity.Users;
+import org.sunday.projectpop.model.entity.Users;
 import org.sunday.projectpop.model.repository.UsersRepository;
 
 import java.util.Map;

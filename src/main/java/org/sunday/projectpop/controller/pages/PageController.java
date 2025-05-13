@@ -1,4 +1,4 @@
-package org.sunday.projectpop.controller;
+package org.sunday.projectpop.controller.pages;
 
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.core.Authentication;
@@ -10,24 +10,24 @@ public class PageController {
 
     @GetMapping("/auth/signin")
     public String signinPage() {
-        return "signin";
+        return "auth/signin";
     }
 
     @GetMapping("/auth/signup")
     public String signupPage() {
-        return "signup";
+        return "auth/signup";
     }
 
     @GetMapping("/profile/view")
     @PreAuthorize("isAuthenticated()")
     public String viewPage() {
-        return "profile-view";
+        return "profile/profile-view";
     }
 
     @GetMapping("/profile/edit")
     @PreAuthorize("isAuthenticated()")
     public String editPage() {
-        return "profile-edit";
+        return "profile/profile-edit";
     }
 
     @GetMapping("/profile/new")
@@ -35,7 +35,7 @@ public class PageController {
         if (authentication == null || !authentication.isAuthenticated()) {
             return "redirect:/auth/signin";
         }
-        return "profile-new";
+        return "profile/profile-new";
     }
 
 }

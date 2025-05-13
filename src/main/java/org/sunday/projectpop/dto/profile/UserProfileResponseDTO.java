@@ -1,4 +1,4 @@
-package org.sunday.projectpop.dto;
+package org.sunday.projectpop.dto.profile;
 
 import java.util.UUID;
 
