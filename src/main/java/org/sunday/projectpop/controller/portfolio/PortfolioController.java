@@ -9,6 +9,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
+import org.springframework.security.core.userdetails.User;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.validation.BindingResult;
@@ -17,12 +18,14 @@ import org.springframework.web.multipart.MultipartFile;
 import org.sunday.projectpop.model.dto.*;
 import org.sunday.projectpop.model.entity.PortfolioNote;
 import org.sunday.projectpop.model.enums.PortfolioType;
+import org.sunday.projectpop.model.repository.UsersRepository;
 import org.sunday.projectpop.service.portfolio.PortfolioNoteService;
 import org.sunday.projectpop.service.portfolio.PortfolioService;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
+import java.util.UUID;
 
 @Controller
 @RequestMapping("/portfolios")
@@ -31,14 +34,15 @@ public class PortfolioController {
 
     private final PortfolioService portfolioService;
     private final PortfolioNoteService portfolioNoteService;
+    private final UsersRepository usersRepository;
 
     // 포트폴리오 목록 조회
     @GetMapping
-    public String getMyPortfolios(Model model
-//                                  @RequestParam String userId
+    public String getMyPortfolios(Model model, Authentication authentication
     ) {
 
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
+
         List<PortfolioSimple> portfolios = portfolioService.getMyPortfolios(userId);
         model.addAttribute("portfolios", portfolios);
         model.addAttribute("userId", userId);
@@ -59,14 +63,13 @@ public class PortfolioController {
     }
 
     // 포트폴리오 등록
-    @PostMapping(value="/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    @PostMapping(value = "/new", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public String addPortfolio(
             @Valid @ModelAttribute("portfolio") PortfolioRequest request,
-            BindingResult bindingResult,
-//            @RequestParam(value = "files", required = false) List<MultipartFile> files,
+            BindingResult bindingResult, Authentication authentication,
             Model model) {
 
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("portfolio", request);
@@ -95,8 +98,6 @@ public class PortfolioController {
     @GetMapping("/{portfolioId}/edit")
     public String updatePortfolioForm(@PathVariable String portfolioId, Model model) {
 
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-
         model.addAttribute("portfolio", portfolioService.getPortfolio(portfolioId));
         model.addAttribute("allTypes", PortfolioType.values());
         model.addAttribute("title", "포트폴리오 수정");
@@ -110,9 +111,9 @@ public class PortfolioController {
             @PathVariable String portfolioId,
             @Valid @ModelAttribute("portfolio") PortfolioRequest request,
             BindingResult bindingResult,
-            Model model
+            Model model, Authentication authentication
     ) {
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
 
         if (bindingResult.hasErrors()) {
             model.addAttribute("portfolio", request);
@@ -127,8 +128,9 @@ public class PortfolioController {
 
     // 포트폴리오 삭제
     @DeleteMapping("/{portfolioId}")
-    public String deletePortfolio(@PathVariable String portfolioId) {
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+    public String deletePortfolio(@PathVariable String portfolioId, Authentication authentication) {
+        String userId = getUserId(authentication);
+
         portfolioService.deletePortfolio(userId, portfolioId);
         return "redirect:/portfolios";
     }
@@ -146,12 +148,11 @@ public class PortfolioController {
     @PostMapping("/{portfolioId}/notes")
     @ResponseBody
     public PortfolioNoteResponse addPortfolioNote(
-            @PathVariable String portfolioId,
+            @PathVariable String portfolioId, Authentication authentication,
             @Valid @RequestBody PortfolioNoteCreateRequest request) {
 
-        System.out.println("---------------------------");
-        System.out.println(portfolioId);
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
+
 //        portfolioNoteService.createNote(userId, portfolioId, request, files);
         PortfolioNote note = portfolioNoteService.createNote(userId, portfolioId, request, null);
 
@@ -165,32 +166,6 @@ public class PortfolioController {
                 false
         );
     }
-/*
-    // 포트폴리오에 대한 노트 등록
-    @Operation(summary = "포트폴리오-노트 업로드", description = "파일과 JSON 데이터를 함께 업로드합니다.",
-            requestBody = @io.swagger.v3.oas.annotations.parameters.RequestBody(
-                    content = @Content(mediaType = MediaType.MULTIPART_FORM_DATA_VALUE,
-                            encoding = {
-                                    @Encoding(name = "request", contentType = "application/json"),
-                                    @Encoding(name = "files", contentType = "application/octet-stream")
-                            }
-                    )
-            )
-    )
-    @PostMapping(value = "/{portfolioId}/notes", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
-    public ResponseEntity<Void> addPortfolioNote(
-            @PathVariable String portfolioId,
-            @Valid @RequestPart("request") PortfolioNoteCreateRequest request,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) {
-
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
-        portfolioNoteService.createNote(userId, portfolioId, request, files);
-
-        return ResponseEntity
-                .status(HttpStatus.CREATED)
-                .build();
-    }
-*/
 
     // 포트폴리오에 대한 노트 상세
     @GetMapping("/{portfolioId}/notes/{noteId}")
@@ -216,11 +191,12 @@ public class PortfolioController {
     @PutMapping(value = "/{portfolioId}/notes/{noteId}", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Void> updatePortfolioNote(
             @PathVariable String portfolioId,
-            @PathVariable Long noteId,
+            @PathVariable Long noteId, Authentication authentication,
             @Valid @RequestPart("request") PortfolioNoteUpdateRequest request,
             @RequestPart(value = "newFiles", required = false) List<MultipartFile> newFiles
     ) throws Exception {
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
+
         portfolioNoteService.updatePortfolioNote(userId, portfolioId, noteId, request, newFiles);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
@@ -230,13 +206,19 @@ public class PortfolioController {
     // 포트폴리오에 대한 노트 삭제
     @DeleteMapping("/{portfolioId}/{noteId}")
     public ResponseEntity<Void> deletePortfolioNote(
-            @PathVariable String portfolioId,
+            @PathVariable String portfolioId, Authentication authentication,
             @PathVariable Long noteId) {
-        String userId = "dummy1"; // TODO: Authentication에서 userId 받기
+        String userId = getUserId(authentication);
         portfolioNoteService.deletePortfolioNote(userId, portfolioId, noteId);
         return ResponseEntity
                 .status(HttpStatus.NO_CONTENT)
                 .build();
     }
 
+
+    private String getUserId(Authentication authentication) {
+        User user = (User) authentication.getPrincipal();
+        UUID userId = usersRepository.findByEmail(user.getUsername()).orElseThrow().getId();
+        return userId.toString();
+    }
 }
