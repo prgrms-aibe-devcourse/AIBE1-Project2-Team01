@@ -9,24 +9,15 @@ import org.sunday.projectpop.exceptions.FileManagementException;
 import org.sunday.projectpop.exceptions.PortfolioNotFoundException;
 import org.sunday.projectpop.exceptions.UnauthorizedException;
 import org.sunday.projectpop.model.dto.*;
-import org.sunday.projectpop.model.entity.Portfolio;
-import org.sunday.projectpop.model.entity.PortfolioFile;
-import org.sunday.projectpop.model.entity.PortfolioSummary;
-import org.sunday.projectpop.model.entity.PortfolioUrl;
+import org.sunday.projectpop.model.entity.*;
 import org.sunday.projectpop.model.enums.AnalysisStatus;
-import org.sunday.projectpop.model.repository.PortfolioFileRepository;
-import org.sunday.projectpop.model.repository.PortfolioRepository;
-import org.sunday.projectpop.model.repository.PortfolioSummaryRepository;
-import org.sunday.projectpop.model.repository.PortfolioUrlRepository;
+import org.sunday.projectpop.model.repository.*;
 import org.sunday.projectpop.service.feedback.AnalysisService;
 import org.sunday.projectpop.service.upload.FileStorageService;
 
 import java.time.ZoneId;
 import java.time.format.DateTimeFormatter;
-import java.util.Collections;
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
@@ -40,16 +31,16 @@ public class PortfolioServiceImpl implements PortfolioService {
     private final PortfolioUrlRepository portfolioUrlRepository;
     private final AnalysisService analysisService;
     private final PortfolioSummaryRepository portfolioSummaryRepository;
+    private final UsersRepository usersRepository;
 
     @Override
     @Transactional
     public void createPortfolio(String userId, PortfolioRequest request) {
-        // TODO: userId 한번더 체크
-//        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
-//        () -> new UserNotFoundException("유저를 찾을 수 없습니다."));
+        Users userAccount = usersRepository.findById(UUID.fromString(userId)).orElseThrow(
+                () -> new RuntimeException("유저를 찾을 수 없습니다."));
 
         Portfolio portfolio = new Portfolio();
-//        portfolio.setUserId(userAccount.getUserId());
+        portfolio.setUserId(String.valueOf(userAccount.getId()));
         portfolio.setUserId(userId);
         portfolio.setPortfolioType(request.portfolioType());
         portfolio.setTitle(request.title());
@@ -91,11 +82,11 @@ public class PortfolioServiceImpl implements PortfolioService {
     @Override
     @Transactional(readOnly = true)
     public List<PortfolioSimple> getMyPortfolios(String userId) {
-        // TODO: userId 한번더 체크
-//        UserAccount userAccount = userAccountRepository.findByUserId(userId).orElseThrow(
-//        () -> new UserNotFoundException("유저를 찾을 수 없습니다."));
 
-//        portfolioRepository.findAllByUserId(userAccount.getUserId())
+        Users userAccount = usersRepository.findById(UUID.fromString(userId)).orElseThrow(
+                () -> new RuntimeException("유저를 찾을 수 없습니다."));
+
+        portfolioRepository.findAllByUserId(String.valueOf(userAccount.getId()));
         List<Portfolio> portfolios = portfolioRepository.findAllByUserIdOrderByCreatedAtDesc(userId);
         if (portfolios.isEmpty()) {
 //            throw new PortfolioNotFoundException("등록된 포트폴리오가 없습니다.");
