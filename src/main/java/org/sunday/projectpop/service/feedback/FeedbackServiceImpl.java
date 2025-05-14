@@ -45,6 +45,7 @@ public class FeedbackServiceImpl implements FeedbackService {
 
         PortfolioSummary summary = summaryRepository.findByPortfolio(portfolio);
 
+//        if (!summary.getStatus().equals(AnalysisStatus.SUMMARY_COMPLETED)) {
         if (!summary.getStatus().equals(AnalysisStatus.COMPLETED)) {
             log.info("요약이 완료되지 않았습니다.");
             return null;
@@ -115,6 +116,7 @@ public class FeedbackServiceImpl implements FeedbackService {
                 .doOnNext(result -> {
                     log.info("feedback = " + result);
                     feedback.setLlmFeedback(result);
+//                    feedback.setStatus(AnalysisStatus.FEEDBACK_COMPLETED);
                     feedback.setStatus(AnalysisStatus.COMPLETED);
                     portfolioFeedbackRepository.save(feedback); // 상태 업데이트
                 })
@@ -140,5 +142,14 @@ public class FeedbackServiceImpl implements FeedbackService {
         );
     }
 
+    @Override
+    public boolean checkSummaryStatus(String portfolioId) {
+        Portfolio portfolio = findById(portfolioId);
+//        if (portfolio.getSummary().getStatus().equals(AnalysisStatus.SUMMARY_COMPLETED)) {
+        if (portfolio.getSummary().getStatus().equals(AnalysisStatus.COMPLETED)) {
+            return true;
+        }
+        return false;
 
+    }
 }
