@@ -10,10 +10,10 @@
             theme: {
                 extend: {
                     colors: {
-                        primary: '#8B5CF6', // 프로젝트 공고 생성 페이지의 primary 색상
-                        secondary: '#A78BFA', // 프로젝트 공고 생성 페이지의 secondary 색상
+                        primary: '#a855f7',
+                        secondary: '#c084fc',
                         dashboardPrimary: '#A855F7', // 기존 대시보드 primary 색상 유지
-                        dashboardSecondary: '#8B5CF6' // 기존 대시보드 secondary 색상 유지
+                        dashboardSecondary: '#c084fc'
                     },
                     borderRadius: {
                         'button': '8px'
@@ -52,7 +52,7 @@
     <div class="flex min-h-screen">
         <!-- 사이드바 (화면 꽉 채우도록 수정됨) -->
         <aside class="w-64 bg-white shadow flex-shrink-0 border-r border-primary/10 min-h-screen">
-            <div class="p-6 font-bold text-xl text-primary font-['Pacifico']">PoP</div>
+<!--            <div class="p-6 font-bold text-xl text-primary font-['Pacifico']"></div>-->
             <nav class="mt-8">
                 <a href="/projects/onprojects/op01" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200">
                     <i class="ri-dashboard-line mr-3 text-lg"></i> 대시보드
@@ -163,20 +163,20 @@
     </main>
 </div>
 
-<!--<footer th:replace="fragments/footer :: footer">-->
-    <div class="w-full bg-gray-50 py-8 border-t border-gray-200">
-        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">
-            <div>
-                <a href="/" class="font-['Pacifico'] text-dashboardPrimary text-xl">PoP</a>
-                <p class="text-sm text-gray-600 mt-2">© 2025 PoP. 모든 권리 보유.</p>
-            </div>
-            <div class="flex space-x-6">
-                <a href="#" class="text-gray-600"><i class="ri-instagram-line"></i></a>
-                <a href="#" class="text-gray-600"><i class="ri-twitter-x-line"></i></a>
-                <a href="#" class="text-gray-600"><i class="ri-linkedin-line"></i></a>
-            </div>
-        </div>
-    </div>
+<footer th:replace="fragments/footer :: footer">
+<!--    <div class="w-full bg-gray-50 py-8 border-t border-gray-200">-->
+<!--        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">-->
+<!--            <div>-->
+<!--                <a href="/" class="font-['Pacifico'] text-dashboardPrimary text-xl">PoP</a>-->
+<!--                <p class="text-sm text-gray-600 mt-2">© 2025 PoP. 모든 권리 보유.</p>-->
+<!--            </div>-->
+<!--            <div class="flex space-x-6">-->
+<!--                <a href="#" class="text-gray-600"><i class="ri-instagram-line"></i></a>-->
+<!--                <a href="#" class="text-gray-600"><i class="ri-twitter-x-line"></i></a>-->
+<!--                <a href="#" class="text-gray-600"><i class="ri-linkedin-line"></i></a>-->
+<!--            </div>-->
+<!--        </div>-->
+<!--    </div>-->
 </footer>
 
 <script th:inline="javascript">
