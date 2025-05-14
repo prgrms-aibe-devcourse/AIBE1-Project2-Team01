@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org">
-
+<head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>프로젝트 대시보드</title>
@@ -12,7 +12,7 @@
                     colors: {
                         primary: '#a855f7',
                         secondary: '#c084fc',
-                        dashboardPrimary: '#A855F7', // 기존 대시보드 primary 색상 유지
+                        dashboardPrimary: '#A855F7',
                         dashboardSecondary: '#c084fc'
                     },
                     borderRadius: {
@@ -28,40 +28,55 @@
     <style>
         body {
             font-family: 'Noto Sans KR', sans-serif;
-            background-color: #F5F3FF; /* 프로젝트 공고 생성 페이지의 배경색 */
+            background-color: #F5F3FF;
         }
 
-        /* Remixicon 기본 스타일 재정의 (필요한 경우) */
         :where([class^="ri-"])::before {
-            content: var(--ri-content); /* Tailwind에서 content를 직접 설정하지 않으므로 이렇게 처리 */
+            content: var(--ri-content);
         }
 
-        /* Progress Bar 스타일 */
         .progress-bar {
             height: 8px;
             border-radius: 4px;
-            background: linear-gradient(to right, #A855F7, #8B5CF6); /* 기존 대시보드 색상 유지 */
+            background: linear-gradient(to right, #A855F7, #8B5CF6);
+        }
+
+        .modal {
+            opacity: 0;
+            visibility: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .modal.active {
+            opacity: 1;
+            visibility: visible;
+        }
+
+        .modal-content {
+            transform: translateY(-20px);
+            transition: all 0.3s ease;
+        }
+
+        .modal.active .modal-content {
+            transform: translateY(0);
         }
     </style>
 </head>
 
-    <body class="bg-[#F5F3FF] min-h-screen">
+<body class="bg-[#F5F3FF] min-h-screen">
+<header th:replace="fragments/header :: header"></header>
 
-    <header th:replace="fragments/header :: header"></header>
-
-    <div class="flex min-h-screen">
-        <!-- 사이드바 (화면 꽉 채우도록 수정됨) -->
-        <aside class="w-64 bg-white shadow flex-shrink-0 border-r border-primary/10 min-h-screen">
-<!--            <div class="p-6 font-bold text-xl text-primary font-['Pacifico']"></div>-->
-            <nav class="mt-8">
-                <a href="/projects/onprojects/op01" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200">
-                    <i class="ri-dashboard-line mr-3 text-lg"></i> 대시보드
-                </a>
-                <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200">
-                    <i class="ri-team-line mr-3 text-lg"></i> 팀 관리
-                </a>
-            </nav>
-        </aside>
+<div class="flex min-h-screen">
+    <aside class="w-64 bg-white shadow flex-shrink-0 border-r border-primary/10 min-h-screen">
+        <nav class="mt-8">
+            <a href="/projects/onprojects/op01" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200">
+                <i class="ri-dashboard-line mr-3 text-lg"></i> 대시보드
+            </a>
+            <a href="#" class="flex items-center px-6 py-3 text-gray-700 hover:bg-primary/5 hover:text-primary transition-colors duration-200">
+                <i class="ri-team-line mr-3 text-lg"></i> 팀 관리
+            </a>
+        </nav>
+    </aside>
 
     <main class="flex-1 p-8 space-y-10 overflow-y-auto bg-gray-100">
         <section class="bg-white p-6 rounded-2xl shadow-lg border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
@@ -89,26 +104,29 @@
             </div>
         </section>
 
-        <section class="bg-white p-6 rounded-2xl shadow-lg border border-primary/10 hover:shadow-xl hover:shadow-primary/5 transition-all duration-300">
-            <h2 class="font-bold text-xl text-primary bg-gradient-to-r from-dashboardPrimary to-dashboardSecondary bg-clip-text text-transparent mb-4">프로젝트 헬스 체크</h2>
+        <section class="bg-white p-6 rounded-2xl shadow-lg border border-[#DDD6FE] hover:shadow-xl hover:shadow-[#DDD6FE]/5 transition-all duration-300">
+            <h2 class="font-bold text-xl text-[#8B5CF6] mb-6">프로젝트 헬스 체크</h2>
             <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div class="p-4 bg-primary/5 rounded-lg border border-primary/10">
-                    <div class="flex items-center mb-2 text-green-600">
-                        <i class="ri-calendar-check-line mr-2" style="--ri-content: '\uf677';"></i> 일정 준수율
+                <div class="p-6 bg-white rounded-lg shadow-sm border border-[#E5E7EB]">
+                    <div class="flex items-center mb-3 text-green-600">
+                        <i class="ri-calendar-check-line ri-lg mr-2"></i>
+                        <span class="font-semibold">일정 준수율</span>
                     </div>
-                    <div class="text-2xl font-bold" th:text="${scheduleCompliance + '%'}">92%</div>
+                    <div class="text-3xl font-bold text-gray-800" th:text="${scheduleCompliance + '%'}">92%</div>
                 </div>
-                <div class="p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <div class="flex items-center mb-2 text-blue-600">
-                        <i class="ri-checkbox-circle-line mr-2" style="--ri-content: '\uf696';"></i> 작업 완료율
+                <div class="p-6 bg-white rounded-lg shadow-sm border border-[#E5E7EB]">
+                    <div class="flex items-center mb-3 text-blue-600">
+                        <i class="ri-checkbox-circle-line ri-lg mr-2"></i>
+                        <span class="font-semibold">작업 완료율</span>
                     </div>
-                    <div class="text-2xl font-bold" th:text="${projectProgress + '%'}">68%</div>
+                    <div class="text-3xl font-bold text-gray-800" th:text="${projectProgress + '%'}">68%</div>
                 </div>
-                <div class="p-4 bg-yellow-50 rounded-lg border border-yellow-100">
-                    <div class="flex items-center mb-2 text-yellow-600">
-                        <i class="ri-error-warning-line mr-2" style="--ri-content: '\uf62b';"></i> 리스크 현황
+                <div class="p-6 bg-white rounded-lg shadow-sm border border-[#E5E7EB]">
+                    <div class="flex items-center mb-3 text-yellow-600">
+                        <i class="ri-error-warning-line ri-lg mr-2"></i>
+                        <span class="font-semibold">리스크 현황</span>
                     </div>
-                    <div class="text-2xl font-bold" th:text="${riskStatus}">3</div>
+                    <div class="text-3xl font-bold text-gray-800" th:text="${riskStatus}">3</div>
                 </div>
             </div>
         </section>
@@ -140,7 +158,14 @@
                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500" th:text="${spec.updatedAt}">-</td>
                         <td class="px-4 py-2 whitespace-nowrap text-right text-sm font-medium">
                             <a th:href="@{/projects/onprojects/{projectId}/specs/edit/{specId}(projectId=${onGoingProjectId}, specId=${spec.id})}"
-                               class="text-yellow-600 hover:underline mr-2">수정</a>
+                               class="text-yellow-600 hover:underline mr-2 edit-spec-button"
+                               data-spec-id="${spec.id}">수정</a>
+
+                            <!-- 수정 모달 컨테이너 부분 수정 (기존 코드 위치 유지) -->
+                            <div id="editSpecificationModalContainer" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
+                                <div id="editSpecificationModalContent" class="modal-content relative bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-4">
+                                </div>
+                            </div>
                             <form th:action="@{/projects/onprojects/{projectId}/specs/delete/{specId}(projectId=${onGoingProjectId}, specId=${spec.id})}"
                                   method="post" class="inline">
                                 <button type="submit" onclick="return confirm('삭제하시겠습니까?')"
@@ -153,32 +178,66 @@
             </div>
 
             <div class="mt-6 flex justify-end">
-                <a th:href="@{/projects/onprojects/{projectId}/specs/new(projectId=${onGoingProjectId})}"
-                   class="px-6 py-3 bg-gradient-to-r from-dashboardPrimary to-dashboardSecondary text-white font-medium rounded-full shadow-md hover:shadow-lg hover:shadow-dashboardPrimary/20 focus:outline-none focus:ring-2 focus:ring-dashboardPrimary focus:ring-offset-2 transition-all duration-300 whitespace-nowrap text-sm">
+                <button id="openSpecModal"
+                        class="px-6 py-3 bg-gradient-to-r from-dashboardPrimary to-dashboardSecondary text-white font-medium rounded-full shadow-md hover:shadow-lg hover:shadow-dashboardPrimary/20 focus:outline-none focus:ring-2 focus:ring-dashboardPrimary focus:ring-offset-2 transition-all duration-300 whitespace-nowrap text-sm">
                     명세서 작성
-                </a>
+                </button>
             </div>
         </section>
-
     </main>
 </div>
 
-<footer th:replace="fragments/footer :: footer">
-<!--    <div class="w-full bg-gray-50 py-8 border-t border-gray-200">-->
-<!--        <div class="max-w-6xl mx-auto px-4 flex justify-between items-center">-->
-<!--            <div>-->
-<!--                <a href="/" class="font-['Pacifico'] text-dashboardPrimary text-xl">PoP</a>-->
-<!--                <p class="text-sm text-gray-600 mt-2">© 2025 PoP. 모든 권리 보유.</p>-->
-<!--            </div>-->
-<!--            <div class="flex space-x-6">-->
-<!--                <a href="#" class="text-gray-600"><i class="ri-instagram-line"></i></a>-->
-<!--                <a href="#" class="text-gray-600"><i class="ri-twitter-x-line"></i></a>-->
-<!--                <a href="#" class="text-gray-600"><i class="ri-linkedin-line"></i></a>-->
-<!--            </div>-->
-<!--        </div>-->
-<!--    </div>-->
-</footer>
+<div id="specModal" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4">
+    <div class="modal-content relative max-w-xl w-full bg-white rounded-2xl shadow-xl p-8 space-y-6">
+        <div class="flex justify-between items-center">
+            <h2 class="text-2xl font-bold bg-gradient-to-r from-dashboardPrimary to-dashboardSecondary bg-clip-text text-transparent font-['Pacifico']">
+                명세서 추가
+            </h2>
+            <button id="closeSpecModal" class="text-gray-500 hover:text-gray-700">
+                <i class="ri-close-line text-2xl"></i>
+            </button>
+        </div>
 
+        <form th:action="@{/projects/onprojects/{projectId}/specs/add(projectId=${onGoingProjectId})}"
+              method="post" class="space-y-4">
+            <div>
+                <label for="requirement" class="block text-sm font-medium text-gray-700">요구사항</label>
+                <textarea id="requirement" name="requirement" rows="3"
+                          class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm"></textarea>
+            </div>
+            <div>
+                <label for="assignee" class="block text-sm font-medium text-gray-700">담당자</label>
+                <input type="text" id="assignee" name="assignee"
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm" required>
+            </div>
+            <div>
+                <label for="status" class="block text-sm font-medium text-gray-700">상태</label>
+                <select id="status" name="status"
+                        class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm">
+                    <option value="onGoing">진행중</option>
+                    <option value="completed">완료</option>
+                    <option value="waiting">대기</option>
+                </select>
+            </div>
+            <div>
+                <label for="dueDate" class="block text-sm font-medium text-gray-700">마감일</label>
+                <input type="date" id="dueDate" name="dueDate"
+                       class="mt-1 block w-full rounded-lg border-gray-300 shadow-sm focus:ring-primary focus:border-primary text-sm" required>
+            </div>
+            <div class="pt-4 flex justify-end space-x-3">
+                <button type="button" id="cancelSpecModal" class="px-4 py-2 bg-white text-gray-700 border border-gray-300 rounded-lg hover:bg-gray-50 text-sm">취소</button>
+                <button type="submit"
+                        class="px-4 py-2 bg-gradient-to-r from-dashboardPrimary to-dashboardSecondary text-white font-medium rounded-lg shadow hover:shadow-lg text-sm focus:outline-none focus:ring-2 focus:ring-dashboardPrimary focus:ring-offset-2">
+                    저장
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<footer th:replace="fragments/footer :: footer"></footer>
+
+<!-- 수정된 script 부분 -->
 <script th:inline="javascript">
     const memberContributions = /*[[${memberContributions}]]*/ [];
     const memberNames = memberContributions.map(m => m.memberName);
@@ -187,6 +246,7 @@
 
     // 파이 차트
     const pieChart = echarts.init(document.getElementById('contribution-pie'));
+    const pieChartColors = ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)'];
     pieChart.setOption({
         tooltip: { trigger: 'item' },
         legend: { top: 'top' },
@@ -195,17 +255,20 @@
             type: 'pie',
             radius: '60%',
             data: memberNames.map((name, i) => ({
-                value: contributionRates[i], name
+                value: contributionRates[i],
+                name,
+                itemStyle: {
+                    color: pieChartColors[i % pieChartColors.length]
+                }
             })),
-            itemStyle: { // test.html의 파스텔톤 색상 적용
+            itemStyle: {
                 normal: {
                     color: function(params) {
-                        const colorList = ['rgba(255, 99, 132, 0.8)', 'rgba(54, 162, 235, 0.8)', 'rgba(255, 206, 86, 0.8)', 'rgba(75, 192, 192, 0.8)', 'rgba(153, 102, 255, 0.8)'];
-                        return colorList[params.dataIndex % colorList.length];
+                        return pieChartColors[params.dataIndex % pieChartColors.length];
                     }
                 }
             },
-            label: { // test.html과 유사하게 label 설정 (선택 사항)
+            label: {
                 formatter: '{b}: {c}%',
                 color: '#333'
             }
@@ -218,11 +281,15 @@
         xAxis: { type: 'category', data: memberNames },
         yAxis: { type: 'value' },
         series: [{
-            data: completedTasks,
+            data: completedTasks.map((value, index) => ({
+                value: value,
+                itemStyle: {
+                    color: pieChartColors[index % pieChartColors.length]
+                }
+            })),
             type: 'bar',
-            itemStyle: { color: '#A855F7' } // 기존 대시보드 primary 색상 유지
         }],
-        grid: { // 막대가 길어져도 잘리지 않도록 조정
+        grid: {
             left: '3%',
             right: '4%',
             bottom: '10%',
@@ -234,8 +301,129 @@
     const max = Math.max(...completedTasks);
     const tops = memberContributions.filter(m => m.completedTasks === max).map(m => m.memberName);
     document.getElementById('top-contributor').textContent = tops.length > 1 ? tops.join(', ') : tops[0] || 'None';
+
+    // 모달 관련 스크립트
+    document.addEventListener('DOMContentLoaded', function() {
+        const modal = document.getElementById('specModal'); // 명세서 추가 모달
+        const openButton = document.getElementById('openSpecModal');
+        const closeButton = document.getElementById('closeSpecModal');
+        const cancelButton = document.getElementById('cancelSpecModal');
+        const editButtons = document.querySelectorAll('.edit-spec-button');
+        const editModalContainer = document.getElementById('editSpecificationModalContainer'); // 수정 모달 컨테이너
+        const editModalContent = document.getElementById('editSpecificationModalContent');
+
+        // 명세서 추가 모달 열기/닫기
+        openButton.addEventListener('click', function() {
+            modal.classList.add('active');
+            document.body.style.overflow = 'hidden';
+        });
+        closeButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        cancelButton.addEventListener('click', function() {
+            modal.classList.remove('active');
+            document.body.style.overflow = '';
+        });
+        modal.addEventListener('click', function(e) {
+            if (e.target === modal) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && modal.classList.contains('active')) {
+                modal.classList.remove('active');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // 명세서 수정 모달 열기 및 처리
+        editButtons.forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('href');
+
+                fetch(url)
+                    .then(response => response.text())
+                    .then(html => {
+                        // DOM Parser를 사용해 HTML 응답 파싱
+                        const parser = new DOMParser();
+                        const doc = parser.parseFromString(html, 'text/html');
+
+                        // 폼 요소 추출
+                        const modalContent = doc.querySelector('#editSpecificationModal .relative');
+                        if (modalContent) {
+                            // 내용만 가져오기
+                            editModalContent.innerHTML = modalContent.innerHTML;
+                        } else {
+                            // 폼을 찾을 수 없는 경우 전체 HTML 사용
+                            editModalContent.innerHTML = html;
+                        }
+
+                        editModalContainer.classList.remove('hidden');
+                        editModalContainer.classList.add('active');
+                        document.body.style.overflow = 'hidden';
+
+                        // 수정 모달 내 폼 처리
+                        const form = editModalContent.querySelector('form');
+                        if (form) {
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+
+                                fetch(form.action, {
+                                    method: form.method,
+                                    body: new FormData(form),
+                                    headers: {
+                                        'X-Requested-With': 'XMLHttpRequest'
+                                    }
+                                }).then(response => {
+                                    if (response.ok) {
+                                        // 성공 시 페이지 새로고침
+                                        window.location.reload();
+                                    } else {
+                                        console.error('명세서 수정 실패');
+                                    }
+                                }).catch(error => {
+                                    console.error('명세서 수정 오류:', error);
+                                });
+                            });
+                        }
+
+                        // 수정 모달 내 취소 버튼 처리
+                        const cancelBtn = editModalContent.querySelector('button[type="button"]');
+                        if (cancelBtn) {
+                            cancelBtn.addEventListener('click', function() {
+                                editModalContainer.classList.remove('active');
+                                editModalContainer.classList.add('hidden');
+                                document.body.style.overflow = '';
+                            });
+                        }
+                    })
+                    .catch(error => {
+                        console.error('명세서 수정 페이지를 불러오는 데 실패했습니다:', error);
+                    });
+            });
+        });
+
+        // 수정 모달 외부 클릭 시 닫기
+        editModalContainer.addEventListener('click', function(event) {
+            if (event.target === editModalContainer) {
+                editModalContainer.classList.remove('active');
+                editModalContainer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
+
+        // 수정 모달 ESC 키로 닫기
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape' && editModalContainer.classList.contains('active')) {
+                editModalContainer.classList.remove('active');
+                editModalContainer.classList.add('hidden');
+                document.body.style.overflow = '';
+            }
+        });
+    });
 </script>
-
 </body>
-
 </html>
