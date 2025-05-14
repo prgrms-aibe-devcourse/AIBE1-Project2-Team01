@@ -155,6 +155,7 @@
 
                 // 상태 상수
                 const FEEDBACK_STATUS = {
+                    NOT_STARTED: 'NOT_STARTED',
                     PROCESSING: 'FEEDBACK_IN_PROCESSING',
                     COMPLETED: 'COMPLETED',
                     FAILED: 'FAILED'
@@ -247,6 +248,19 @@
 
                     try {
                         feedbackBtn.disabled = true;
+                        feedbackBtn.textContent = '요약 확인 중...';
+
+                        // 1. 요약 상태 확인
+                        const isSummarized = await checkSummary(portfolioId);
+                        if (!isSummarized) {
+                            alert('요약 미완료. 잠시 후 다시 시도해주세요.');
+                            feedbackBtn.disabled = false;
+                            feedbackBtn.textContent = 'AI 피드백 요청하기';
+                            return;
+                        }
+
+                        // 2. 피드백 요청
+                        feedbackBtn.disabled = true;
                         feedbackBtn.textContent = '요청 중...';
 
                         const feedback = await createFeedbackRequest(noteId);
@@ -259,7 +273,15 @@
                         console.error('Error requesting feedback:', error);
                         feedbackBtn.disabled = false;
                         feedbackBtn.textContent = 'AI 피드백 요청하기';
+                        console.log('피드백 요청 중 오류가 발생했습니다: ' + error.message);
                     }
+                }
+
+                // 요약 상태 확인 API 호출
+                async function checkSummary(portfolioId) {
+                    const response = await fetch(`/api/feedback/${portfolioId}/summary-status`);
+                    const data = await response.json();
+                    return data.isSummarized;
                 }
 
                 // 피드백 생성 API 호출
@@ -280,13 +302,21 @@
                                 startFeedbackPolling(noteId, feedback.id);
                             }
                         } else {
-                            // 피드백이 없는 경우 UI 업데이트
-                            updateFeedbackUI(noteId, {feedbackStatus: null});
+                            // 피드백이 없는 경우 NOT_STARTED 상태로 UI 업데이트
+                            updateFeedbackUI(noteId, {
+                                id: null,
+                                feedbackStatus: FEEDBACK_STATUS.NOT_STARTED,
+                                llmFeedback: null
+                            });
                         }
                     } catch (error) {
                         console.error('Error checking existing feedback:', error);
                         // 오류 발생 시도 UI 업데이트
-                        updateFeedbackUI(noteId, {feedbackStatus: null});
+                        updateFeedbackUI(noteId, {
+                            id: null,
+                            feedbackStatus: FEEDBACK_STATUS.NOT_STARTED,
+                            llmFeedback: null
+                        });
                     }
                 }
 
@@ -416,6 +446,15 @@
                             feedbackBtn.disabled = false;
                             feedbackBtn.textContent = '다시 시도하기';
                             break;
+
+                        // case FEEDBACK_STATUS.NOT_SUMMARIZED:
+                        //     statusIndicator.className = 'inline-block w-3 h-3 rounded-full mr-2 bg-gray-500';
+                        //     statusText.textContent = '요약 필요';
+                        //     feedbackContent.classList.add('hidden');
+                        //     feedbackBtn.classList.remove('hidden');
+                        //     feedbackBtn.disabled = false;
+                        //     feedbackBtn.textContent = '요약 완료 후 시도';
+                        //     break;
 
                         default:
                             // 피드백이 없는 경우

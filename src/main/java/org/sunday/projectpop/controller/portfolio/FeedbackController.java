@@ -7,7 +7,9 @@ import org.springframework.web.bind.annotation.*;
 import org.sunday.projectpop.model.dto.FeedbackResponse;
 import org.sunday.projectpop.service.feedback.FeedbackService;
 
+import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/feedback")
@@ -15,6 +17,14 @@ import java.util.List;
 public class FeedbackController {
 
     private final FeedbackService feedbackService;
+
+    // 포트폴리오 요약 확인
+    @GetMapping("/{portfolioId}/summary-status")
+    public ResponseEntity<Map<String, Boolean>> getSummaryStatus(@PathVariable String portfolioId) {
+        boolean isSummarized = feedbackService.checkSummaryStatus(portfolioId);
+        return ResponseEntity.ok(Collections.singletonMap("isSummarized", isSummarized));
+    }
+
 
     // 피드백 생성 요청
     @PostMapping("/request/{portfolioId}/{noteId}")

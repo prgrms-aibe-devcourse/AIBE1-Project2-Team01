@@ -13,4 +13,6 @@ public interface FeedbackService {
     FeedbackResponse getFeedback(Long feedbackId);
 
     FeedbackResponse getLatestFeedback(String portfolioId, Long noteId);
+
+    boolean checkSummaryStatus(String portfolioId);
 }

@@ -123,6 +123,7 @@ public class AnalysisService {
     private void completeAnalysis(PortfolioSummary summary, String finalSummary) {
         updateAnalysisStatus(
                 summary.getId(),
+//                AnalysisStatus.SUMMARY_COMPLETED,
                 AnalysisStatus.COMPLETED,
                 s -> s.setFinalSummary(finalSummary)
         );
@@ -238,6 +239,7 @@ public class AnalysisService {
      */
     private boolean shouldRestartAnalysis(PortfolioSummary summary, Instant lastUpdate) {
         return summary != null
+//                && summary.getStatus() == AnalysisStatus.SUMMARY_COMPLETED
                 && summary.getStatus() == AnalysisStatus.COMPLETED
                 && lastUpdate.isAfter(summary.getCreatedAt().toInstant());
     }
