@@ -137,10 +137,14 @@
                 <table class="min-w-full table-auto border border-gray-300 rounded-lg">
                     <thead class="bg-gray-50">
                     <tr>
-                        <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">ID</th>
                         <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">요구사항</th>
                         <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">담당자</th>
-                        <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">상태</th>
+                        <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                            <a th:href="@{/projects/onprojects/{projectId}(projectId=${onGoingProjectId}, sortField='status', sortDir=${sortDir == 'asc' ? 'desc' : 'asc'})}"
+                               class="text-gray-500 hover:underline">
+                                상태 <i class="ri-sort-line align-bottom"></i>
+                            </a>
+                        </th>
                         <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">마감일</th>
                         <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">생성일</th>
                         <th class="px-4 py-3 border-b text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">수정일</th>
@@ -149,7 +153,6 @@
                     </thead>
                     <tbody class="bg-white divide-y divide-gray-200">
                     <tr th:each="spec : ${specList}" class="hover:bg-gray-50 transition-colors duration-200">
-                        <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-500" th:text="${spec.id}">1</td>
                         <td class="px-4 py-2 whitespace-normal text-sm text-gray-900" th:text="${spec.requirement}">요구사항</td>
                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.assignee}">담당자</td>
                         <td class="px-4 py-2 whitespace-nowrap text-sm text-gray-900" th:text="${spec.status}">상태</td>
@@ -160,8 +163,6 @@
                             <a th:href="@{/projects/onprojects/{projectId}/specs/edit/{specId}(projectId=${onGoingProjectId}, specId=${spec.id})}"
                                class="text-yellow-600 hover:underline mr-2 edit-spec-button"
                                data-spec-id="${spec.id}">수정</a>
-
-                            <!-- 수정 모달 컨테이너 부분 수정 (기존 코드 위치 유지) -->
                             <div id="editSpecificationModalContainer" class="modal fixed inset-0 bg-black bg-opacity-50 z-50 flex justify-center items-center hidden">
                                 <div id="editSpecificationModalContent" class="modal-content relative bg-white rounded-2xl shadow-xl max-w-xl w-full p-6 space-y-4">
                                 </div>
