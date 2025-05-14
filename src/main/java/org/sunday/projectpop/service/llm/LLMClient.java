@@ -52,7 +52,8 @@ public class LLMClient {
     public Mono<String> feedback(String content, String type) {
         return createWebClient()
                 .post()
-                .uri(":generateContent?key=%s".formatted(apiKey))
+//                .uri(":generateContent?key=%s".formatted(apiKey))
+                .uri("?key=%s".formatted(apiKey))
                 .bodyValue(buildFeedbackPrompt(content, type))
                 .retrieve()
                 .bodyToMono(GeminiResponse.class)
@@ -136,7 +137,8 @@ public class LLMClient {
     public Mono<String> summarize(String content, String type) {
         return createWebClient()
                 .post()
-                .uri(":generateContent?key=%s".formatted(apiKey))
+                .uri("?key=%s".formatted(apiKey))
+//                .uri(":generateContent?key=%s".formatted(apiKey))
                 .bodyValue(buildSummaryPrompt(content, type))
                 .retrieve()
                 .bodyToMono(GeminiResponse.class)

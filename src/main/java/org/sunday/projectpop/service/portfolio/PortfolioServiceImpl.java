@@ -179,7 +179,7 @@ public class PortfolioServiceImpl implements PortfolioService {
         } catch (Exception e) {
             throw new RuntimeException(e);
         }
-        deletePortfolioUrls(request.deleteUrlIds());
+        deletePortfolioUrls(request.deleteUrlIds(), portfolio);
 
         // 파일 업로드
         if (request.files() != null) {
@@ -218,11 +218,17 @@ public class PortfolioServiceImpl implements PortfolioService {
 
     }
 
-    private void deletePortfolioUrls(List<Long> urlIds) {
+    private void deletePortfolioUrls(List<Long> urlIds, Portfolio portfolio) {
         if (urlIds == null || urlIds.isEmpty()) return;
 
-        List<PortfolioUrl> urls = portfolioUrlRepository.findAllByPortfolioUrlIdIn(urlIds);
-        portfolioUrlRepository.deleteAll(urls);
+        // 1. 삭제 대상 URL 조회
+        List<PortfolioUrl> urlsToDelete = portfolioUrlRepository.findAllByPortfolioUrlIdIn(urlIds);
+
+        // 2. 포트폴리오의 연관된 URL 컬렉션에서 제거
+        portfolio.getUrls().removeIf(urlsToDelete::contains);
+
+        // 3. DB에서 삭제
+        portfolioUrlRepository.deleteAll(urlsToDelete);
     }
 
     private void deletePortfolioFiles(List<Long> fileIds) throws Exception {
