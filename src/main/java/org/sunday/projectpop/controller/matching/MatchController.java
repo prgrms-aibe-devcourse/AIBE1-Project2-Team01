@@ -100,7 +100,7 @@ public class MatchController {
         Set<String> userIds = redisTagService.getRequireMatching(tagIds);
 
         // 4) 리더의 trait → leaderKey
-        Project project = projectRepository.findById(projectId).orElseThrow();
+        Project project = projectRepository.findById("p001").orElseThrow();
         String leaderId = project.getLeader().getUserId();
         UserTrait trait = userTraitRepository.findById(leaderId).orElseThrow();
         String leaderKey = compatibilityService.makeLeaderOceanKey(trait);
